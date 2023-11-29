@@ -2,6 +2,12 @@
 <project version="4">
   <component name="deploymentTargetDropDown">
     <value>
+      <entry key="ChatBubblePreview">
+        <State />
+      </entry>
+      <entry key="FirstPureTextPiecePreview">
+        <State />
+      </entry>
       <entry key="StudentAvatarPreview">
         <State />
       </entry>
