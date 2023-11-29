@@ -1,7 +1,6 @@
 package com.eynnzerr.yuukatalk
 
 import androidx.compose.animation.AnimatedVisibilityScope
-import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -10,6 +9,7 @@ import androidx.compose.foundation.background
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDeepLink
@@ -19,6 +19,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.eynnzerr.yuukatalk.ui.common.Destinations
 import com.eynnzerr.yuukatalk.ui.page.home.HomePage
+import com.eynnzerr.yuukatalk.ui.page.talk.TalkPage
+import com.eynnzerr.yuukatalk.ui.page.talk.TalkViewModel
 import com.eynnzerr.yuukatalk.ui.theme.YuukaTalkTheme
 
 @Composable
@@ -38,13 +40,14 @@ private fun AppNavGraph() {
         startDestination = startDestination,
     ) {
         animatedComposable(Destinations.HOME_ROUTE) {
-            HomePage()
+            HomePage(appNavController)
         }
         animatedComposable(Destinations.HISTORY_ROUTE) {
 
         }
         animatedComposable(Destinations.TALK_ROUTE) {
-
+            val talkViewModel = hiltViewModel<TalkViewModel>()
+            TalkPage(talkViewModel)
         }
     }
 }
