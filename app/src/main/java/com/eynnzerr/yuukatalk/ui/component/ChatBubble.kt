@@ -5,6 +5,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
@@ -23,7 +24,8 @@ import com.eynnzerr.yuukatalk.ui.theme.YuukaTalkTheme
 fun ChatBubble(
     text: String,
     isMyMessage: Boolean,
-    showArrow: Boolean
+    showArrow: Boolean,
+    modifier: Modifier = Modifier,
 ) {
     val bubbleColor = if (isMyMessage) {
         MaterialTheme.colorScheme.primary
@@ -31,45 +33,50 @@ fun ChatBubble(
         MaterialTheme.colorScheme.secondary
     }
 
-    Box(
-        modifier = Modifier
-            .wrapContentSize()
-            .drawBehind {
-                val cornerRadius = 8.dp.toPx()
-                val triangleWidth = 8.dp.toPx()
-                val triangleHeight = 12.dp.toPx()
-                val triangleOffset = 8.dp.toPx()
+    Column(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Box(
+            modifier = modifier
+                .align(if (isMyMessage) Alignment.End else Alignment.Start)
+                .wrapContentSize()
+                .drawBehind {
+                    val cornerRadius = 8.dp.toPx()
+                    val triangleWidth = 8.dp.toPx()
+                    val triangleHeight = 12.dp.toPx()
+                    val triangleOffset = 8.dp.toPx()
 
-                if (showArrow) {
-                    val triangleStartX =
-                        if (isMyMessage) size.width - triangleWidth else triangleWidth
-                    val triangleStartY = triangleOffset
-                    val triangleEndX = if (isMyMessage) size.width else 0f
-                    val triangleEndY = triangleOffset + triangleHeight
+                    if (showArrow || isMyMessage) {
+                        val triangleStartX =
+                            if (isMyMessage) size.width - triangleWidth else triangleWidth
+                        val triangleStartY = triangleOffset
+                        val triangleEndX = if (isMyMessage) size.width else 0f
+                        val triangleEndY = triangleOffset + triangleHeight
 
-                    drawTriangle(
-                        start = Offset(triangleStartX, triangleStartY),
-                        end = Offset(triangleEndX, triangleEndY),
-                        color = bubbleColor
+                        drawTriangle(
+                            start = Offset(triangleStartX, triangleStartY),
+                            end = Offset(triangleEndX, triangleEndY),
+                            color = bubbleColor
+                        )
+                    }
+
+                    drawRoundRect(
+                        color = bubbleColor,
+                        topLeft = Offset(triangleWidth, 0f),
+                        size = Size(size.width - triangleWidth * 2, size.height),
+                        cornerRadius = CornerRadius(cornerRadius, cornerRadius),
                     )
                 }
-
-                drawRoundRect(
-                    color = bubbleColor,
-                    topLeft = Offset(triangleWidth, 0f),
-                    size = Size(size.width - triangleWidth * 2, size.height),
-                    cornerRadius = CornerRadius(cornerRadius, cornerRadius),
-                )
-            }
-            .clip(RoundedCornerShape(16.dp))
-            .padding(4.dp)
-    ) {
-        Text(
-            text = text,
-            color = Color.White,
-            fontSize = 16.sp,
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
-        )
+                .clip(RoundedCornerShape(16.dp))
+                .padding(4.dp)
+        ) {
+            Text(
+                text = text,
+                color = Color.White,
+                fontSize = 16.sp,
+                modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
+            )
+        }
     }
 }
 
@@ -104,25 +111,29 @@ fun ChatBubblePreview() {
             ChatBubble(
                 text = "Hello, this is a chat bubble with a triangular arrow on the left. hahaha!",
                 isMyMessage = true,
-                showArrow = true
+                showArrow = true,
+                modifier = Modifier.padding(vertical = 8.dp)
             )
 
             ChatBubble(
                 text = "Can you see me?",
                 isMyMessage = true,
-                showArrow = false
+                showArrow = false,
+                modifier = Modifier.padding(vertical = 8.dp)
             )
 
             ChatBubble(
                 text = "sure.",
                 isMyMessage = false,
-                showArrow = true
+                showArrow = true,
+                modifier = Modifier.padding(vertical = 8.dp)
             )
 
             ChatBubble(
                 text = "And this is a chat bubble for an incoming message with a triangular arrow on the right.",
                 isMyMessage = false,
-                showArrow = false
+                showArrow = false,
+                modifier = Modifier.padding(vertical = 8.dp)
             )
         }
     }

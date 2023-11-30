@@ -294,7 +294,8 @@ fun TalkPage(viewModel: TalkViewModel) {
                         }
                     },
                     modifier = Modifier
-                        .padding(scaffoldPadding),
+                        .padding(scaffoldPadding)
+                        .padding(16.dp),
                     update = { view ->
                         if (saveTalk) {
                             scope.launch(Dispatchers.Main) {

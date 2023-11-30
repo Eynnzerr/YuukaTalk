@@ -8,7 +8,9 @@ sealed class Talk {
     ): Talk()
 
     class Photo(
-        val uri: String
+        val talker: Character,
+        val uri: String,
+        var isFirst: Boolean,
     ): Talk()
 
     class Narration(
