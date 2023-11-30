@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 
 data class TalkUiState(
+    val chatName: String,
     val text: String,
     val talkList: List<Talk>,
     val studentList: List<Character>,
@@ -31,34 +32,10 @@ class TalkViewModel @Inject constructor(
             school = "Abydos",
             avatarPath = "file:///android_asset/shiroko/emoji_0.png",
         ),
-        Character(
-            name = "Shiroko2",
-            school = "Abydos",
-            avatarPath = "file:///android_asset/shiroko/emoji_0.png",
-        ),
-        Character(
-            name = "Shiroko3",
-            school = "Abydos",
-            avatarPath = "file:///android_asset/shiroko/emoji_0.png",
-        ),
-        Character(
-            name = "Shiroko4",
-            school = "Abydos",
-            avatarPath = "file:///android_asset/shiroko/emoji_0.png",
-        ),
-        Character(
-            name = "Shiroko5",
-            school = "Abydos",
-            avatarPath = "file:///android_asset/shiroko/emoji_0.png",
-        ),
-        Character(
-            name = "Shiroko6",
-            school = "Abydos",
-            avatarPath = "file:///android_asset/shiroko/emoji_0.png",
-        ),
     )
     private val _uiState = MutableStateFlow(
         TalkUiState(
+            chatName = "MomoTalk",
             text = "",
             talkList = talkList,
             studentList = studentList,
@@ -83,7 +60,6 @@ class TalkViewModel @Inject constructor(
 
         _uiState.update {
             it.copy(
-                talkList = talkList,
                 text = "",
                 isFirstTalking = false
             )
@@ -100,7 +76,6 @@ class TalkViewModel @Inject constructor(
 
         _uiState.update {
             it.copy(
-                talkList = talkList,
                 isFirstTalking = false
             )
         }
@@ -113,4 +88,8 @@ class TalkViewModel @Inject constructor(
     fun selectStudent(student: Character) {
         _uiState.update { it.copy(currentStudent = student, isFirstTalking = true) }
     }
+
+    fun addStudent(student: Character) = studentList.add(student)
+
+    fun removeStudent(student: Character) = studentList.remove(student)
 }

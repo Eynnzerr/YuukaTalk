@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FormatListBulleted
 import androidx.compose.material.icons.filled.GraphicEq
@@ -28,13 +29,13 @@ import androidx.compose.material.icons.filled.InsertEmoticon
 import androidx.compose.material.icons.filled.MenuOpen
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.outlined.AddCircleOutline
-import androidx.compose.material.icons.outlined.DoneAll
-import androidx.compose.material.icons.outlined.HelpOutline
+import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material.icons.outlined.FileDownload
 import androidx.compose.material.icons.outlined.Image
+import androidx.compose.material.icons.outlined.SaveAs
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.BottomAppBarDefaults
 import androidx.compose.material3.BottomSheetDefaults
-import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -160,7 +161,7 @@ fun TalkPage(viewModel: TalkViewModel) {
                 ) {
                     CenterAlignedTopAppBar(
                         title = {
-                            Text(text = "MomoTalk")
+                            Text(text = uiState.chatName)
                         },
                         navigationIcon = {
                             IconButton(
@@ -177,8 +178,14 @@ fun TalkPage(viewModel: TalkViewModel) {
                         actions = {
                             IconButton(onClick = { /*TODO*/ }) {
                                 Icon(
-                                    imageVector = Icons.Outlined.HelpOutline,
-                                    contentDescription = "help"
+                                    imageVector = Icons.Outlined.SaveAs,
+                                    contentDescription = "save as project"
+                                )
+                            }
+                            IconButton(onClick = { saveTalk = true }) {
+                                Icon(
+                                    imageVector = Icons.Outlined.FileDownload,
+                                    contentDescription = "export as picture"
                                 )
                             }
                         },
@@ -188,13 +195,12 @@ fun TalkPage(viewModel: TalkViewModel) {
             floatingActionButton = {
                 FloatingActionButton(
                     onClick = {
-                        /*TODO open toolbox*/
-                        saveTalk = true
+
                     }
                 ) {
                     Icon(
-                        imageVector = Icons.Outlined.DoneAll,
-                        contentDescription = "done"
+                        imageVector = Icons.Filled.Edit,
+                        contentDescription = "enter edit mode"
                     )
                 }
             },
@@ -362,7 +368,6 @@ fun TalkPage(viewModel: TalkViewModel) {
                         size = 48.dp,
                         onClick = {
                             viewModel.selectStudent(it)
-
                         }
                     )
                 }
