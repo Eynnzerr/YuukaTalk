@@ -3,6 +3,8 @@ package com.eynnzerr.yuukatalk.ui.page.talk
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
@@ -88,6 +90,14 @@ fun TalkPage(viewModel: TalkViewModel) {
     // Native RecyclerView adapter
     val talkAdapter = remember {
         TalkAdapter(uiState.talkList)
+    }
+
+    // ActivityResultContract
+    val selectPicture = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+        uri.let {
+            viewModel.sendPhoto(it.toString())
+            talkAdapter.notifyAppendItem()
+        }
     }
     
     // static ui data
@@ -217,7 +227,9 @@ fun TalkPage(viewModel: TalkViewModel) {
                             }
 
                             IconButton(
-                                onClick = { /*TODO*/ },
+                                onClick = {
+                                    selectPicture.launch("image/*")
+                                },
                                 modifier = Modifier.size(32.dp)
                             ) {
                                 Icon(
@@ -246,7 +258,7 @@ fun TalkPage(viewModel: TalkViewModel) {
                                 onClick = {
                                     if (uiState.text != "") {
                                         viewModel.sendPureText()
-                                        talkAdapter.notifyAppendItem()
+                                        talkAdapter.notifyAppendItem() // TODO 从手动调用改为监听flow
                                     }
                                 },
                                 containerColor = BottomAppBarDefaults.bottomAppBarFabColor,
@@ -286,6 +298,8 @@ fun TalkPage(viewModel: TalkViewModel) {
                                 ViewGroup.LayoutParams.MATCH_PARENT,
                                 ViewGroup.LayoutParams.WRAP_CONTENT
                             )
+                            // setPadding(32, 16, 32, 16)
+
                             layoutManager = LinearLayoutManager(context)
                             adapter = talkAdapter
 
