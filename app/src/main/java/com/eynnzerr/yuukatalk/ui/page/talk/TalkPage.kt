@@ -10,6 +10,8 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -31,6 +33,8 @@ import androidx.compose.material.icons.outlined.HelpOutline
 import androidx.compose.material.icons.outlined.Image
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.BottomAppBarDefaults
+import androidx.compose.material3.BottomSheetDefaults
+import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -40,19 +44,23 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -72,7 +80,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun TalkPage(viewModel: TalkViewModel) {
 
@@ -86,6 +94,10 @@ fun TalkPage(viewModel: TalkViewModel) {
     // component states
     val talkListState = rememberLazyListState()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    var openBottomSheet by rememberSaveable { mutableStateOf(false) }
+    val bottomSheetState = rememberModalBottomSheetState(
+        skipPartiallyExpanded = false
+    )
 
     // Native RecyclerView adapter
     val talkAdapter = remember {
@@ -94,7 +106,7 @@ fun TalkPage(viewModel: TalkViewModel) {
 
     // ActivityResultContract
     val selectPicture = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
-        uri.let {
+        uri?.let {
             viewModel.sendPhoto(it.toString())
             talkAdapter.notifyAppendItem()
         }
@@ -210,7 +222,7 @@ fun TalkPage(viewModel: TalkViewModel) {
                                 url = uiState.currentStudent.avatarPath,
                                 size = 48.dp,
                                 withBorder = true,
-                                onClick = { /*TODO Open Student Selection*/ },
+                                onClick = { openBottomSheet = true },
                             )
 
                             IconButton(
@@ -324,6 +336,37 @@ fun TalkPage(viewModel: TalkViewModel) {
                         }
                     }
                 )
+        }
+    }
+
+    if (openBottomSheet) {
+        ModalBottomSheet(
+            onDismissRequest = { openBottomSheet = false },
+            sheetState = bottomSheetState,
+            windowInsets = BottomSheetDefaults.windowInsets
+        ) {
+            FlowRow(
+                Modifier
+                    .padding(16.dp)
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(
+                    space = 16.dp,
+                    alignment = Alignment.Start
+                )
+            ) {
+                uiState.studentList.forEach {
+                    StudentAvatar(
+                        modifier = Modifier.padding(bottom = 8.dp),
+                        url = it.avatarPath,
+                        isSelected = uiState.currentStudent == it,
+                        size = 48.dp,
+                        onClick = {
+                            viewModel.selectStudent(it)
+
+                        }
+                    )
+                }
+            }
         }
     }
 }

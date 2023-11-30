@@ -12,6 +12,7 @@ import javax.inject.Inject
 data class TalkUiState(
     val text: String,
     val talkList: List<Talk>,
+    val studentList: List<Character>,
     val currentStudent: Character,
     val isFirstTalking: Boolean,
     val isMoreToolsOpen: Boolean,
@@ -22,51 +23,46 @@ class TalkViewModel @Inject constructor(
 
 ) : ViewModel() {
 
-    // fake data for testing
-    private val character = Character(
-        name = "Shiroko",
-        school = "Abydios",
-        avatarPath = "file:///android_asset/shiroko/emoji_0.png",
-    )
-    private val talkList = mutableListOf<Talk>(
-//        Talk.PureText(
-//            talker = character,
-//            isFirst = true,
-//            text = "Say you never let me go."
-//        ),
-//        Talk.PureText(
-//            talker = character,
-//            isFirst = false,
-//            text = "Deep in the bones I can feel you."
-//        ),
-//        Talk.Photo(
-//            talker = character,
-//            isFirst = false,
-//            uri = "file:///android_asset/shiroko/emoji_3.png"
-//        ),
-//        Talk.Narration(
-//            text = "Take me back to the time."
-//        ),
-//        Talk.PureText(
-//            talker = Character.Sensei,
-//            isFirst = false,
-//            text = "We can waste a night with an old film."
-//        ),
-//        Talk.PureText(
-//            talker = Character.Sensei,
-//            isFirst = false,
-//            text = "Smoke that little weed in the couch in my bedroom."
-//        ),
+    private val talkList = mutableListOf<Talk>()
+    private val studentList = mutableListOf(
+        Character.Sensei,
+        Character(
+            name = "Shiroko",
+            school = "Abydos",
+            avatarPath = "file:///android_asset/shiroko/emoji_0.png",
+        ),
+        Character(
+            name = "Shiroko2",
+            school = "Abydos",
+            avatarPath = "file:///android_asset/shiroko/emoji_0.png",
+        ),
+        Character(
+            name = "Shiroko3",
+            school = "Abydos",
+            avatarPath = "file:///android_asset/shiroko/emoji_0.png",
+        ),
+        Character(
+            name = "Shiroko4",
+            school = "Abydos",
+            avatarPath = "file:///android_asset/shiroko/emoji_0.png",
+        ),
+        Character(
+            name = "Shiroko5",
+            school = "Abydos",
+            avatarPath = "file:///android_asset/shiroko/emoji_0.png",
+        ),
+        Character(
+            name = "Shiroko6",
+            school = "Abydos",
+            avatarPath = "file:///android_asset/shiroko/emoji_0.png",
+        ),
     )
     private val _uiState = MutableStateFlow(
         TalkUiState(
             text = "",
             talkList = talkList,
-            currentStudent = Character(
-                name = "Shiroko",
-                school = "Abydios",
-                avatarPath = "file:///android_asset/shiroko/emoji_0.png",
-            ),
+            studentList = studentList,
+            currentStudent = studentList[0],
             isFirstTalking = true,
             isMoreToolsOpen = false,
         )
@@ -112,5 +108,9 @@ class TalkViewModel @Inject constructor(
 
     fun updateToolVision() {
         _uiState.update { it.copy(isMoreToolsOpen = !it.isMoreToolsOpen) }
+    }
+
+    fun selectStudent(student: Character) {
+        _uiState.update { it.copy(currentStudent = student, isFirstTalking = true) }
     }
 }
