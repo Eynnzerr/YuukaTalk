@@ -1,16 +1,17 @@
 package com.eynnzerr.yuukatalk.data.model
 
 import android.content.Context
+import kotlinx.serialization.Serializable
 
+@Serializable
 open class Character(
     val name: String,
     val nameRoma: String,
     val school: String,
     val avatarPath: String,
     val emojiPath: String,
+    var currentAvatar: String = "file:///android_asset/$avatarPath/avatar_0.webp"
 ) {
-
-    var currentAvatar = "file:///android_asset/$avatarPath/avatar_0.webp"
 
     fun getEmojiPaths(context: Context): List<String> {
         val assetManager = context.assets
@@ -25,14 +26,6 @@ open class Character(
             ?.map { "file:///android_asset/$avatarPath/$it" }
             ?: emptyList()
     }
-
-    companion object Sensei: Character(
-        name = "老师",
-        nameRoma = "sensei",
-        school = "schale",
-        avatarPath = "schale/sensei/avatar",
-        emojiPath = "schale/sensei/emoji"
-    )
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -54,3 +47,11 @@ open class Character(
         return result
     }
 }
+
+object Sensei: Character(
+    name = "老师",
+    nameRoma = "sensei",
+    school = "schale",
+    avatarPath = "schale/sensei/avatar",
+    emojiPath = "schale/sensei/emoji"
+)

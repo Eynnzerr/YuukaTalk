@@ -1,13 +1,18 @@
 package com.eynnzerr.yuukatalk.ui.page.talk
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.eynnzerr.yuukatalk.data.database.AppRepository
 import com.eynnzerr.yuukatalk.data.model.Character
+import com.eynnzerr.yuukatalk.data.model.Sensei
 import com.eynnzerr.yuukatalk.data.model.Talk
+import com.eynnzerr.yuukatalk.data.model.TalkProject
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 data class TalkUiState(
@@ -25,12 +30,12 @@ data class TalkUiState(
 
 @HiltViewModel
 class TalkViewModel @Inject constructor(
-
+    private val repository: AppRepository
 ) : ViewModel() {
 
     private val talkList = mutableListOf<Talk>()
     private val studentList = mutableListOf(
-        Character.Sensei,
+        Sensei,
         Character(
             name = "白子",
             nameRoma = "Shiroko",
@@ -85,6 +90,8 @@ class TalkViewModel @Inject constructor(
         )
     )
     val uiState = _uiState.asStateFlow()
+
+    var projectId = -1
 
     fun updateText(newText: String) = _uiState.update { it.copy(text = newText) }
 
@@ -195,6 +202,28 @@ class TalkViewModel @Inject constructor(
             it.copy(
                 searchText = newText
             )
+        }
+    }
+
+    fun saveProject() {
+        // 如果当前项目已存在则更新，没有则新建
+        viewModelScope.launch(Dispatchers.IO) {
+            if (projectId == -1) {
+                val currentProject = TalkProject(
+                    name = _uiState.value.chatName,
+                    talkHistory = _uiState.value.talkList,
+                    studentList = _uiState.value.studentList
+                )
+                repository.addProject(currentProject)
+            } else {
+                val currentProject = TalkProject(
+                    id = projectId,
+                    name = _uiState.value.chatName,
+                    talkHistory = _uiState.value.talkList,
+                    studentList = _uiState.value.studentList
+                )
+                repository.updateProject(currentProject)
+            }
         }
     }
 

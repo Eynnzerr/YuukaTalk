@@ -34,6 +34,7 @@ import com.eynnzerr.yuukatalk.ui.theme.LoveSceneDefaultColors
 import com.eynnzerr.yuukatalk.ui.theme.MomoTalkTextColor
 import com.eynnzerr.yuukatalk.ui.theme.YuukaTalkTheme
 import com.eynnzerr.yuukatalk.R
+import com.eynnzerr.yuukatalk.data.model.Sensei
 
 @Composable
 fun TalkPiece(talkData: Talk) {
@@ -48,7 +49,7 @@ fun TalkPiece(talkData: Talk) {
 
 @Composable
 private fun PureTextPiece(talk: Talk.PureText) {
-    if (talk.talker is Character.Sensei) {
+    if (talk.talker is Sensei) {
         ChatBubble(
             text = talk.text, 
             isMyMessage = true, 
@@ -91,7 +92,7 @@ private fun PureTextPiece(talk: Talk.PureText) {
 
 @Composable
 private fun PhotoPiece(talk: Talk.Photo) {
-    if (talk.talker is Character.Sensei) {
+    if (talk.talker is Sensei) {
         PhotoBubble(
             uri = talk.uri,
             isMyMessage = true,
@@ -311,12 +312,12 @@ private fun HybridTextPiecePreview() {
             text = "Take me back to the time."
         ),
         Talk.PureText(
-            talker = Character.Sensei,
+            talker = Sensei,
             isFirst = false,
             text = "We can waste a night with an old film."
         ),
         Talk.PureText(
-            talker = Character.Sensei,
+            talker = Sensei,
             isFirst = false,
             text = "Smoke that little weed in the couch in my bedroom."
         ),
