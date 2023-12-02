@@ -59,7 +59,7 @@ fun StudentAvatar(
 @Composable
 fun StudentAvatarPreview() {
     StudentAvatar(
-        url = "file:///android_asset/shiroko/emoji_0.png",
+        url = "file:///android_asset/abydos/shiroko/avatar/avatar_0.webp",
         size = 64.dp,
         withBorder = false,
         isSelected = true,

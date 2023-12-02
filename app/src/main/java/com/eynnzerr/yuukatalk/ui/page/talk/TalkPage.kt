@@ -1,5 +1,6 @@
 package com.eynnzerr.yuukatalk.ui.page.talk
 
+import android.util.Log
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.Toast
@@ -14,12 +15,21 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
@@ -37,9 +47,12 @@ import androidx.compose.material.icons.outlined.FileDownload
 import androidx.compose.material.icons.outlined.Image
 import androidx.compose.material.icons.outlined.SaveAs
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.BottomAppBarDefaults
 import androidx.compose.material3.BottomSheetDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -69,6 +82,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -76,6 +91,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
+import coil.transform.RoundedCornersTransformation
 import com.eynnzerr.yuukatalk.R
 import com.eynnzerr.yuukatalk.data.model.SpecialPieceEntryItem
 import com.eynnzerr.yuukatalk.ui.component.DenseTextField
@@ -109,6 +127,7 @@ fun TalkPage(viewModel: TalkViewModel) {
     )
     var openNarrationDialog by rememberSaveable { mutableStateOf(false) }
     var openBranchDialog by rememberSaveable { mutableStateOf(false) }
+    var openEmojiPickerDialog by rememberSaveable { mutableStateOf(false) }
 
     // Native RecyclerView adapter
     val talkAdapter = remember {
@@ -226,7 +245,7 @@ fun TalkPage(viewModel: TalkViewModel) {
                     BottomAppBar(
                         actions = {
                             StudentAvatar(
-                                url = uiState.currentStudent.avatarPath,
+                                url = uiState.currentStudent.currentAvatar,
                                 size = 48.dp,
                                 withBorder = true,
                                 onClick = { openBottomSheet = true },
@@ -263,7 +282,10 @@ fun TalkPage(viewModel: TalkViewModel) {
                                 onValueChange = { viewModel.updateText(it) },
                                 placeholder = { Text(text = "enjoy!") },
                                 trailingIcon = {
-                                    IconButton(onClick = { /*TODO*/ }) {
+                                    IconButton(onClick = {
+                                        // open emoji picker for current student
+                                        openEmojiPickerDialog = true
+                                    }) {
                                         Icon(
                                             imageVector = Icons.Filled.InsertEmoticon,
                                             contentDescription = "insert emoji",
@@ -317,7 +339,6 @@ fun TalkPage(viewModel: TalkViewModel) {
                                 ViewGroup.LayoutParams.MATCH_PARENT,
                                 ViewGroup.LayoutParams.WRAP_CONTENT
                             )
-                            // setPadding(32, 16, 32, 16)
 
                             layoutManager = LinearLayoutManager(context)
                             adapter = talkAdapter
@@ -364,7 +385,7 @@ fun TalkPage(viewModel: TalkViewModel) {
                 uiState.studentList.forEach {
                     StudentAvatar(
                         modifier = Modifier.padding(bottom = 8.dp),
-                        url = it.avatarPath,
+                        url = it.currentAvatar,
                         isSelected = uiState.currentStudent == it,
                         size = 48.dp,
                         onClick = {
@@ -500,6 +521,59 @@ fun TalkPage(viewModel: TalkViewModel) {
                             singleLine = true,
                             prefix = { Text(text = "$index.") }
                         )
+                    }
+                }
+            }
+        )
+    }
+
+    if (openEmojiPickerDialog) {
+        AlertDialog(
+            onDismissRequest = { openEmojiPickerDialog = false },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        openEmojiPickerDialog = false
+                    },
+                ) {
+                    Text(stringResource(id = R.string.btn_cancel))
+                }
+            },
+            title = {
+                Text(text = stringResource(id = R.string.title_emoji_dialog))
+            },
+            text = {
+                LazyVerticalGrid(
+                    modifier = Modifier.heightIn(0.dp, 350.dp),
+                    columns = GridCells.Adaptive(minSize = 64.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    items(
+                        items = uiState.currentStudent.getEmojiPaths(context),
+                        key = { it.hashCode() }
+                    ) { path ->
+                        Card(
+                            colors = CardDefaults.cardColors(containerColor = Color.White),
+                            onClick = {
+                                viewModel.sendPhoto(path)
+                                talkAdapter.notifyAppendItem()
+                                openEmojiPickerDialog = false
+                            }
+                        ) {
+                            AsyncImage(
+                                model = ImageRequest
+                                    .Builder(context)
+                                    .data(path)
+                                    .crossfade(true)
+                                    .build(),
+                                contentScale = ContentScale.Crop,
+                                contentDescription = "",
+                                modifier = Modifier
+                                    .padding(8.dp)
+                                    .aspectRatio(1f)
+                            )
+                        }
                     }
                 }
             }

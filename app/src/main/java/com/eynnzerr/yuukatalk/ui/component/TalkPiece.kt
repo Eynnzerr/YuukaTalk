@@ -5,8 +5,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -63,7 +61,7 @@ private fun PureTextPiece(talk: Talk.PureText) {
             modifier = Modifier.padding(vertical = 8.dp)
         ) {
             StudentAvatar(
-                url = talk.talker.avatarPath,
+                url = talk.talker.currentAvatar,
                 size = 64.dp
             )
             Column(
@@ -103,7 +101,7 @@ private fun PhotoPiece(talk: Talk.Photo) {
             modifier = Modifier.padding(vertical = 8.dp)
         ) {
             StudentAvatar(
-                url = talk.talker.avatarPath,
+                url = talk.talker.currentAvatar,
                 size = 64.dp
             )
             Column(
@@ -283,9 +281,11 @@ private fun LoveScenePiece(talk: Talk.LoveScene) {
 private fun HybridTextPiecePreview() {
 
     val character = Character(
-        name = "Shiroko",
-        school = "Abydios",
-        avatarPath = "file:///android_asset/shiroko/emoji_0.png",
+        name = "白子",
+        nameRoma = "Shiroko",
+        school = "Abydos",
+        avatarPath = "abydos/shiroko/avatar",
+        emojiPath = "abydos/shiroko/emoji",
     )
     
     val talks = listOf(
@@ -305,7 +305,7 @@ private fun HybridTextPiecePreview() {
         Talk.Photo(
             talker = character,
             isFirst = false,
-            uri = "file:///android_asset/shiroko/emoji_3.png"
+            uri = "file:///android_asset/abydos/shiroko/emoji/Abydos_Countermeasure_Shiroko.5.webp"
         ),
         Talk.Narration(
             text = "Take me back to the time."
