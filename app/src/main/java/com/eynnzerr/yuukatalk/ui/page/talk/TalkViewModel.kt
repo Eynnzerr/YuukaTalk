@@ -32,29 +32,39 @@ class TalkViewModel @Inject constructor(
     private val studentList = mutableListOf(
         Character.Sensei,
         Character(
-            name = "Shiroko",
+            name = "白子",
+            nameRoma = "Shiroko",
             school = "Abydos",
-            avatarPath = "file:///android_asset/shiroko/emoji_0.png",
+            avatarPath = "abydos/shiroko/avatar",
+            emojiPath = "abydos/shiroko/emoji",
         ),
         Character(
-            name = "Hoshino",
+            name = "星野",
+            nameRoma = "Hoshino",
             school = "Abydos",
-            avatarPath = "file:///android_asset/hoshino/emoji_0.webp",
+            avatarPath = "abydos/hoshino/avatar",
+            emojiPath = "abydos/hoshino/emoji"
         ),
         Character(
-            name = "Nonomi",
+            name = "野宫",
+            nameRoma = "Nonomi",
             school = "Abydos",
-            avatarPath = "file:///android_asset/nonomi/emoji_0.webp",
+            avatarPath = "abydos/nonomi/avatar",
+            emojiPath = "abydos/nonomi/emoji"
         ),
         Character(
-            name = "Serika",
+            name = "芹香",
+            nameRoma = "Serika",
             school = "Abydos",
-            avatarPath = "file:///android_asset/serika/emoji_0.webp",
+            avatarPath = "abydos/serika/avatar",
+            emojiPath = "abydos/serika/emoji"
         ),
         Character(
-            name = "Ayane",
+            name = "绫音",
+            nameRoma = "Ayane",
             school = "Abydos",
-            avatarPath = "file:///android_asset/ayane/emoji_0.webp",
+            avatarPath = "abydos/ayane/avatar",
+            emojiPath = "abydos/ayane/emoji",
         ),
     )
     private val branchArray
