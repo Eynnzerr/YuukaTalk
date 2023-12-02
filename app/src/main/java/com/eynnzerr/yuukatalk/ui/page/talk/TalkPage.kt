@@ -1,7 +1,6 @@
 package com.eynnzerr.yuukatalk.ui.page.talk
 
 import android.content.Context
-import android.util.Log
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.Toast
@@ -121,7 +120,7 @@ fun TalkPage(viewModel: TalkViewModel) {
     val context = LocalContext.current
 
     // interaction signal with AndroidView
-    var saveTalk by remember { mutableStateOf(false) }
+    var screenshotTalk by remember { mutableStateOf(false) }
 
     // component states
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -216,13 +215,20 @@ fun TalkPage(viewModel: TalkViewModel) {
                             }
                         },
                         actions = {
-                            IconButton(onClick = { /*TODO*/ }) {
+                            IconButton(
+                                onClick = {
+                                    viewModel.saveProject()
+                                    Toast.makeText(context, "saved successfully.", Toast.LENGTH_SHORT).show()
+                                }
+                            ) {
                                 Icon(
                                     imageVector = Icons.Outlined.SaveAs,
                                     contentDescription = "save as project"
                                 )
                             }
-                            IconButton(onClick = { saveTalk = true }) {
+                            IconButton(
+                                onClick = { screenshotTalk = true }
+                            ) {
                                 Icon(
                                     imageVector = Icons.Outlined.FileDownload,
                                     contentDescription = "export as picture"
@@ -359,9 +365,9 @@ fun TalkPage(viewModel: TalkViewModel) {
                         .padding(scaffoldPadding)
                         .padding(16.dp),
                     update = { view ->
-                        if (saveTalk) {
+                        if (screenshotTalk) {
                             scope.launch(Dispatchers.Main) {
-                                saveTalk = false
+                                screenshotTalk = false
 
                                 val bitmap = ImageUtils.generateBitmap(view)
                                 val imageUri = withContext(Dispatchers.IO) {
