@@ -8,10 +8,20 @@ sealed class Talk {
     ): Talk()
 
     class Photo(
-        val uri: String
+        val talker: Character,
+        val uri: String,
+        var isFirst: Boolean,
     ): Talk()
 
     class Narration(
         val text: String
+    ): Talk()
+
+    class Branch(
+        val textOptions: List<String>
+    ): Talk()
+
+    class LoveScene(
+        val studentName: String
     ): Talk()
 }

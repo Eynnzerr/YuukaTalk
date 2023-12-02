@@ -26,7 +26,7 @@ object ImageUtils {
 
             view.adapter?.let { adapter ->
                 val paint = Paint()
-                val cacheSize = (Runtime.getRuntime().maxMemory() / 1024 / 8).toInt()
+                val cacheSize = (Runtime.getRuntime().maxMemory() / 1024 / 4).toInt()
                 val bitmapCache = LruCache<Int, Bitmap>(cacheSize)
 
                 for (i in 0 until adapter.itemCount) {

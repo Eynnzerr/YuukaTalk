@@ -7,8 +7,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircleOutline
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.PersonOutline
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.HelpOutline
 import androidx.compose.material.icons.outlined.KeyboardArrowRight
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -63,7 +65,7 @@ fun HomePage(
         PageEntryItem(
             title = stringResource(id = R.string.settings_entry_title),
             description = stringResource(id = R.string.settings_entry_desc),
-            icon = Icons.Filled.PersonOutline,
+            icon = Icons.Outlined.Settings,
             color = MaterialTheme.colorScheme.surface,
             onClick = {
 
