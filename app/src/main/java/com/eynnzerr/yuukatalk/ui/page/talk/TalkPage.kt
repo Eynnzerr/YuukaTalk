@@ -8,31 +8,35 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AddCircleOutline
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FormatListBulleted
 import androidx.compose.material.icons.filled.GraphicEq
 import androidx.compose.material.icons.filled.InsertEmoticon
 import androidx.compose.material.icons.filled.MenuOpen
+import androidx.compose.material.icons.filled.RemoveCircleOutline
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.outlined.AddCircleOutline
-import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.FileDownload
 import androidx.compose.material.icons.outlined.Image
 import androidx.compose.material.icons.outlined.SaveAs
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.BottomAppBarDefaults
 import androidx.compose.material3.BottomSheetDefaults
@@ -48,9 +52,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -63,6 +69,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -74,14 +81,16 @@ import com.eynnzerr.yuukatalk.data.model.SpecialPieceEntryItem
 import com.eynnzerr.yuukatalk.ui.component.DenseTextField
 import com.eynnzerr.yuukatalk.ui.component.SpecialPieceEntryButton
 import com.eynnzerr.yuukatalk.ui.component.StudentAvatar
-import com.eynnzerr.yuukatalk.ui.ext.isScrolled
+import com.eynnzerr.yuukatalk.ui.component.StudentSearchBar
 import com.eynnzerr.yuukatalk.ui.view.TalkAdapter
 import com.eynnzerr.yuukatalk.utils.ImageUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class,
+    ExperimentalFoundationApi::class
+)
 @Composable
 fun TalkPage(viewModel: TalkViewModel) {
 
@@ -93,12 +102,13 @@ fun TalkPage(viewModel: TalkViewModel) {
     var saveTalk by remember { mutableStateOf(false) }
 
     // component states
-    val talkListState = rememberLazyListState()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     var openBottomSheet by rememberSaveable { mutableStateOf(false) }
     val bottomSheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = false
     )
+    var openNarrationDialog by rememberSaveable { mutableStateOf(false) }
+    var openBranchDialog by rememberSaveable { mutableStateOf(false) }
 
     // Native RecyclerView adapter
     val talkAdapter = remember {
@@ -114,26 +124,30 @@ fun TalkPage(viewModel: TalkViewModel) {
     }
     
     // static ui data
+    val screenWidth = LocalConfiguration.current.screenWidthDp.dp
+    val textFieldSize = screenWidth - 56.dp - 112.dp - 25.dp
+
     val specialEntryItems = listOf(
         SpecialPieceEntryItem(
             title = stringResource(id = R.string.btn_narration),
             icon = Icons.Filled.GraphicEq,
             onClick = {
-                
+                openNarrationDialog = true
             }
         ),
         SpecialPieceEntryItem(
             title = stringResource(id = R.string.btn_branch),
             icon = Icons.Filled.FormatListBulleted,
             onClick = {
-
+                openBranchDialog = true
             }
         ),
         SpecialPieceEntryItem(
             title = stringResource(id = R.string.btn_love),
             icon = Icons.Filled.Favorite,
             onClick = {
-
+                viewModel.sendLoveScene()
+                talkAdapter.notifyAppendItem()
             }
         ),
     )
@@ -143,22 +157,21 @@ fun TalkPage(viewModel: TalkViewModel) {
         drawerContent = {
             ModalDrawerSheet(
                 modifier = Modifier
-                    .width(300.dp)
+                    .width(screenWidth - 80.dp)
                     .fillMaxHeight()
             ) {
-                Column(
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                }
+                StudentSearchBar(
+                    textValue = uiState.searchText,
+                    onTextChanged = { viewModel.updateSearchText(it) },
+                    modifier = Modifier.padding(top = 12.dp)
+                )
             }
         },
         gesturesEnabled = true
     ) {
         Scaffold(
             topBar = {
-                Surface(
-                    shadowElevation = if (talkListState.isScrolled) 8.dp else 0.dp
-                ) {
+                Surface {
                     CenterAlignedTopAppBar(
                         title = {
                             Text(text = uiState.chatName)
@@ -189,18 +202,6 @@ fun TalkPage(viewModel: TalkViewModel) {
                                 )
                             }
                         },
-                    )
-                }
-            },
-            floatingActionButton = {
-                FloatingActionButton(
-                    onClick = {
-
-                    }
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.Edit,
-                        contentDescription = "enter edit mode"
                     )
                 }
             },
@@ -257,10 +258,10 @@ fun TalkPage(viewModel: TalkViewModel) {
                             }
 
                             DenseTextField(
-                                modifier = Modifier.size(210.dp, 40.dp),
+                                modifier = Modifier.size(textFieldSize, 40.dp),
                                 value = uiState.text,
                                 onValueChange = { viewModel.updateText(it) },
-                                placeholder = { Text(text = "enjoy momotalk!") },
+                                placeholder = { Text(text = "enjoy!") },
                                 trailingIcon = {
                                     IconButton(onClick = { /*TODO*/ }) {
                                         Icon(
@@ -373,6 +374,136 @@ fun TalkPage(viewModel: TalkViewModel) {
                 }
             }
         }
+    }
+
+    if (openNarrationDialog) {
+        AlertDialog(
+            onDismissRequest = {
+                openNarrationDialog = false
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        if (uiState.narrationText != "") {
+                            viewModel.sendNarration()
+                            talkAdapter.notifyAppendItem()
+                        }
+                        openNarrationDialog = false
+                    },
+                ) {
+                    Text(stringResource(id = R.string.btn_confirm))
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        openNarrationDialog = false
+                    },
+                ) {
+                    Text(stringResource(id = R.string.btn_cancel))
+                }
+            },
+            icon = {
+                Icon(
+                    imageVector = Icons.Filled.GraphicEq,
+                    contentDescription = "narration dialog icon"
+                )
+            },
+            title = {
+                Text(text = stringResource(id = R.string.title_narration_dialog))
+            },
+            text = {
+                OutlinedTextField(
+                    value = uiState.narrationText,
+                    onValueChange = { viewModel.updateNarrationText(it) },
+                    label = { Text(text = stringResource(id = R.string.narration)) },
+                )
+            }
+        )
+    }
+
+    if (openBranchDialog) {
+        AlertDialog(
+            onDismissRequest = {
+                openBranchDialog = false
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        viewModel.sendBranches()
+                        talkAdapter.notifyAppendItem()
+                        openBranchDialog = false
+                    },
+                ) {
+                    Text(stringResource(id = R.string.btn_confirm))
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        openBranchDialog = false
+                    },
+                ) {
+                    Text(stringResource(id = R.string.btn_cancel))
+                }
+            },
+            icon = {
+                Icon(
+                    imageVector = Icons.Filled.FormatListBulleted,
+                    contentDescription = "branch dialog icon"
+                )
+            },
+            title = {
+                Text(text = stringResource(id = R.string.title_branch_dialog))
+            },
+            text = {
+                LazyColumn(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    stickyHeader {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.End
+                        ) {
+                            IconButton(
+                                onClick = {
+                                    viewModel.appendBranch()
+                                }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Filled.AddCircleOutline,
+                                    contentDescription = "add branch."
+                                )
+                            }
+                            IconButton(
+                                onClick = {
+                                    viewModel.removeBranch()
+                                }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Filled.RemoveCircleOutline,
+                                    contentDescription = "remove branch"
+                                )
+                            }
+                        }
+                    }
+                    itemsIndexed(
+                        items = uiState.textBranches,
+                        key = { index, _ -> index }
+                    ) { index, item ->
+                        OutlinedTextField(
+                            value = item,
+                            onValueChange = { viewModel.editBranchAtIndex(it, index) },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 6.dp),
+                            singleLine = true,
+                            prefix = { Text(text = "$index.") }
+                        )
+                    }
+                }
+            }
+        )
     }
 }
 

@@ -16,4 +16,12 @@ sealed class Talk {
     class Narration(
         val text: String
     ): Talk()
+
+    class Branch(
+        val textOptions: List<String>
+    ): Talk()
+
+    class LoveScene(
+        val studentName: String
+    ): Talk()
 }
