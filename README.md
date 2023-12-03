@@ -24,6 +24,9 @@ Still WIP.
 
 # TODOs
 
-- [ ] Support stashing momotalks in progress.
-- [ ] Import all students in BlueArchive.
-- [ ] Pre-include emojis.
+- [x] Support stashing momotalks in progress.
+- [ ] Browse histories.
+- [ ] Import all students in BlueArchive.(WIP)
+- [x] Pre-include emojis.
+- [ ] Numerous settings.
+- [ ] Student information browse.
