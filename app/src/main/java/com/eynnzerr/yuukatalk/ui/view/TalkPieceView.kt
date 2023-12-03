@@ -2,6 +2,7 @@ package com.eynnzerr.yuukatalk.ui.view
 
 import android.content.Context
 import android.util.AttributeSet
+import androidx.compose.foundation.layout.Row
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -20,6 +21,9 @@ class TalkPieceView @JvmOverloads constructor(
 
     @Composable
     override fun Content() {
-        TalkPiece(talkData = talkData)
+        Row {
+            TalkPiece(talkData = talkData)
+        }
+
     }
 }

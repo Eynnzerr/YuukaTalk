@@ -14,6 +14,9 @@ interface TalkProjectDao {
     @Query("SELECT * FROM momotalk_project")
     fun fetchAllProjects(): Flow<List<TalkProject>>
 
+    @Query("SELECT * FROM momotalk_project WHERE id = :id")
+    fun fetchProjectById(id: Int): TalkProject
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun addProject(project: TalkProject)
 
@@ -22,4 +25,7 @@ interface TalkProjectDao {
 
     @Delete
     fun removeProject(project: TalkProject)
+
+    @Query("DELETE FROM MOMOTALK_PROJECT")
+    fun removeAllProjects()
 }

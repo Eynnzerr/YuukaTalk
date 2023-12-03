@@ -1,6 +1,8 @@
 package com.eynnzerr.yuukatalk.ui.page.talk
 
+import android.annotation.SuppressLint
 import android.content.Context
+import android.util.Log
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.Toast
@@ -17,10 +19,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -35,6 +39,7 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircleOutline
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FormatListBulleted
 import androidx.compose.material.icons.filled.GraphicEq
@@ -74,6 +79,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -89,10 +95,13 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.view.setPadding
+import androidx.navigation.NavHostController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import coil.compose.AsyncImage
@@ -110,15 +119,20 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.math.absoluteValue
 
+@SuppressLint("NotifyDataSetChanged")
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class,
     ExperimentalFoundationApi::class
 )
 @Composable
-fun TalkPage(viewModel: TalkViewModel) {
+fun TalkPage(
+    viewModel: TalkViewModel,
+    navHostController: NavHostController,
+) {
 
     val uiState by viewModel.uiState.collectAsState()
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
+    val imePadding = with(LocalDensity.current) { WindowInsets.ime.getBottom(this).toDp() }
 
     // interaction signal with AndroidView
     var screenshotTalk by remember { mutableStateOf(false) }
@@ -175,10 +189,27 @@ fun TalkPage(viewModel: TalkViewModel) {
             icon = Icons.Filled.Favorite,
             onClick = {
                 viewModel.sendLoveScene()
-                talkAdapter.notifyAppendItem()
             }
         ),
     )
+
+    LaunchedEffect(uiState.talkListState) {
+        when (uiState.talkListState) {
+            is TalkListState.Initialized -> {
+                // do nothing
+            }
+            is TalkListState.Push -> {
+                talkAdapter.notifyAppendItem()
+            }
+            is TalkListState.Pop -> {
+                talkAdapter.notifyRemoveItemAtLast()
+            }
+            is TalkListState.Refresh -> {
+                talkAdapter.notifyDataSetChanged()
+                talkAdapter.notifyScrollToLast()
+            }
+        }
+    }
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -207,12 +238,13 @@ fun TalkPage(viewModel: TalkViewModel) {
                         navigationIcon = {
                             IconButton(
                                 onClick = {
-                                    scope.launch { drawerState.open() }
+                                    // scope.launch { drawerState.open() }
+                                    navHostController.popBackStack()
                                 }
                             ) {
                                 Icon(
-                                    imageVector = Icons.Filled.MenuOpen,
-                                    contentDescription = "menu"
+                                    imageVector = Icons.Filled.ArrowBack,
+                                    contentDescription = "back"
                                 )
                             }
                         },
@@ -240,7 +272,9 @@ fun TalkPage(viewModel: TalkViewModel) {
                 }
             },
             bottomBar = {
-                Column {
+                Column(
+                    // modifier = Modifier.padding(bottom = imePadding)
+                ) {
                     AnimatedVisibility(
                         visible = uiState.isMoreToolsOpen,
                         enter = expandVertically(),
@@ -314,7 +348,6 @@ fun TalkPage(viewModel: TalkViewModel) {
                                 onClick = {
                                     if (uiState.text != "") {
                                         viewModel.sendPureText()
-                                        talkAdapter.notifyAppendItem() // TODO 从手动调用改为监听flow
                                     }
                                 },
                                 containerColor = BottomAppBarDefaults.bottomAppBarFabColor,
@@ -325,30 +358,21 @@ fun TalkPage(viewModel: TalkViewModel) {
                         }
                     )
                 }
+            },
+            floatingActionButton = {
+                FloatingActionButton(
+                    onClick = {
+                        scope.launch { drawerState.open() }
+                    }
+                ) {
+                    Icon(Icons.Filled.MenuOpen, "add student menu")
+                }
             }
         ) { scaffoldPadding ->
                 AndroidView(
                     factory = { context ->
                         // LazyColumn转bitmap时，不可见部分无法正确绘制出来，必须使用RecyclerView
                         // TODO 如果未来官方给出了解决方案，还是希望能够使用LazyColumn.
-                        /*ComposeView(context).apply {
-                            setContent {
-                                LazyColumn(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .onGloballyPositioned {
-                                            val height = it.size.height
-                                            Log.d(TAG, "TalkPage: list height: $height")
-                                        },
-                                    state = talkListState,
-                                    contentPadding = PaddingValues(8.dp)
-                                ) {
-                                    items(uiState.talkList) {
-                                        TalkPiece(talkData = it)
-                                    }
-                                }
-                            }
-                        }*/
                         RecyclerView(context).apply {
                             layoutParams = LinearLayout.LayoutParams(
                                 ViewGroup.LayoutParams.MATCH_PARENT,
@@ -374,6 +398,8 @@ fun TalkPage(viewModel: TalkViewModel) {
                                 val imageUri = withContext(Dispatchers.IO) {
                                     ImageUtils.saveBitMapToDisk(bitmap, context)
                                 }
+                                // TODO bug: 偶现这里没切回主线程导致异常
+                                Log.d(TAG, "TalkPage: current thread: ${Thread.currentThread().name}")
                                 Toast.makeText(context, "saved to" + imageUri.path, Toast.LENGTH_SHORT).show()
                             }
                         }
@@ -422,7 +448,6 @@ fun TalkPage(viewModel: TalkViewModel) {
                     onClick = {
                         if (uiState.narrationText != "") {
                             viewModel.sendNarration()
-                            talkAdapter.notifyAppendItem()
                         }
                         openNarrationDialog = false
                     },
@@ -467,7 +492,6 @@ fun TalkPage(viewModel: TalkViewModel) {
                 TextButton(
                     onClick = {
                         viewModel.sendBranches()
-                        talkAdapter.notifyAppendItem()
                         openBranchDialog = false
                     },
                 ) {
@@ -612,7 +636,6 @@ fun TalkPage(viewModel: TalkViewModel) {
                                     colors = CardDefaults.cardColors(containerColor = Color.White),
                                     onClick = {
                                         viewModel.sendPhoto(path)
-                                        talkAdapter.notifyAppendItem()
                                         openEmojiPickerDialog = false
                                     }
                                 ) {

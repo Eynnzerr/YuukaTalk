@@ -49,29 +49,30 @@ fun TalkPiece(talkData: Talk) {
 
 @Composable
 private fun PureTextPiece(talk: Talk.PureText) {
-    if (talk.talker is Sensei) {
+    if (talk.talker.nameRoma == Sensei.nameRoma) {
         ChatBubble(
             text = talk.text, 
             isMyMessage = true, 
             showArrow = true,
-            modifier = Modifier.padding(bottom = 8.dp)
+            modifier = Modifier.padding(bottom = 8.dp, start = 64.dp)
         )
     } else if (talk.isFirst) {
         Row(
-            verticalAlignment = Alignment.CenterVertically,
+            verticalAlignment = Alignment.Top,
             modifier = Modifier.padding(vertical = 8.dp)
         ) {
             StudentAvatar(
                 url = talk.talker.currentAvatar,
-                size = 64.dp
+                size = 56.dp
             )
             Column(
                 modifier = Modifier.padding(start = 8.dp)
             ) {
                 Text(
-                    modifier = Modifier.padding(start = 8.dp),
+                    modifier = Modifier.padding(start = 8.dp, bottom = 4.dp),
                     text = talk.talker.name,
-                    fontSize = 18.sp
+                    fontWeight = FontWeight.Bold,
+                    // fontSize = 18.sp
                 )
                 ChatBubble(
                     text = talk.text,
@@ -85,14 +86,14 @@ private fun PureTextPiece(talk: Talk.PureText) {
             text = talk.text,
             isMyMessage = false,
             showArrow = false,
-            modifier = Modifier.padding(start = 72.dp, bottom = 8.dp)
+            modifier = Modifier.padding(start = 64.dp, bottom = 8.dp)
         )
     }
 }
 
 @Composable
 private fun PhotoPiece(talk: Talk.Photo) {
-    if (talk.talker is Sensei) {
+    if (talk.talker.nameRoma == Sensei.nameRoma) {
         PhotoBubble(
             uri = talk.uri,
             isMyMessage = true,

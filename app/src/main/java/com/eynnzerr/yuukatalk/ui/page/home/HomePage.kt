@@ -40,8 +40,7 @@ fun HomePage(
             icon = Icons.Filled.AddCircleOutline,
             color = MaterialTheme.colorScheme.primaryContainer,
             onClick = {
-                // TODO open a dialog or bottom sheet or something
-                navController.pushTo(Destinations.TALK_ROUTE)
+                navController.pushTo(Destinations.TALK_ROUTE + "/-1")
             }
         ),
         PageEntryItem(
@@ -59,7 +58,7 @@ fun HomePage(
             icon = Icons.Filled.PersonOutline,
             color = MaterialTheme.colorScheme.surface,
             onClick = {
-
+                navController.pushTo(Destinations.CHARACTER_ROUTE)
             }
         ),
         PageEntryItem(
@@ -68,7 +67,7 @@ fun HomePage(
             icon = Icons.Outlined.Settings,
             color = MaterialTheme.colorScheme.surface,
             onClick = {
-
+                navController.pushTo(Destinations.SETTINGS)
             }
         )
     )

@@ -1,5 +1,6 @@
 package com.eynnzerr.yuukatalk.ui.page.talk
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eynnzerr.yuukatalk.data.database.AppRepository
@@ -13,6 +14,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 data class TalkUiState(
@@ -26,7 +28,15 @@ data class TalkUiState(
     val searchText: String,
     val narrationText: String,
     val textBranches: List<String>,
+    val talkListState: TalkListState, // operate with recyclerView change
 )
+
+sealed class TalkListState(type: Int) {
+    class Initialized: TalkListState(type = 0)
+    class Refresh: TalkListState(type = 1)
+    class Push: TalkListState(type = 2)
+    class Pop: TalkListState(type = 3)
+}
 
 @HiltViewModel
 class TalkViewModel @Inject constructor(
@@ -86,12 +96,35 @@ class TalkViewModel @Inject constructor(
             isMoreToolsOpen = false,
             searchText = "",
             narrationText = "",
-            textBranches = listOf("")
+            textBranches = listOf(""),
+            talkListState = TalkListState.Initialized(),
         )
     )
     val uiState = _uiState.asStateFlow()
 
-    var projectId = -1
+    private var projectId = -1
+
+    fun loadHistory(historyId: Int) {
+        if (historyId >= 0) {
+            projectId = historyId
+            viewModelScope.launch {
+                val historyState = withContext(Dispatchers.IO) {
+                    repository.fetchProjectById(historyId)
+                }
+                talkList.addAll(historyState.talkHistory)
+                _uiState.update {
+                    it.copy(
+                        chatName = historyState.name,
+                        talkList = historyState.talkHistory,
+                        studentList = historyState.studentList,
+                        currentStudent = historyState.currentStudent,
+                        isFirstTalking = historyState.isFirstTalking,
+                        talkListState = TalkListState.Refresh(),
+                    )
+                }
+            }
+        }
+    }
 
     fun updateText(newText: String) = _uiState.update { it.copy(text = newText) }
 
@@ -126,7 +159,8 @@ class TalkViewModel @Inject constructor(
         _uiState.update {
             it.copy(
                 text = "",
-                isFirstTalking = false
+                isFirstTalking = false,
+                talkListState = TalkListState.Push(),
             )
         }
     }
@@ -141,7 +175,8 @@ class TalkViewModel @Inject constructor(
 
         _uiState.update {
             it.copy(
-                isFirstTalking = false
+                isFirstTalking = false,
+                talkListState = TalkListState.Push(),
             )
         }
     }
@@ -154,7 +189,8 @@ class TalkViewModel @Inject constructor(
 
         _uiState.update {
             it.copy(
-                isFirstTalking = true
+                isFirstTalking = true,
+                talkListState = TalkListState.Push(),
             )
         }
     }
@@ -168,7 +204,8 @@ class TalkViewModel @Inject constructor(
         _uiState.update {
             it.copy(
                 isFirstTalking = true,
-                narrationText = ""
+                narrationText = "",
+                talkListState = TalkListState.Push(),
             )
         }
     }
@@ -182,7 +219,8 @@ class TalkViewModel @Inject constructor(
         _uiState.update {
             it.copy(
                 isFirstTalking = true,
-                textBranches = listOf("")
+                textBranches = listOf(""),
+                talkListState = TalkListState.Push(),
             )
         }
     }
@@ -214,7 +252,9 @@ class TalkViewModel @Inject constructor(
                 val currentProject = TalkProject(
                     name = _uiState.value.chatName,
                     talkHistory = _uiState.value.talkList,
-                    studentList = _uiState.value.studentList
+                    studentList = _uiState.value.studentList,
+                    currentStudent = _uiState.value.currentStudent,
+                    isFirstTalking = _uiState.value.isFirstTalking
                 )
                 repository.addProject(currentProject)
             } else {
@@ -222,7 +262,9 @@ class TalkViewModel @Inject constructor(
                     id = projectId,
                     name = _uiState.value.chatName,
                     talkHistory = _uiState.value.talkList,
-                    studentList = _uiState.value.studentList
+                    studentList = _uiState.value.studentList,
+                    currentStudent = _uiState.value.currentStudent,
+                    isFirstTalking = _uiState.value.isFirstTalking,
                 )
                 repository.updateProject(currentProject)
             }

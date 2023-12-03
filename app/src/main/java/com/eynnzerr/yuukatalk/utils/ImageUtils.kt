@@ -19,9 +19,9 @@ import kotlin.coroutines.resume
 object ImageUtils {
     fun generateBitmap(view: View): Bitmap {
         if (view is RecyclerView) {
-            Log.d(TAG, "generateBitmap: drawing recyclerView to bitmap.")
-            val screenshot = Bitmap.createBitmap(view.width, view.computeVerticalScrollRange(), Bitmap.Config.ARGB_8888)
-            val canvas = Canvas(screenshot).apply { drawColor(Color.WHITE) }
+            val padding = 16
+            val screenshot = Bitmap.createBitmap(view.width + 2 * padding, view.computeVerticalScrollRange() + 2 * padding, Bitmap.Config.ARGB_8888)
+            val canvas = Canvas(screenshot).apply { drawColor(Color.parseColor("#fff7e3")) }
             var iHeight = 0f
 
             view.adapter?.let { adapter ->
@@ -47,14 +47,13 @@ object ImageUtils {
                             Bitmap.Config.ARGB_8888
                         )
                         val itemCanvas = Canvas(itemBitmap)
-                        itemCanvas.drawColor(Color.WHITE)
                         draw(itemCanvas)
                         bitmapCache.put(i, itemBitmap)
                     }
                 }
                 for (i in 0 until adapter.itemCount) {
                     val bitmap = bitmapCache[i]
-                    canvas.drawBitmap(bitmap!!, 0F, iHeight, paint)
+                    canvas.drawBitmap(bitmap!!, 0F + padding, iHeight + padding, paint)
                     iHeight += bitmap.height
                     bitmap.recycle()
                 }
@@ -63,6 +62,7 @@ object ImageUtils {
             return screenshot
         }
 
+        // never used.
         val bitmap = Bitmap.createBitmap(
             view.width,
             view.height,
