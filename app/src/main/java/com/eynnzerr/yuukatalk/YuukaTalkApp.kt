@@ -14,10 +14,14 @@ import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDeepLink
 import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.eynnzerr.yuukatalk.ui.common.Destinations
+import com.eynnzerr.yuukatalk.ui.page.history.HistoryPage
+import com.eynnzerr.yuukatalk.ui.page.history.HistoryViewModel
 import com.eynnzerr.yuukatalk.ui.page.home.HomePage
 import com.eynnzerr.yuukatalk.ui.page.talk.TalkPage
 import com.eynnzerr.yuukatalk.ui.page.talk.TalkViewModel
@@ -43,11 +47,23 @@ private fun AppNavGraph() {
             HomePage(appNavController)
         }
         animatedComposable(Destinations.HISTORY_ROUTE) {
-
+            val historyViewModel = hiltViewModel<HistoryViewModel>()
+            HistoryPage(historyViewModel, appNavController)
         }
-        animatedComposable(Destinations.TALK_ROUTE) {
-            val talkViewModel = hiltViewModel<TalkViewModel>()
-            TalkPage(talkViewModel)
+        animatedComposable(
+            route = Destinations.TALK_ROUTE + "/{id}",
+            arguments = listOf(
+                navArgument("id") {
+                    type = NavType.IntType
+                    defaultValue = -1
+                }
+            ),
+        ) {
+            val talkViewModel = hiltViewModel<TalkViewModel>().apply {
+                val id = it.arguments?.getInt("id") ?: -1
+                loadHistory(id)
+            }
+            TalkPage(talkViewModel, appNavController)
         }
     }
 }

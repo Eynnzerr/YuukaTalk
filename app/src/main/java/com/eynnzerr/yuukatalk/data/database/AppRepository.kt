@@ -10,9 +10,13 @@ class AppRepository @Inject constructor(
 ) {
     fun fetchAllProjects() = localDataSource.fetchAllProjects()
 
+    fun fetchProjectById(id: Int) = localDataSource.fetchProjectById(id)
+
     fun addProject(project: TalkProject) = localDataSource.addProject(project)
 
     fun updateProject(project: TalkProject) = localDataSource.updateProject(project)
 
     fun removeProject(project: TalkProject) = localDataSource.removeProject(project)
+
+    fun removeAllProject() = localDataSource.removeAllProjects()
 }

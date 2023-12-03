@@ -30,8 +30,12 @@ class TalkAdapter(
 
     fun notifyAppendItem() {
         notifyItemInserted(talkList.lastIndex)
-        layoutManager?.scrollToPosition(talkList.lastIndex)
+        notifyScrollToLast()
     }
+
+    fun notifyRemoveItemAtLast() = notifyItemRemoved(talkList.lastIndex)
+
+    fun notifyScrollToLast() = layoutManager?.scrollToPosition(talkList.lastIndex)
 }
 
 private const val TAG = "TalkAdapter"
