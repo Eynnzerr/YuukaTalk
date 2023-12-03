@@ -41,6 +41,7 @@ import androidx.compose.material.icons.filled.GraphicEq
 import androidx.compose.material.icons.filled.InsertEmoticon
 import androidx.compose.material.icons.filled.MenuOpen
 import androidx.compose.material.icons.filled.RemoveCircleOutline
+import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.outlined.AddCircleOutline
 import androidx.compose.material.icons.outlined.EmojiEmotions
@@ -131,6 +132,7 @@ fun TalkPage(viewModel: TalkViewModel) {
     var openNarrationDialog by rememberSaveable { mutableStateOf(false) }
     var openBranchDialog by rememberSaveable { mutableStateOf(false) }
     var openEmojiPickerDialog by rememberSaveable { mutableStateOf(false) }
+    var openSaveDialog by rememberSaveable { mutableStateOf(false) }
     val pagerState = rememberPagerState(
         initialPage = 0,
         initialPageOffsetFraction = 0f
@@ -217,8 +219,7 @@ fun TalkPage(viewModel: TalkViewModel) {
                         actions = {
                             IconButton(
                                 onClick = {
-                                    viewModel.saveProject()
-                                    Toast.makeText(context, "saved successfully.", Toast.LENGTH_SHORT).show()
+                                    openSaveDialog = true
                                 }
                             ) {
                                 Icon(
@@ -632,6 +633,50 @@ fun TalkPage(viewModel: TalkViewModel) {
                         }
                     }
                 }
+            }
+        )
+    }
+
+    if (openSaveDialog) {
+        AlertDialog(
+            onDismissRequest = {
+                openSaveDialog = false
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        viewModel.saveProject()
+                        Toast.makeText(context, "project saved as ${uiState.chatName}", Toast.LENGTH_SHORT).show()
+                        openSaveDialog = false
+                    },
+                ) {
+                    Text(stringResource(id = R.string.btn_confirm))
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        openSaveDialog = false
+                    },
+                ) {
+                    Text(stringResource(id = R.string.btn_cancel))
+                }
+            },
+            icon = {
+                Icon(
+                    imageVector = Icons.Filled.Save,
+                    contentDescription = "save dialog icon"
+                )
+            },
+            title = {
+                Text(text = stringResource(id = R.string.title_save_dialog))
+            },
+            text = {
+                OutlinedTextField(
+                    value = uiState.chatName,
+                    onValueChange = { viewModel.updateChatName(it) },
+                    label = { Text(text = stringResource(id = R.string.name)) },
+                )
             }
         )
     }

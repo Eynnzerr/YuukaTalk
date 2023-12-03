@@ -97,6 +97,8 @@ class TalkViewModel @Inject constructor(
 
     fun updateNarrationText(newText: String) = _uiState.update { it.copy(narrationText = newText) }
 
+    fun updateChatName(newText: String) = _uiState.update { it.copy(chatName = newText) }
+
     fun appendBranch() {
         val newList = listOf(*branchArray, "")
         _uiState.update { it.copy(textBranches = newList) }
