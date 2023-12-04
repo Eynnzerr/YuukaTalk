@@ -1,15 +1,25 @@
 package com.eynnzerr.yuukatalk.data.model
 
 import android.content.Context
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 import kotlinx.serialization.Serializable
 
 @Serializable
+@Entity(tableName = "momotalk_character")
 open class Character(
+    @PrimaryKey
     val name: String,
+    @ColumnInfo(defaultValue = "")
     val nameRoma: String,
+    @ColumnInfo(defaultValue = "")
     val school: String,
+    @ColumnInfo(defaultValue = "")
     val avatarPath: String,
+    @ColumnInfo(defaultValue = "")
     val emojiPath: String,
+    @ColumnInfo(defaultValue = "")
     var currentAvatar: String = "file:///android_asset/$avatarPath/avatar_0.webp"
 ) {
 

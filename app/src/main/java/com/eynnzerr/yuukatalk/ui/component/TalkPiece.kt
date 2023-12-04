@@ -104,15 +104,15 @@ private fun PhotoPiece(talk: Talk.Photo) {
         ) {
             StudentAvatar(
                 url = talk.talker.currentAvatar,
-                size = 64.dp
+                size = 56.dp
             )
             Column(
                 modifier = Modifier.padding(start = 8.dp)
             ) {
                 Text(
-                    modifier = Modifier.padding(start = 8.dp),
+                    modifier = Modifier.padding(start = 8.dp, bottom = 4.dp),
                     text = talk.talker.name,
-                    fontSize = 18.sp
+                    fontWeight = FontWeight.Bold
                 )
                 PhotoBubble(
                     uri = talk.uri,
@@ -125,7 +125,7 @@ private fun PhotoPiece(talk: Talk.Photo) {
         PhotoBubble(
             uri = talk.uri,
             isMyMessage = false,
-            modifier = Modifier.padding(start = 80.dp)
+            modifier = Modifier.padding(start = 72.dp)
         )
     }
 }

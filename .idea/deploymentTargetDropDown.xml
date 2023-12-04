@@ -5,9 +5,6 @@
       <entry key="ChatBubblePreview">
         <State />
       </entry>
-      <entry key="FirstPureTextPiecePreview">
-        <State />
-      </entry>
       <entry key="HybridTextPiecePreview">
         <State />
       </entry>
@@ -15,6 +12,9 @@
         <State />
       </entry>
       <entry key="StudentAvatarPreview">
+        <State />
+      </entry>
+      <entry key="StudentInfoPreview">
         <State />
       </entry>
       <entry key="app">

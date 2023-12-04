@@ -5,17 +5,17 @@ import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.eynnzerr.yuukatalk.data.model.Character
 import com.eynnzerr.yuukatalk.data.model.TalkProject
 
 @Database(
-    version = 2,
-    entities = [TalkProject::class],
-    autoMigrations = [
-        AutoMigration(from = 1, to = 2),
-    ]
+    version = 1,
+    entities = [TalkProject::class, Character::class],
 )
 abstract class YuukaTalkDatabase: RoomDatabase() {
-    abstract fun getDao(): TalkProjectDao
+    abstract fun getTalkProjectDao(): TalkProjectDao
+
+    abstract fun getCharacterDao(): CharacterDao
 
     companion object {
 
@@ -30,7 +30,7 @@ abstract class YuukaTalkDatabase: RoomDatabase() {
                 context.applicationContext,
                 YuukaTalkDatabase::class.java,
                 databaseName
-            ).build()
+            ).fallbackToDestructiveMigration().build()
         }
     }
 }

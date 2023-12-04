@@ -29,6 +29,8 @@ data class TalkUiState(
     val narrationText: String,
     val textBranches: List<String>,
     val talkListState: TalkListState, // operate with recyclerView change
+    val allStudents: List<Character>,
+    val isEdited: Boolean,
 )
 
 sealed class TalkListState(type: Int) {
@@ -98,18 +100,32 @@ class TalkViewModel @Inject constructor(
             narrationText = "",
             textBranches = listOf(""),
             talkListState = TalkListState.Initialized(),
+            allStudents = emptyList(),
+            isEdited = false
         )
     )
     val uiState = _uiState.asStateFlow()
 
     private var projectId = -1
 
-    fun loadHistory(historyId: Int) {
-        if (historyId >= 0) {
-            projectId = historyId
+    fun setProjectId(id: Int) {
+        projectId = id
+    }
+
+    init {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.fetchAllCharacters().collect { characters ->
+                _uiState.update { it.copy(allStudents = characters) }
+            }
+        }
+    }
+
+    fun loadHistory() {
+        if (isHistoryTalk()) {
+            // means we now enter into a history talk.
             viewModelScope.launch {
                 val historyState = withContext(Dispatchers.IO) {
-                    repository.fetchProjectById(historyId)
+                    repository.fetchProjectById(projectId)
                 }
                 talkList.addAll(historyState.talkHistory)
                 _uiState.update {
@@ -134,7 +150,9 @@ class TalkViewModel @Inject constructor(
 
     fun appendBranch() {
         val newList = listOf(*branchArray, "")
-        _uiState.update { it.copy(textBranches = newList) }
+        _uiState.update {
+            it.copy(textBranches = newList)
+        }
     }
 
     fun removeBranch() {
@@ -161,6 +179,7 @@ class TalkViewModel @Inject constructor(
                 text = "",
                 isFirstTalking = false,
                 talkListState = TalkListState.Push(),
+                isEdited = true
             )
         }
     }
@@ -177,6 +196,7 @@ class TalkViewModel @Inject constructor(
             it.copy(
                 isFirstTalking = false,
                 talkListState = TalkListState.Push(),
+                isEdited = true
             )
         }
     }
@@ -191,6 +211,7 @@ class TalkViewModel @Inject constructor(
             it.copy(
                 isFirstTalking = true,
                 talkListState = TalkListState.Push(),
+                isEdited = true
             )
         }
     }
@@ -206,6 +227,7 @@ class TalkViewModel @Inject constructor(
                 isFirstTalking = true,
                 narrationText = "",
                 talkListState = TalkListState.Push(),
+                isEdited = true
             )
         }
     }
@@ -221,6 +243,7 @@ class TalkViewModel @Inject constructor(
                 isFirstTalking = true,
                 textBranches = listOf(""),
                 talkListState = TalkListState.Push(),
+                isEdited = true
             )
         }
     }
@@ -270,6 +293,8 @@ class TalkViewModel @Inject constructor(
             }
         }
     }
+
+    fun isHistoryTalk() = projectId >= 0
 
 }
 
