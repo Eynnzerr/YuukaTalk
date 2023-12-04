@@ -13,6 +13,13 @@ interface CharacterDao {
     @Query("SELECT * FROM momotalk_character")
     fun fetchCallCharacters(): Flow<List<Character>>
 
+    @Query("SELECT * FROM momotalk_character WHERE " +
+            "name LIKE '%' || :keyword || '%' OR " +
+            "nameRoma LIKE '%' || :keyword || '%' OR " +
+            "school LIKE '%' || :keyword || '%'"
+    )
+    fun fetchCharactersByKeyword(keyword: String): Flow<List<Character>>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun importCharacters(vararg characters: Character)
 }

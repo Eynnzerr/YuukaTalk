@@ -63,6 +63,7 @@ private fun PureTextPiece(talk: Talk.PureText) {
         ) {
             StudentAvatar(
                 url = talk.talker.currentAvatar,
+                isSelected = true,
                 size = 56.dp
             )
             Column(
@@ -104,6 +105,7 @@ private fun PhotoPiece(talk: Talk.Photo) {
         ) {
             StudentAvatar(
                 url = talk.talker.currentAvatar,
+                isSelected = true,
                 size = 56.dp
             )
             Column(

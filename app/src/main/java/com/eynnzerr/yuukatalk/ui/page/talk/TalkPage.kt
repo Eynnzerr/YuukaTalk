@@ -104,7 +104,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.core.view.setPadding
 import androidx.navigation.NavHostController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -247,12 +246,14 @@ fun TalkPage(
                     modifier = Modifier.padding(top = 12.dp)
                 )
                 LazyColumn {
-                    items(uiState.allStudents) { student ->
+                    items(uiState.filteredStudents) { student ->
                         StudentInfo(
                             student = student,
-                            onClick = {
-                                viewModel.addStudent(student = student)
-                                Toast.makeText(context, "成功添加角色。", Toast.LENGTH_SHORT).show()
+                            onPickAvatar = {
+                                if (student !in uiState.studentList) {
+                                    viewModel.addStudent(student = student)
+                                    Toast.makeText(context, "成功添加角色。", Toast.LENGTH_SHORT).show()
+                                }
                             }
                         )
                     }
@@ -338,6 +339,7 @@ fun TalkPage(
                                 url = uiState.currentStudent.currentAvatar,
                                 size = 48.dp,
                                 withBorder = true,
+                                isSelected = true,
                                 onClick = { openBottomSheet = true },
                             )
 
@@ -462,12 +464,13 @@ fun TalkPage(
                 horizontalArrangement = Arrangement.spacedBy(
                     space = 16.dp,
                     alignment = Alignment.Start
-                )
+                ),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 uiState.studentList.forEach {
                     StudentAvatar(
-                        modifier = Modifier.padding(bottom = 8.dp),
                         url = it.currentAvatar,
+                        withBorder = uiState.currentStudent == it,
                         isSelected = uiState.currentStudent == it,
                         size = 48.dp,
                         onClick = {

@@ -26,8 +26,10 @@ Still WIP.
 
 - [x] Support stashing momotalks in progress.
 - [x] Browse histories.
-- [ ] Import all students in BlueArchive.(WIP)
 - [x] Pre-include emojis.
+- [x] Search student by keyword.
+- [ ] DIY characters.
+- [ ] Import all students in BlueArchive.(WIP)
 - [ ] Numerous settings.
 - [ ] Student information browse.
 - [ ] Multi-language.

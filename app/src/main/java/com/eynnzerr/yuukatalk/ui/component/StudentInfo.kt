@@ -1,5 +1,9 @@
 package com.eynnzerr.yuukatalk.ui.component
 
+import android.util.Log
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -7,13 +11,20 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -34,45 +45,81 @@ import com.eynnzerr.yuukatalk.R
 fun StudentInfo(
     student: Character,
     modifier: Modifier = Modifier,
-    onClick: () -> Unit,
+    onPickAvatar: () -> Unit = {},
 ) {
-    Row(
-        modifier = modifier
-            .padding(16.dp)
-            .fillMaxWidth()
-            .clickable { onClick() },
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        AsyncImage(
-            model = ImageRequest.Builder(LocalContext.current)
-                .data(student.currentAvatar)
-                .crossfade(true)
-                .build(),
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
+    var expand by remember { mutableStateOf(false) }
+    var selectedIndex by remember { mutableIntStateOf(0) }
+    val context = LocalContext.current
+
+    Column {
+        Row(
             modifier = modifier
-                .size(64.dp, 64.dp)
-                .clip(MaterialTheme.shapes.small)
-        )
-        Spacer(modifier = Modifier.width(16.dp))
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = student.name,
-                style = MaterialTheme.typography.titleSmall,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold
+                .padding(16.dp)
+                .fillMaxWidth()
+                .clickable {
+                    expand = !expand
+                },
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            AsyncImage(
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(student.getAvatarPaths(context)[selectedIndex])
+                    .crossfade(true)
+                    .build(),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = modifier
+                    .size(64.dp, 64.dp)
+                    .clip(MaterialTheme.shapes.small)
             )
-            Text(
-                text = student.school,
-                style = MaterialTheme.typography.bodyMedium,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
+            Spacer(modifier = Modifier.width(16.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = student.name,
+                    style = MaterialTheme.typography.titleSmall,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = student.school,
+                    style = MaterialTheme.typography.bodyMedium,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+
+            SchoolLogo(school = student.school)
         }
 
-        SchoolLogo(school = student.school)
+        AnimatedVisibility(
+            visible = expand,
+            enter = expandVertically(),
+            exit = shrinkVertically()
+        ) {
+            LazyRow (
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                itemsIndexed(
+                    items = student.getAvatarPaths(context),
+                    key = { index, _ -> index }
+                ) { index, path ->
+                    StudentAvatar(
+                        url = path,
+                        withBorder = index == selectedIndex,
+                        isSelected = index == selectedIndex,
+                        size = 48.dp,
+                        onClick = {
+                            student.currentAvatar = path
+                            selectedIndex = index
+                            onPickAvatar()
+                        }
+                    )
+                }
+            }
+        }
     }
 }
 
@@ -115,7 +162,7 @@ fun StudentInfoPreview() {
     )
 
     StudentInfo(student = student) {
-
+        Log.d(TAG, "StudentInfoPreview: student avatar path: ${student.currentAvatar}")
     }
 }
 
@@ -132,3 +179,5 @@ object School {
     const val VALKYRIE = "Valkyrie"
     const val ARIUS = "Arius"
 }
+
+private const val TAG = "StudentInfo"
