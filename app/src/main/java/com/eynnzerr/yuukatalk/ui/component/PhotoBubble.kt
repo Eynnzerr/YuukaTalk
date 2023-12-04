@@ -1,7 +1,7 @@
 package com.eynnzerr.yuukatalk.ui.component
 
+import android.util.Log
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -27,6 +27,7 @@ fun PhotoBubble(
     modifier: Modifier = Modifier,
     size: Dp = 192.dp
 ) {
+    Log.d(TAG, "PhotoBubble: uri: $uri")
     Column(
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -54,3 +55,5 @@ fun PhotoBubble(
         }
     }
 }
+
+private const val TAG = "PhotoBubble"

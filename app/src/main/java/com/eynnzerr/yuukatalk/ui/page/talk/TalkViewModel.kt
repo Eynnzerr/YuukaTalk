@@ -291,6 +291,7 @@ class TalkViewModel @Inject constructor(
                 )
                 repository.updateProject(currentProject)
             }
+            _uiState.update { it.copy(isEdited = false)}
         }
     }
 

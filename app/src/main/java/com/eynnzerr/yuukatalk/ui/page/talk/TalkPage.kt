@@ -2,6 +2,7 @@ package com.eynnzerr.yuukatalk.ui.page.talk
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.util.Log
 import android.view.ViewGroup
 import android.widget.LinearLayout
@@ -163,8 +164,13 @@ fun TalkPage(
     }
 
     // ActivityResultContract
-    val selectPicture = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+    val selectPicture = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         uri?.let {
+            val contentResolver = context.contentResolver
+            val takeFlags = Intent.FLAG_GRANT_READ_URI_PERMISSION or
+                    Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+            contentResolver.takePersistableUriPermission(it, takeFlags)
+
             viewModel.sendPhoto(it.toString())
         }
     }
@@ -350,7 +356,7 @@ fun TalkPage(
 
                             IconButton(
                                 onClick = {
-                                    selectPicture.launch("image/*")
+                                    selectPicture.launch(arrayOf("image/*"))
                                 },
                                 modifier = Modifier.size(32.dp)
                             ) {
