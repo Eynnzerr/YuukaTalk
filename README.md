@@ -30,3 +30,4 @@ Still WIP.
 - [x] Pre-include emojis.
 - [ ] Numerous settings.
 - [ ] Student information browse.
+- [ ] Multi-language.

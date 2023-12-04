@@ -20,6 +20,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.eynnzerr.yuukatalk.ui.common.Destinations
+import com.eynnzerr.yuukatalk.ui.page.character.CharacterPage
+import com.eynnzerr.yuukatalk.ui.page.character.CharacterViewModel
 import com.eynnzerr.yuukatalk.ui.page.history.HistoryPage
 import com.eynnzerr.yuukatalk.ui.page.history.HistoryViewModel
 import com.eynnzerr.yuukatalk.ui.page.home.HomePage
@@ -61,9 +63,16 @@ private fun AppNavGraph() {
         ) {
             val talkViewModel = hiltViewModel<TalkViewModel>().apply {
                 val id = it.arguments?.getInt("id") ?: -1
-                loadHistory(id)
+                setProjectId(id)
             }
             TalkPage(talkViewModel, appNavController)
+        }
+        animatedComposable(Destinations.CHARACTER_ROUTE) {
+            val characterViewModel = hiltViewModel<CharacterViewModel>()
+            CharacterPage(characterViewModel, appNavController)
+        }
+        animatedComposable(Destinations.SETTINGS) {
+
         }
     }
 }

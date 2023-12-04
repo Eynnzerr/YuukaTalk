@@ -1,0 +1,233 @@
+[
+  {
+    "name": "老师",
+    "nameRoma": "sensei",
+    "school": "schale",
+    "avatarPath": "schale/sensei/avatar",
+    "emojiPath": "schale/sensei/emoji"
+  },
+  {
+    "name": "白子",
+    "nameRoma": "Shiroko",
+    "school": "Abydos",
+    "avatarPath": "abydos/shiroko/avatar",
+    "emojiPath": "abydos/shiroko/emoji"
+  },
+  {
+    "name": "星野",
+    "nameRoma": "Hoshino",
+    "school": "Abydos",
+    "avatarPath": "abydos/hoshino/avatar",
+    "emojiPath": "abydos/hoshino/emoji"
+  },
+  {
+    "name": "野宫",
+    "nameRoma": "Nonomi",
+    "school": "Abydos",
+    "avatarPath": "abydos/nonomi/avatar",
+    "emojiPath": "abydos/nonomi/emoji"
+  },
+  {
+    "name": "芹香",
+    "nameRoma": "Serika",
+    "school": "Abydos",
+    "avatarPath": "abydos/serika/avatar",
+    "emojiPath": "abydos/serika/emoji"
+  },
+  {
+    "name": "绫音",
+    "nameRoma": "Ayane",
+    "school": "Abydos",
+    "avatarPath": "abydos/ayane/avatar",
+    "emojiPath": "abydos/ayane/emoji"
+  },
+  {
+    "name": "白子(色彩)",
+    "nameRoma": "Shiroko_alter",
+    "school": "Abydos",
+    "avatarPath": "abydos/shiroko_alter/avatar",
+    "emojiPath": "abydos/shiroko_alter/emoji"
+  },
+  {
+    "name": "优香",
+    "nameRoma": "Yuuka",
+    "school": "Millennium",
+    "avatarPath": "millennium/yuuka/avatar",
+    "emojiPath": "millennium/yuuka/emoji"
+  },
+  {
+    "name": "诺亚",
+    "nameRoma": "Noa",
+    "school": "Millennium",
+    "avatarPath": "millennium/noa/avatar",
+    "emojiPath": "millennium/noa/emoji"
+  },
+  {
+    "name": "莉音",
+    "nameRoma": "Rio",
+    "school": "Millennium",
+    "avatarPath": "millennium/rio/avatar",
+    "emojiPath": "millennium/rio/emoji"
+  },
+  {
+    "name": "小雪",
+    "nameRoma": "Koyuki",
+    "school": "Millennium",
+    "avatarPath": "millennium/koyuki/avatar",
+    "emojiPath": "millennium/koyuki/emoji"
+  },
+  {
+    "name": "茜",
+    "nameRoma": "Akane",
+    "school": "Millennium",
+    "avatarPath": "millennium/akane/avatar",
+    "emojiPath": "millennium/akane/emoji"
+  },
+  {
+    "name": "明日奈",
+    "nameRoma": "Asuna",
+    "school": "Millennium",
+    "avatarPath": "millennium/asuna/avatar",
+    "emojiPath": "millennium/asuna/emoji"
+  },
+  {
+    "name": "花凛",
+    "nameRoma": "karin",
+    "school": "Millennium",
+    "avatarPath": "millennium/karin/avatar",
+    "emojiPath": "millennium/karin/emoji"
+  },
+  {
+    "name": "妮露",
+    "nameRoma": "Neru",
+    "school": "Millennium",
+    "avatarPath": "millennium/neru/avatar",
+    "emojiPath": "millennium/neru/emoji"
+  },
+  {
+    "name": "时",
+    "nameRoma": "Toki",
+    "school": "Millennium",
+    "avatarPath": "millennium/toki/avatar",
+    "emojiPath": "millennium/toki/emoji"
+  },
+  {
+    "name": "响",
+    "nameRoma": "Hibiki",
+    "school": "Millennium",
+    "avatarPath": "millennium/hibiki/avatar",
+    "emojiPath": "millennium/hibiki/emoji"
+  },
+  {
+    "name": "小鸟",
+    "nameRoma": "Kotori",
+    "school": "Millennium",
+    "avatarPath": "millennium/kotori/avatar",
+    "emojiPath": "millennium/kotori/emoji"
+  },
+  {
+    "name": "歌原",
+    "nameRoma": "Utaha",
+    "school": "Millennium",
+    "avatarPath": "millennium/utaha/avatar",
+    "emojiPath": "millennium/utaha/emoji"
+  },
+  {
+    "name": "爱丽丝",
+    "nameRoma": "Aris",
+    "school": "Millennium",
+    "avatarPath": "millennium/aris/avatar",
+    "emojiPath": "millennium/aris/emoji"
+  },
+  {
+    "name": "凯伊",
+    "nameRoma": "Kei",
+    "school": "Millennium",
+    "avatarPath": "millennium/kei/avatar",
+    "emojiPath": "millennium/kei/emoji"
+  },
+  {
+    "name": "绿",
+    "nameRoma": "Midori",
+    "school": "Millennium",
+    "avatarPath": "millennium/midori/avatar",
+    "emojiPath": "millennium/midori/emoji"
+  },
+  {
+    "name": "桃井",
+    "nameRoma": "Momoi",
+    "school": "Millennium",
+    "avatarPath": "millennium/momoi/avatar",
+    "emojiPath": "millennium/momoi/emoji"
+  },
+  {
+    "name": "柚子",
+    "nameRoma": "Yuzu",
+    "school": "Millennium",
+    "avatarPath": "millennium/yuzu/avatar",
+    "emojiPath": "millennium/yuzu/emoji"
+  },
+  {
+    "name": "埃米",
+    "nameRoma": "Eimi",
+    "school": "Millennium",
+    "avatarPath": "millennium/eimi/avatar",
+    "emojiPath": "millennium/eimi/emoji"
+  },
+  {
+    "name": "日鞠",
+    "nameRoma": "Himari",
+    "school": "Millennium",
+    "avatarPath": "millennium/himari/avatar",
+    "emojiPath": "millennium/himari/emoji"
+  },
+  {
+    "name": "茜",
+    "nameRoma": "Akane",
+    "school": "Millennium",
+    "avatarPath": "millennium/akane/avatar",
+    "emojiPath": "millennium/akane/emoji"
+  },
+  {
+    "name": "堇",
+    "nameRoma": "Sumire",
+    "school": "Millennium",
+    "avatarPath": "millennium/sumire/avatar",
+    "emojiPath": "millennium/sumire/emoji"
+  },
+  {
+    "name": "千寻",
+    "nameRoma": "Chihiro",
+    "school": "Millennium",
+    "avatarPath": "millennium/chihiro/avatar",
+    "emojiPath": "millennium/chihiro/emoji"
+  },
+  {
+    "name": "晴",
+    "nameRoma": "Akane",
+    "school": "Millennium",
+    "avatarPath": "millennium/akane/avatar",
+    "emojiPath": "millennium/akane/emoji"
+  },
+  {
+    "name": "小玉",
+    "nameRoma": "Kotama",
+    "school": "Millennium",
+    "avatarPath": "millennium/kotama/avatar",
+    "emojiPath": "millennium/kotama/emoji"
+  },
+  {
+    "name": "真纪",
+    "nameRoma": "Maki",
+    "school": "Millennium",
+    "avatarPath": "millennium/maki/avatar",
+    "emojiPath": "millennium/maki/emoji"
+  },
+  {
+    "name": "千年学生",
+    "nameRoma": "Millenium_Student",
+    "school": "Millennium",
+    "avatarPath": "millennium/student/avatar",
+    "emojiPath": "millennium/student/emoji"
+  }
+]

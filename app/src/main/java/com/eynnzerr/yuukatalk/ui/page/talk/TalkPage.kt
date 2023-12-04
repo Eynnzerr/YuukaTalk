@@ -6,6 +6,7 @@ import android.util.Log
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
@@ -33,6 +34,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -48,6 +50,7 @@ import androidx.compose.material.icons.filled.MenuOpen
 import androidx.compose.material.icons.filled.RemoveCircleOutline
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.filled.Send
+import androidx.compose.material.icons.filled.Undo
 import androidx.compose.material.icons.outlined.AddCircleOutline
 import androidx.compose.material.icons.outlined.EmojiEmotions
 import androidx.compose.material.icons.outlined.FileDownload
@@ -111,6 +114,7 @@ import com.eynnzerr.yuukatalk.data.model.SpecialPieceEntryItem
 import com.eynnzerr.yuukatalk.ui.component.DenseTextField
 import com.eynnzerr.yuukatalk.ui.component.SpecialPieceEntryButton
 import com.eynnzerr.yuukatalk.ui.component.StudentAvatar
+import com.eynnzerr.yuukatalk.ui.component.StudentInfo
 import com.eynnzerr.yuukatalk.ui.component.StudentSearchBar
 import com.eynnzerr.yuukatalk.ui.view.TalkAdapter
 import com.eynnzerr.yuukatalk.utils.ImageUtils
@@ -147,6 +151,7 @@ fun TalkPage(
     var openBranchDialog by rememberSaveable { mutableStateOf(false) }
     var openEmojiPickerDialog by rememberSaveable { mutableStateOf(false) }
     var openSaveDialog by rememberSaveable { mutableStateOf(false) }
+    var openRemindSaveDialog by rememberSaveable { mutableStateOf(false) }
     val pagerState = rememberPagerState(
         initialPage = 0,
         initialPageOffsetFraction = 0f
@@ -161,7 +166,6 @@ fun TalkPage(
     val selectPicture = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
         uri?.let {
             viewModel.sendPhoto(it.toString())
-            talkAdapter.notifyAppendItem()
         }
     }
     
@@ -211,6 +215,18 @@ fun TalkPage(
         }
     }
 
+    LaunchedEffect(true) {
+        viewModel.loadHistory()
+    }
+
+    BackHandler {
+        if (uiState.isEdited) {
+            openRemindSaveDialog = true
+        } else {
+            navHostController.popBackStack()
+        }
+    }
+
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
@@ -224,6 +240,17 @@ fun TalkPage(
                     onTextChanged = { viewModel.updateSearchText(it) },
                     modifier = Modifier.padding(top = 12.dp)
                 )
+                LazyColumn {
+                    items(uiState.allStudents) { student ->
+                        StudentInfo(
+                            student = student,
+                            onClick = {
+                                viewModel.addStudent(student = student)
+                                Toast.makeText(context, "成功添加角色。", Toast.LENGTH_SHORT).show()
+                            }
+                        )
+                    }
+                }
             }
         },
         gesturesEnabled = true
@@ -238,8 +265,11 @@ fun TalkPage(
                         navigationIcon = {
                             IconButton(
                                 onClick = {
-                                    // scope.launch { drawerState.open() }
-                                    navHostController.popBackStack()
+                                    if (uiState.isEdited) {
+                                        openRemindSaveDialog = true
+                                    } else {
+                                        navHostController.popBackStack()
+                                    }
                                 }
                             ) {
                                 Icon(
@@ -251,7 +281,12 @@ fun TalkPage(
                         actions = {
                             IconButton(
                                 onClick = {
-                                    openSaveDialog = true
+                                    if (viewModel.isHistoryTalk()) {
+                                        viewModel.saveProject()
+                                        Toast.makeText(context, "project saved as ${uiState.chatName}", Toast.LENGTH_SHORT).show()
+                                    } else {
+                                        openSaveDialog = true
+                                    }
                                 }
                             ) {
                                 Icon(
@@ -700,6 +735,42 @@ fun TalkPage(
                     onValueChange = { viewModel.updateChatName(it) },
                     label = { Text(text = stringResource(id = R.string.name)) },
                 )
+            }
+        )
+    }
+
+    if (openRemindSaveDialog) {
+        AlertDialog(
+            onDismissRequest = {
+                openRemindSaveDialog = false
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        openRemindSaveDialog = false
+                        navHostController.popBackStack()
+                    },
+                ) {
+                    Text(stringResource(id = R.string.btn_confirm))
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        openRemindSaveDialog = false
+                    },
+                ) {
+                    Text(stringResource(id = R.string.btn_cancel))
+                }
+            },
+            icon = {
+                Icon(
+                    imageVector = Icons.Filled.Undo,
+                    contentDescription = "save reminder dialog icon"
+                )
+            },
+            text = {
+                Text(text = stringResource(id = R.string.title_save_reminder_dialog))
             }
         )
     }
