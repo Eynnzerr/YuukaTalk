@@ -2,6 +2,7 @@ package com.eynnzerr.yuukatalk.ui.page.talk
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.util.Log
 import android.view.ViewGroup
 import android.widget.LinearLayout
@@ -103,7 +104,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.core.view.setPadding
 import androidx.navigation.NavHostController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -163,8 +163,13 @@ fun TalkPage(
     }
 
     // ActivityResultContract
-    val selectPicture = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+    val selectPicture = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         uri?.let {
+            val contentResolver = context.contentResolver
+            val takeFlags = Intent.FLAG_GRANT_READ_URI_PERMISSION or
+                    Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+            contentResolver.takePersistableUriPermission(it, takeFlags)
+
             viewModel.sendPhoto(it.toString())
         }
     }
@@ -241,12 +246,14 @@ fun TalkPage(
                     modifier = Modifier.padding(top = 12.dp)
                 )
                 LazyColumn {
-                    items(uiState.allStudents) { student ->
+                    items(uiState.filteredStudents) { student ->
                         StudentInfo(
                             student = student,
-                            onClick = {
-                                viewModel.addStudent(student = student)
-                                Toast.makeText(context, "成功添加角色。", Toast.LENGTH_SHORT).show()
+                            onPickAvatar = {
+                                if (student !in uiState.studentList) {
+                                    viewModel.addStudent(student = student)
+                                    Toast.makeText(context, "成功添加角色。", Toast.LENGTH_SHORT).show()
+                                }
                             }
                         )
                     }
@@ -332,6 +339,7 @@ fun TalkPage(
                                 url = uiState.currentStudent.currentAvatar,
                                 size = 48.dp,
                                 withBorder = true,
+                                isSelected = true,
                                 onClick = { openBottomSheet = true },
                             )
 
@@ -350,7 +358,7 @@ fun TalkPage(
 
                             IconButton(
                                 onClick = {
-                                    selectPicture.launch("image/*")
+                                    selectPicture.launch(arrayOf("image/*"))
                                 },
                                 modifier = Modifier.size(32.dp)
                             ) {
@@ -456,12 +464,13 @@ fun TalkPage(
                 horizontalArrangement = Arrangement.spacedBy(
                     space = 16.dp,
                     alignment = Alignment.Start
-                )
+                ),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 uiState.studentList.forEach {
                     StudentAvatar(
-                        modifier = Modifier.padding(bottom = 8.dp),
                         url = it.currentAvatar,
+                        withBorder = uiState.currentStudent == it,
                         isSelected = uiState.currentStudent == it,
                         size = 48.dp,
                         onClick = {

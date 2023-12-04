@@ -1,12 +1,5 @@
 [
   {
-    "name": "老师",
-    "nameRoma": "sensei",
-    "school": "schale",
-    "avatarPath": "schale/sensei/avatar",
-    "emojiPath": "schale/sensei/emoji"
-  },
-  {
     "name": "白子",
     "nameRoma": "Shiroko",
     "school": "Abydos",
@@ -204,10 +197,10 @@
   },
   {
     "name": "晴",
-    "nameRoma": "Akane",
+    "nameRoma": "Hare",
     "school": "Millennium",
-    "avatarPath": "millennium/akane/avatar",
-    "emojiPath": "millennium/akane/emoji"
+    "avatarPath": "millennium/hare/avatar",
+    "emojiPath": "millennium/hare/emoji"
   },
   {
     "name": "小玉",

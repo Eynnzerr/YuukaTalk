@@ -1,6 +1,5 @@
 package com.eynnzerr.yuukatalk.ui.page.talk
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eynnzerr.yuukatalk.data.database.AppRepository
@@ -12,6 +11,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -29,7 +29,7 @@ data class TalkUiState(
     val narrationText: String,
     val textBranches: List<String>,
     val talkListState: TalkListState, // operate with recyclerView change
-    val allStudents: List<Character>,
+    val filteredStudents: List<Character>,
     val isEdited: Boolean,
 )
 
@@ -46,46 +46,10 @@ class TalkViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val talkList = mutableListOf<Talk>()
-    private val studentList = mutableListOf(
-        Sensei,
-        Character(
-            name = "白子",
-            nameRoma = "Shiroko",
-            school = "Abydos",
-            avatarPath = "abydos/shiroko/avatar",
-            emojiPath = "abydos/shiroko/emoji",
-        ),
-        Character(
-            name = "星野",
-            nameRoma = "Hoshino",
-            school = "Abydos",
-            avatarPath = "abydos/hoshino/avatar",
-            emojiPath = "abydos/hoshino/emoji"
-        ),
-        Character(
-            name = "野宫",
-            nameRoma = "Nonomi",
-            school = "Abydos",
-            avatarPath = "abydos/nonomi/avatar",
-            emojiPath = "abydos/nonomi/emoji"
-        ),
-        Character(
-            name = "芹香",
-            nameRoma = "Serika",
-            school = "Abydos",
-            avatarPath = "abydos/serika/avatar",
-            emojiPath = "abydos/serika/emoji"
-        ),
-        Character(
-            name = "绫音",
-            nameRoma = "Ayane",
-            school = "Abydos",
-            avatarPath = "abydos/ayane/avatar",
-            emojiPath = "abydos/ayane/emoji",
-        ),
-    )
+    private val studentList = mutableListOf<Character>(Sensei)
     private val branchArray
         get() = _uiState.value.textBranches.toTypedArray()
+    private lateinit var allStudents: List<Character>
 
     private val _uiState = MutableStateFlow(
         TalkUiState(
@@ -100,7 +64,7 @@ class TalkViewModel @Inject constructor(
             narrationText = "",
             textBranches = listOf(""),
             talkListState = TalkListState.Initialized(),
-            allStudents = emptyList(),
+            filteredStudents = emptyList(),
             isEdited = false
         )
     )
@@ -115,7 +79,8 @@ class TalkViewModel @Inject constructor(
     init {
         viewModelScope.launch(Dispatchers.IO) {
             repository.fetchAllCharacters().collect { characters ->
-                _uiState.update { it.copy(allStudents = characters) }
+                allStudents = characters
+                _uiState.update { it.copy(filteredStudents = characters) }
             }
         }
     }
@@ -263,7 +228,12 @@ class TalkViewModel @Inject constructor(
     fun updateSearchText(newText: String) {
         _uiState.update {
             it.copy(
-                searchText = newText
+                searchText = newText,
+                filteredStudents = allStudents.filter { student ->
+                    student.name.contains(newText, ignoreCase = true) ||
+                    student.nameRoma.contains(newText, ignoreCase = true) ||
+                    student.school.contains(newText, ignoreCase = true)
+                }
             )
         }
     }
@@ -291,6 +261,7 @@ class TalkViewModel @Inject constructor(
                 )
                 repository.updateProject(currentProject)
             }
+            _uiState.update { it.copy(isEdited = false)}
         }
     }
 
