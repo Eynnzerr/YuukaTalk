@@ -12,11 +12,20 @@ Why named YuukaTalk? I love Yuuka.
 
 # Previews
 
-
+<div align="center">
+  <img src="./imgs/preview_home_page.jpg" width="256"/>
+  <img src="./imgs/preview_search_page.jpg" width="256"/>
+  <img src="./imgs/preview_talk_page.jpg" width="256"/>
+</div>
 
 # Features
 
-Still WIP.
+- Complete offline.
+- Easy to operate.
+- Support all kinds of message.
+- Support saving talk projects.
+- Support DIY characters.
+- Much more to discover...
 
 # Installation
 
