@@ -23,6 +23,7 @@ Why named YuukaTalk? I love Yuuka.
 - Complete offline.
 - Easy to operate.
 - Support all kinds of message.
+- Support edit history message.
 - Support saving talk projects.
 - Support DIY characters.
 - Much more to discover...
@@ -38,8 +39,9 @@ Still WIP.
 - [x] Pre-include emojis.
 - [x] Search student by keyword.
 - [ ] DIY characters.
-- [ ] revert and reedit talks.
+- [x] revert and reedit talks.
 - [ ] Import all students in BlueArchive.(WIP)
 - [ ] Numerous settings.
 - [x] Student information browse.
 - [ ] Multi-language.
+- [ ] support insert message.
