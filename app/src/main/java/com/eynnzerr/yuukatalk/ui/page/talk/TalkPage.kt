@@ -67,9 +67,12 @@ import androidx.compose.material.icons.outlined.AddCircleOutline
 import androidx.compose.material.icons.outlined.Cancel
 import androidx.compose.material.icons.outlined.EmojiEmotions
 import androidx.compose.material.icons.outlined.FileDownload
+import androidx.compose.material.icons.outlined.FormatListBulleted
+import androidx.compose.material.icons.outlined.GraphicEq
 import androidx.compose.material.icons.outlined.Image
 import androidx.compose.material.icons.outlined.PhotoLibrary
 import androidx.compose.material.icons.outlined.SaveAs
+import androidx.compose.material.icons.outlined.TextFields
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.BottomAppBarDefaults
@@ -102,6 +105,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -131,6 +135,7 @@ import com.eynnzerr.yuukatalk.R
 import com.eynnzerr.yuukatalk.data.model.SpecialPieceEntryItem
 import com.eynnzerr.yuukatalk.data.model.Talk
 import com.eynnzerr.yuukatalk.ui.component.DenseTextField
+import com.eynnzerr.yuukatalk.ui.component.PlainButton
 import com.eynnzerr.yuukatalk.ui.component.SpecialPieceEntryButton
 import com.eynnzerr.yuukatalk.ui.component.StudentAvatar
 import com.eynnzerr.yuukatalk.ui.component.StudentInfo
@@ -176,6 +181,8 @@ fun TalkPage(
     var openSaveDialog by rememberSaveable { mutableStateOf(false) }
     var openRemindSaveDialog by rememberSaveable { mutableStateOf(false) }
     var openTalkPieceEditDialog by rememberSaveable { mutableStateOf(false) }
+    var openTalkPieceInsertDialog by rememberSaveable { mutableStateOf(false) }
+    var insertIndex by remember { mutableIntStateOf(0) }
 
     // Native RecyclerView adapter
     val talkAdapter = remember {
@@ -223,31 +230,31 @@ fun TalkPage(
         ),
     )
 
-    LaunchedEffect(uiState.talkListState) {
-        when (val state = uiState.talkListState) {
-            is TalkListState.Initialized -> {
-                // do nothing
-            }
-            is TalkListState.Push -> {
-                talkAdapter.notifyAppendItem()
-            }
-            is TalkListState.Pop -> {
-                talkAdapter.notifyRemoveItemAtLast()
-            }
-            is TalkListState.Refresh -> {
-                talkAdapter.notifyDataSetChanged()
-                talkAdapter.notifyScrollToLast()
-            }
-            is TalkListState.Modified -> {
-                talkAdapter.notifyItemChanged(state.index)
-            }
-            is TalkListState.ModifiedMultiple -> {
-                for (i in state.indexes) {
-                    talkAdapter.notifyItemChanged(i)
+    LaunchedEffect(uiState.talkListStateChange) {
+        for (state in uiState.talkListStateChange) {
+            when (state) {
+                is TalkListState.Initialized -> {
+                    // do nothing
                 }
-            }
-            is TalkListState.Removed -> {
-                talkAdapter.notifyItemRemoved(state.index)
+                is TalkListState.Push -> {
+                    talkAdapter.notifyAppendItem()
+                }
+                is TalkListState.Pop -> {
+                    talkAdapter.notifyRemoveItemAtLast()
+                }
+                is TalkListState.Refresh -> {
+                    talkAdapter.notifyDataSetChanged()
+                    talkAdapter.notifyScrollToLast()
+                }
+                is TalkListState.Modified -> {
+                    talkAdapter.notifyItemChanged(state.index)
+                }
+                is TalkListState.Removed -> {
+                    talkAdapter.notifyItemRemoved(state.index)
+                }
+                is TalkListState.Inserted -> {
+                    talkAdapter.notifyItemInserted(state.index)
+                }
             }
         }
     }
@@ -485,7 +492,11 @@ fun TalkPage(
 
     // dialog to edit single talk piece.
     if (talkPieceEditState.openEditDialog) {
-        val radioOptions = listOf(stringResource(id = R.string.edit_piece), stringResource(id = R.string.remove_piece))
+        val radioOptions = listOf(
+            stringResource(id = R.string.edit_piece),
+            stringResource(id = R.string.remove_piece),
+            stringResource(id = R.string.insert_piece),
+        )
         val (selectedOption, onOptionSelected) = remember { mutableStateOf(radioOptions[0]) }
 
         AlertDialog(
@@ -496,10 +507,18 @@ fun TalkPage(
                 TextButton(
                     onClick = {
                         talkAdapter.closeDialog()
-                        if (selectedOption == radioOptions.first()) {
-                            openTalkPieceEditDialog = true
-                        } else {
-                            viewModel.removeTalkPiece(talkPieceEditState.position)
+                        when (selectedOption) {
+                            radioOptions[0] -> {
+                                openTalkPieceEditDialog = true
+                            }
+                            radioOptions[1] -> {
+                                // TODO 这里同样需要感知上下文
+                                viewModel.removeTalkPiece(talkPieceEditState.position)
+                            }
+                            else -> {
+                                openTalkPieceInsertDialog = true
+                                insertIndex = talkPieceEditState.position
+                            }
                         }
                     },
                 ) {
@@ -705,49 +724,16 @@ fun TalkPage(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceEvenly
                             ) {
-                                Button(
-                                    onClick = {
-                                        reselectPicture.launch(arrayOf("image/*"))
-                                    },
-                                    colors = ButtonDefaults.buttonColors(
-                                        containerColor = Color.Transparent,
-                                        contentColor = MaterialTheme.colorScheme.onSurface
-                                    ),
-                                    elevation = null
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Outlined.PhotoLibrary,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(ButtonDefaults.IconSize)
-                                    )
-                                    Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
-                                    Text(
-                                        text = "Gallery",
-                                        style = MaterialTheme.typography.bodySmall
-                                    )
-                                }
-
-                                Button(
-                                    onClick = {
-                                        openSubDialog = true
-                                    },
-                                    colors = ButtonDefaults.buttonColors(
-                                        containerColor = Color.Transparent,
-                                        contentColor = MaterialTheme.colorScheme.onSurface
-                                    ),
-                                    elevation = null
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Outlined.EmojiEmotions,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(ButtonDefaults.IconSize)
-                                    )
-                                    Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
-                                    Text(
-                                        text = "Emotions",
-                                        style = MaterialTheme.typography.bodySmall
-                                    )
-                                }
+                                PlainButton(
+                                    onClick = { reselectPicture.launch(arrayOf("image/*")) },
+                                    imageVector = Icons.Outlined.PhotoLibrary,
+                                    text = stringResource(id = R.string.gallery)
+                                )
+                                PlainButton(
+                                    onClick = { openSubDialog = true },
+                                    imageVector = Icons.Outlined.EmojiEmotions,
+                                    text = stringResource(id = R.string.emotions)
+                                )
                             }
                             AsyncImage(
                                 model = ImageRequest
@@ -875,6 +861,120 @@ fun TalkPage(
                                 }
                             }
                         }
+                    }
+                )
+            }
+        }
+    }
+
+    if (openTalkPieceInsertDialog) {
+        // local dialog switches
+        var openInsertIndex by remember { mutableIntStateOf(-1) }
+
+        AlertDialog(
+            onDismissRequest = {
+                openTalkPieceInsertDialog = false
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        openTalkPieceInsertDialog = false
+                    },
+                ) {
+                    Text(stringResource(id = R.string.btn_cancel))
+                }
+            },
+            icon = {
+                Text(text = "Choose insert type.")
+            },
+            text = {
+                Column(
+                    verticalArrangement = Arrangement.SpaceBetween,
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    // 选择插入文字、图片、旁白、分支、羁绊剧情
+                    PlainButton(
+                        onClick = { openInsertIndex = 0 },
+                        imageVector = Icons.Outlined.TextFields,
+                        text = "Text"
+                    )
+                    PlainButton(
+                        onClick = { openInsertIndex = 1 },
+                        imageVector = Icons.Outlined.Image,
+                        text = "Image"
+                    )
+                    PlainButton(
+                        onClick = { openInsertIndex = 2 },
+                        imageVector = Icons.Outlined.GraphicEq,
+                        text = "Narration"
+                    )
+                    PlainButton(
+                        onClick = { openInsertIndex = 3 },
+                        imageVector = Icons.Outlined.FormatListBulleted,
+                        text = "Branch"
+                    )
+                    PlainButton(
+                        onClick = {
+                            // 直接按照当前所选学生插入一张love scene
+                            viewModel.sendLoveScene(insertIndex)
+                            openInsertIndex = -1
+                            openTalkPieceInsertDialog = false
+                        },
+                        imageVector = Icons.Filled.Favorite,
+                        text = "Love Scene"
+                    )
+                }
+            }
+        )
+
+        when (openInsertIndex) {
+            0 -> {
+
+            }
+            1 -> {
+
+            }
+            2 -> {
+                NarrationDialog(
+                    onDismissRequest = {
+                        openInsertIndex = -1
+                    },
+                    onConfirm = {
+                        viewModel.sendNarration(insertIndex)
+                        openInsertIndex = -1
+                        openTalkPieceInsertDialog = false
+                    },
+                    onDismiss = {
+                        openInsertIndex = -1
+                    },
+                    value = uiState.narrationText,
+                    onValueChange = {
+                        viewModel.updateNarrationText(it)
+                    }
+                )
+            }
+            3 -> {
+                BranchDialog(
+                    onDismissRequest = {
+                        openInsertIndex = -1
+                    },
+                    onConfirm = {
+                        viewModel.sendBranches(insertIndex)
+                        openInsertIndex = -1
+                        openTalkPieceInsertDialog = false
+                    },
+                    onDismiss = {
+                        openInsertIndex = -1
+                    },
+                    onAdd = {
+                        viewModel.appendBranch()
+                    },
+                    onRemove = {
+                        viewModel.removeBranch()
+                    },
+                    values = uiState.textBranches,
+                    onValueChange = { newText, index ->
+                        viewModel.editBranchAtIndex(newText, index)
                     }
                 )
             }

@@ -28,7 +28,7 @@ data class TalkUiState(
     val searchText: String,
     val narrationText: String,
     val textBranches: List<String>,
-    val talkListState: TalkListState, // operate with recyclerView change
+    val talkListStateChange: List<TalkListState>, // // operate with recyclerView change
     val filteredStudents: List<Character>,
     val isEdited: Boolean,
 )
@@ -40,7 +40,7 @@ sealed class TalkListState(type: Int) {
     class Pop: TalkListState(type = 3)
     class Modified(val index: Int): TalkListState(type = 4)
     class Removed(val index: Int): TalkListState(type = 5)
-    class ModifiedMultiple(val indexes: List<Int>): TalkListState(type = 6)
+    class Inserted(val index: Int): TalkListState(type = 6)
 }
 
 @HiltViewModel
@@ -66,7 +66,7 @@ class TalkViewModel @Inject constructor(
             searchText = "",
             narrationText = "",
             textBranches = listOf(""),
-            talkListState = TalkListState.Initialized(),
+            talkListStateChange = listOf(TalkListState.Initialized()),
             filteredStudents = emptyList(),
             isEdited = false
         )
@@ -103,7 +103,7 @@ class TalkViewModel @Inject constructor(
                         studentList = historyState.studentList,
                         currentStudent = historyState.currentStudent,
                         isFirstTalking = historyState.isFirstTalking,
-                        talkListState = TalkListState.Refresh(),
+                        talkListStateChange = listOf(TalkListState.Refresh()),
                     )
                 }
             }
@@ -146,7 +146,44 @@ class TalkViewModel @Inject constructor(
             it.copy(
                 text = "",
                 isFirstTalking = false,
-                talkListState = TalkListState.Push(),
+                talkListStateChange = listOf(TalkListState.Push()),
+                isEdited = true
+            )
+        }
+    }
+
+    fun sendPureText(index: Int) {
+        val newPureText = Talk.PureText(
+            talker = _uiState.value.currentStudent,
+            text = _uiState.value.text,
+            isFirst = true
+        )
+        talkList.add(index, newPureText)
+
+        val talkListChanges = mutableListOf<TalkListState>(TalkListState.Inserted(index))
+        // 处理上下文。插入只影响本次和之后
+
+        // 如果插入后，插入处有上文，且说话人和本次相同，则设isFirst=false
+        if (index > 0) {
+            val lastTalk = talkList[index - 1]
+            val lastTalker = if (lastTalk is Talk.PureText) lastTalk.talker else if (lastTalk is Talk.Photo) lastTalk.talker else null
+            lastTalker?.let {
+                newPureText.isFirst = newPureText.talker != it
+            }
+        }
+        // 插入必有下文，如果下文说话人和本次相同，则设下文isFirst=false
+        val nextTalk = talkList[index + 1]
+        if (nextTalk is Talk.PureText) {
+            nextTalk.isFirst = nextTalk.talker != newPureText.talker
+            talkListChanges.add(TalkListState.Modified(index + 1))
+        } else if (nextTalk is Talk.Photo) {
+            nextTalk.isFirst = nextTalk.talker != newPureText.talker
+            talkListChanges.add(TalkListState.Modified(index + 1))
+        }
+
+        _uiState.update {
+            it.copy(
+                talkListStateChange = talkListChanges,
                 isEdited = true
             )
         }
@@ -163,7 +200,42 @@ class TalkViewModel @Inject constructor(
         _uiState.update {
             it.copy(
                 isFirstTalking = false,
-                talkListState = TalkListState.Push(),
+                talkListStateChange = listOf(TalkListState.Push()),
+                isEdited = true
+            )
+        }
+    }
+
+    fun sendPhoto(uri: String, index: Int) {
+        val newPhoto = Talk.Photo(
+            talker = _uiState.value.currentStudent,
+            uri = uri,
+            isFirst = true
+        )
+        talkList.add(newPhoto)
+
+        val talkListChanges = mutableListOf<TalkListState>(TalkListState.Inserted(index))
+        // 处理上下文。插入只影响本次和之后
+        // 如果插入后，插入处有上文，且说话人和本次相同，则设isFirst=false
+        if (index > 0) {
+            val lastTalk = talkList[index - 1]
+            lastTalk.getTalker()?.let {
+                newPhoto.isFirst = newPhoto.talker != it
+            }
+        }
+        // 插入必有下文，如果下文说话人和本次相同，则设下文isFirst=false
+        val nextTalk = talkList[index + 1]
+        if (nextTalk is Talk.PureText) {
+            nextTalk.isFirst = nextTalk.talker != newPhoto.talker
+            talkListChanges.add(TalkListState.Modified(index + 1))
+        } else if (nextTalk is Talk.Photo) {
+            nextTalk.isFirst = nextTalk.talker != newPhoto.talker
+            talkListChanges.add(TalkListState.Modified(index + 1))
+        }
+
+        _uiState.update {
+            it.copy(
+                talkListStateChange = talkListChanges,
                 isEdited = true
             )
         }
@@ -178,7 +250,29 @@ class TalkViewModel @Inject constructor(
         _uiState.update {
             it.copy(
                 isFirstTalking = true,
-                talkListState = TalkListState.Push(),
+                talkListStateChange = listOf(TalkListState.Push()),
+                isEdited = true
+            )
+        }
+    }
+
+    fun sendLoveScene(index: Int) {
+        val newLoveScene = Talk.LoveScene(
+            studentName = _uiState.value.currentStudent.name
+        )
+        talkList.add(index, newLoveScene)
+
+        // 特殊题材插入：对上文无影响，而一定使下文图文变为firstTalking
+        val nextTalk = talkList[index + 1]
+        if (nextTalk is Talk.PureText) {
+            nextTalk.isFirst = true
+        } else if (nextTalk is Talk.Photo) {
+            nextTalk.isFirst = true
+        }
+
+        _uiState.update {
+            it.copy(
+                talkListStateChange = listOf(TalkListState.Inserted(index), TalkListState.Modified(index + 1)),
                 isEdited = true
             )
         }
@@ -194,7 +288,30 @@ class TalkViewModel @Inject constructor(
             it.copy(
                 isFirstTalking = true,
                 narrationText = "",
-                talkListState = TalkListState.Push(),
+                talkListStateChange = listOf(TalkListState.Push()),
+                isEdited = true
+            )
+        }
+    }
+
+    fun sendNarration(index: Int) {
+        val newNarration = Talk.Narration(
+            text = _uiState.value.narrationText
+        )
+        talkList.add(index, newNarration)
+
+        // 特殊题材插入：对上文无影响，而一定使下文图文变为firstTalking
+        val nextTalk = talkList[index + 1]
+        if (nextTalk is Talk.PureText) {
+            nextTalk.isFirst = true
+        } else if (nextTalk is Talk.Photo) {
+            nextTalk.isFirst = true
+        }
+
+        _uiState.update {
+            it.copy(
+                narrationText = "",
+                talkListStateChange = listOf(TalkListState.Inserted(index), TalkListState.Modified(index + 1)),
                 isEdited = true
             )
         }
@@ -210,7 +327,30 @@ class TalkViewModel @Inject constructor(
             it.copy(
                 isFirstTalking = true,
                 textBranches = listOf(""),
-                talkListState = TalkListState.Push(),
+                talkListStateChange = listOf(TalkListState.Push()),
+                isEdited = true
+            )
+        }
+    }
+
+    fun sendBranches(index: Int) {
+        val newBranches = Talk.Branch(
+            textOptions = _uiState.value.textBranches
+        )
+        talkList.add(index, newBranches)
+
+        // 特殊题材插入：对上文无影响，而一定使下文图文变为firstTalking
+        val nextTalk = talkList[index + 1]
+        if (nextTalk is Talk.PureText) {
+            nextTalk.isFirst = true
+        } else if (nextTalk is Talk.Photo) {
+            nextTalk.isFirst = true
+        }
+
+        _uiState.update {
+            it.copy(
+                textBranches = listOf(""),
+                talkListStateChange = listOf(TalkListState.Inserted(index), TalkListState.Modified(index + 1)),
                 isEdited = true
             )
         }
@@ -219,98 +359,113 @@ class TalkViewModel @Inject constructor(
     fun removeTalkPiece(index: Int) {
         talkList.removeAt(index)
 
+        // 处理上下文: 删除只影响下文
+        // 如果删除位置为首位，检查删除后首位说话人，设其isFirst=true
+        // 如果删除位置为末尾，直接删除即可
+        // 如果删除位置在中间，检查若删除后上下文说话人相同，设置下文说话人isFirst=false,否则设为true，更新下文
+        if (index == 0) {
+            val firstTalk = talkList.firstOrNull()
+            if (firstTalk is Talk.PureText) {
+                firstTalk.isFirst = true
+            } else if (firstTalk is Talk.Photo) {
+                firstTalk.isFirst = true
+            }
+        } else if (index < talkList.size) {
+            val nextTalk = talkList[index]
+            if (nextTalk.hasTalker()) {
+                val lastTalk = talkList[index - 1]
+                if (lastTalk.getTalker() == nextTalk.getTalker()) {
+                    if (nextTalk is Talk.PureText) {
+                        nextTalk.isFirst = false
+                    } else if (nextTalk is Talk.Photo) {
+                        nextTalk.isFirst = false
+                    }
+                } else {
+                    // 上文为特殊题材，下文无论如何都设为true
+                    if (nextTalk is Talk.PureText) {
+                        nextTalk.isFirst = true
+                    } else if (nextTalk is Talk.Photo) {
+                        nextTalk.isFirst = true
+                    }
+                }
+            }
+        }
+
+        val talkListChanges = mutableListOf(
+            TalkListState.Removed(index),
+            TalkListState.Modified(index)
+        )
         _uiState.update {
             it.copy(
                 isEdited = true,
-                talkListState = TalkListState.Removed(index)
+                talkListStateChange = talkListChanges
             )
         }
     }
 
     fun editTalkHistory(talk: Talk, index: Int) {
         talkList[index] = talk
+        val talkListChanges = mutableListOf(TalkListState.Modified(index))
         // 考虑上下文
-        when (talk) {
-            is Talk.PureText -> {
-                val changedIndexes = mutableListOf(index)
-                // 如有上文，当前isFirstTalking为!= lastCharacter
-                if (index > 0) {
-                    val lastTalk = talkList[index - 1]
-                    val lastTalker = if (lastTalk is Talk.PureText) lastTalk.talker else if (lastTalk is Talk.Photo) lastTalk.talker else null
-                    lastTalker?.let {
-                        talk.isFirst = talk.talker != it
-                        changedIndexes.add(index - 1)
-                    }
-                }
-                // 如有下文，顺便修改下文isFirstTalking为!= currentCharacter
-                if (index < talkList.lastIndex) {
-                    val nextTalk = talkList[index + 1]
-                    if (nextTalk is Talk.PureText) {
-                        nextTalk.isFirst = nextTalk.talker != talk.talker
-                        changedIndexes.add(index + 1)
-                    } else if (nextTalk is Talk.Photo) {
-                        nextTalk.isFirst = nextTalk.talker != talk.talker
-                        changedIndexes.add(index + 1)
-                    }
-                }  else {
-                    // 若为修改末尾消息，判断下一条消息是否为学生首次
-                    _uiState.update {
-                        it.copy(isFirstTalking = talk.talker != _uiState.value.currentStudent)
-                    }
-                }
-                _uiState.update {
-                    it.copy(
-                        isEdited = true,
-                        talkListState = TalkListState.ModifiedMultiple(changedIndexes)
-                    )
+        if (talk is Talk.PureText) {
+            // 如有上文，当前isFirstTalking为!= lastCharacter
+            if (index > 0) {
+                val lastTalk = talkList[index - 1]
+                val lastTalker = if (lastTalk is Talk.PureText) lastTalk.talker else if (lastTalk is Talk.Photo) lastTalk.talker else null
+                lastTalker?.let {
+                    talk.isFirst = talk.talker != it
+                    talkListChanges.add(TalkListState.Modified(index - 1))
                 }
             }
+            // 如有下文，顺便修改下文isFirstTalking为!= currentCharacter
+            if (index < talkList.lastIndex) {
+                val nextTalk = talkList[index + 1]
+                if (nextTalk is Talk.PureText) {
+                    nextTalk.isFirst = nextTalk.talker != talk.talker
+                    talkListChanges.add(TalkListState.Modified(index + 1))
+                } else if (nextTalk is Talk.Photo) {
+                    nextTalk.isFirst = nextTalk.talker != talk.talker
+                    talkListChanges.add(TalkListState.Modified(index + 1))
+                }
+            }  else {
+                // 若为修改末尾消息，判断下一条消息是否为学生首次
+                _uiState.update {
+                    it.copy(isFirstTalking = talk.talker != _uiState.value.currentStudent)
+                }
+            }
+        } else if (talk is Talk.Photo) {
+            // 如有上文，当前isFirstTalking为!= lastCharacter
+            if (index > 0) {
+                val lastTalk = talkList[index - 1]
+                val lastTalker = if (lastTalk is Talk.PureText) lastTalk.talker else if (lastTalk is Talk.Photo) lastTalk.talker else null
+                lastTalker?.let {
+                    talk.isFirst = talk.talker != it
+                    talkListChanges.add(TalkListState.Modified(index - 1))
+                }
+            }
+            // 如有下文，顺便修改下文isFirstTalking为!= currentCharacter
+            if (index < talkList.lastIndex) {
+                val nextTalk = talkList[index + 1]
+                if (nextTalk is Talk.PureText) {
+                    nextTalk.isFirst = nextTalk.talker != talk.talker
+                    talkListChanges.add(TalkListState.Modified(index + 1))
+                } else if (nextTalk is Talk.Photo) {
+                    nextTalk.isFirst = nextTalk.talker != talk.talker
+                    talkListChanges.add(TalkListState.Modified(index + 1))
+                }
+            }  else {
+                // 若为修改末尾消息，判断下一条消息是否为学生首次
+                _uiState.update {
+                    it.copy(isFirstTalking = talk.talker != _uiState.value.currentStudent)
+                }
+            }
+        }
 
-            is Talk.Photo -> {
-                // 同PureText
-                val changedIndexes = mutableListOf(index)
-                // 如有上文，当前isFirstTalking为!= lastCharacter
-                if (index > 0) {
-                    val lastTalk = talkList[index - 1]
-                    val lastTalker = if (lastTalk is Talk.PureText) lastTalk.talker else if (lastTalk is Talk.Photo) lastTalk.talker else null
-                    lastTalker?.let {
-                        talk.isFirst = talk.talker != it
-                        changedIndexes.add(index - 1)
-                    }
-                }
-                // 如有下文，顺便修改下文isFirstTalking为!= currentCharacter
-                if (index < talkList.lastIndex) {
-                    val nextTalk = talkList[index + 1]
-                    if (nextTalk is Talk.PureText) {
-                        nextTalk.isFirst = nextTalk.talker != talk.talker
-                        changedIndexes.add(index + 1)
-                    } else if (nextTalk is Talk.Photo) {
-                        nextTalk.isFirst = nextTalk.talker != talk.talker
-                        changedIndexes.add(index + 1)
-                    }
-                }  else {
-                    // 若为修改末尾消息，判断下一条消息是否为学生首次
-                    _uiState.update {
-                        it.copy(isFirstTalking = talk.talker != _uiState.value.currentStudent)
-                    }
-                }
-                _uiState.update {
-                    it.copy(
-                        isEdited = true,
-                        talkListState = TalkListState.ModifiedMultiple(changedIndexes)
-                    )
-                }
-            }
-
-            else -> {
-                // 非文本/图片题材，不涉及说话人，直接更新
-                _uiState.update {
-                    it.copy(
-                        isEdited = true,
-                        talkListState = TalkListState.Modified(index)
-                    )
-                }
-            }
+        _uiState.update {
+            it.copy(
+                isEdited = true,
+                talkListStateChange = talkListChanges
+            )
         }
     }
 
@@ -350,7 +505,7 @@ class TalkViewModel @Inject constructor(
                     currentStudent = _uiState.value.currentStudent,
                     isFirstTalking = _uiState.value.isFirstTalking
                 )
-                repository.addProject(currentProject)
+                projectId = repository.addProject(currentProject).toInt()
             } else {
                 val currentProject = TalkProject(
                     id = projectId,
@@ -368,6 +523,8 @@ class TalkViewModel @Inject constructor(
 
     fun isHistoryTalk() = projectId >= 0
 
+    private fun Talk.hasTalker() = this is Talk.PureText || this is Talk.Photo
+    private fun Talk.getTalker() = if (this is Talk.PureText) this.talker else if (this is Talk.Photo) this.talker else null
 }
 
 private const val TAG = "TalkViewModel"

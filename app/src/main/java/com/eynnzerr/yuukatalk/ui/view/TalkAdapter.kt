@@ -45,13 +45,14 @@ class TalkAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.index = position
         val talkPieceView = holder.itemView as TalkPieceView
-        talkPieceView.talkData = talkList[position]
+        val talkData = talkList[position]
+        talkPieceView.talkData = talkData
         talkPieceView.setOnLongClickListener {
-            Log.d(TAG, "onBindViewHolder: long pressed.")
+            Log.d(TAG, "long pressed. position: ${holder.bindingAdapterPosition}")
             _talkPieceState.update {
                 it.copy(
-                    position = position,
-                    talkData = talkList[position],
+                    position = holder.bindingAdapterPosition,
+                    talkData = talkData,
                     openEditDialog = true
                 )
             }
