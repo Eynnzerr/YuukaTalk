@@ -512,7 +512,6 @@ fun TalkPage(
                                 openTalkPieceEditDialog = true
                             }
                             radioOptions[1] -> {
-                                // TODO 这里同样需要感知上下文
                                 viewModel.removeTalkPiece(talkPieceEditState.position)
                             }
                             else -> {
@@ -574,7 +573,7 @@ fun TalkPage(
     if (openTalkPieceEditDialog) {
         when (val talkData = talkPieceEditState.talkData) {
             is Talk.PureText -> {
-                // 修改说话学生或文字
+                // 修改说话学生或文字 TODO 提取成组件
                 var talkingStudent by remember { mutableStateOf(talkData.talker) }
                 var text by remember { mutableStateOf(talkData.text) }
                 AlertDialog(
@@ -653,7 +652,7 @@ fun TalkPage(
                 )
             }
             is Talk.Photo -> {
-                // 选择：从相册读取或从表情包读取或删除
+                // 选择：从相册读取或从表情包读取或删除 TODO 提取成组件
                 var talkingStudent by remember { mutableStateOf(talkData.talker) }
                 var uri by remember { mutableStateOf(talkData.uri) }
                 var openSubDialog by remember { mutableStateOf(false) }
@@ -890,7 +889,7 @@ fun TalkPage(
             text = {
                 Column(
                     verticalArrangement = Arrangement.SpaceBetween,
-                    horizontalAlignment = Alignment.CenterHorizontally,
+                    horizontalAlignment = Alignment.Start,
                 ) {
                     // 选择插入文字、图片、旁白、分支、羁绊剧情
                     PlainButton(
@@ -915,7 +914,6 @@ fun TalkPage(
                     )
                     PlainButton(
                         onClick = {
-                            // 直接按照当前所选学生插入一张love scene
                             viewModel.sendLoveScene(insertIndex)
                             openInsertIndex = -1
                             openTalkPieceInsertDialog = false
@@ -929,10 +927,180 @@ fun TalkPage(
 
         when (openInsertIndex) {
             0 -> {
-
+                AlertDialog(
+                    onDismissRequest = {
+                       openInsertIndex = -1
+                    },
+                    confirmButton = {
+                        TextButton(
+                            onClick = {
+                                viewModel.sendPureText(insertIndex)
+                                openInsertIndex = -1
+                                openTalkPieceInsertDialog = false
+                            },
+                        ) {
+                            Text(stringResource(id = R.string.btn_confirm))
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(
+                            onClick = {
+                                openInsertIndex = -1
+                            },
+                        ) {
+                            Text(stringResource(id = R.string.btn_cancel))
+                        }
+                    },
+                    text = {
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Text(
+                                text = "Character:",
+                                style = MaterialTheme.typography.titleMedium
+                            )
+                            LazyRow(
+                                horizontalArrangement = Arrangement.spacedBy(
+                                    space = 16.dp,
+                                    alignment = Alignment.Start
+                                ),
+                            ) {
+                                items(items = uiState.studentList) {
+                                    StudentAvatar(
+                                        url = it.currentAvatar,
+                                        withBorder = uiState.currentStudent == it,
+                                        isSelected = uiState.currentStudent == it,
+                                        size = 48.dp,
+                                        onClick = {
+                                            viewModel.selectStudent(it)
+                                        }
+                                    )
+                                }
+                            }
+                            Text(
+                                text = "Text:",
+                                style = MaterialTheme.typography.titleMedium
+                            )
+                            OutlinedTextField(
+                                value = uiState.text,
+                                onValueChange = { viewModel.updateText(it) },
+                                label = { Text(text = "text") },
+                                trailingIcon = {
+                                    IconButton(onClick = { viewModel.updateText("") }) {
+                                        Icon(
+                                            imageVector = Icons.Outlined.Cancel,
+                                            contentDescription = "clear text"
+                                        )
+                                    }
+                                }
+                            )
+                        }
+                    }
+                )
             }
             1 -> {
+                var uri by remember { mutableStateOf(uiState.currentStudent.currentAvatar) }
+                var openSubDialog by remember { mutableStateOf(false) }
 
+                val reselectPicture = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { photoUri ->
+                    photoUri?.let {
+                        val contentResolver = context.contentResolver
+                        val takeFlags = Intent.FLAG_GRANT_READ_URI_PERMISSION or
+                                Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                        contentResolver.takePersistableUriPermission(it, takeFlags)
+
+                        uri = it.toString()
+                    }
+                }
+
+                AlertDialog(
+                    onDismissRequest = {
+                        openInsertIndex = -1
+                    },
+                    confirmButton = {
+                        TextButton(
+                            onClick = {
+                                viewModel.sendPhoto(uri, insertIndex)
+                                openInsertIndex = -1
+                                openTalkPieceInsertDialog = false
+                            },
+                        ) {
+                            Text(stringResource(id = R.string.btn_confirm))
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(
+                            onClick = {
+                                openInsertIndex = -1
+                            },
+                        ) {
+                            Text(stringResource(id = R.string.btn_cancel))
+                        }
+                    },
+                    text = {
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                        ) {
+                            LazyRow(
+                                horizontalArrangement = Arrangement.spacedBy(
+                                    space = 16.dp,
+                                    alignment = Alignment.Start
+                                ),
+                            ) {
+                                items(items = uiState.studentList) {
+                                    StudentAvatar(
+                                        url = it.currentAvatar,
+                                        withBorder = uiState.currentStudent == it,
+                                        isSelected = uiState.currentStudent == it,
+                                        size = 48.dp,
+                                        onClick = {
+                                            viewModel.selectStudent(it)
+                                        }
+                                    )
+                                }
+                            }
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceEvenly
+                            ) {
+                                PlainButton(
+                                    onClick = { reselectPicture.launch(arrayOf("image/*")) },
+                                    imageVector = Icons.Outlined.PhotoLibrary,
+                                    text = stringResource(id = R.string.gallery)
+                                )
+                                PlainButton(
+                                    onClick = { openSubDialog = true },
+                                    imageVector = Icons.Outlined.EmojiEmotions,
+                                    text = stringResource(id = R.string.emotions)
+                                )
+                            }
+                            AsyncImage(
+                                model = ImageRequest
+                                    .Builder(context)
+                                    .data(uri)
+                                    .crossfade(true)
+                                    .transformations(RoundedCornersTransformation())
+                                    .build(),
+                                contentScale = ContentScale.Crop,
+                                contentDescription = "",
+                                modifier = Modifier.size(144.dp),
+                            )
+                        }
+                    }
+                )
+
+                if (openSubDialog) {
+                    EmojiPickerDialog(
+                        character = uiState.currentStudent,
+                        onDismissRequest = { openSubDialog = false },
+                        onDismiss = { openSubDialog = false },
+                        onPickEmoji = { path ->
+                            uri = path
+                            openSubDialog = false
+                        }
+                    )
+                }
             }
             2 -> {
                 NarrationDialog(

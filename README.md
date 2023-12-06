@@ -44,4 +44,4 @@ Still WIP.
 - [ ] Numerous settings.
 - [x] Student information browse.
 - [ ] Multi-language.
-- [ ] support insert message.
+- [x] support insert message.

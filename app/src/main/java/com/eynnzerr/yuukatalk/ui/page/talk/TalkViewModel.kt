@@ -183,6 +183,7 @@ class TalkViewModel @Inject constructor(
 
         _uiState.update {
             it.copy(
+                text = "",
                 talkListStateChange = talkListChanges,
                 isEdited = true
             )
@@ -212,7 +213,7 @@ class TalkViewModel @Inject constructor(
             uri = uri,
             isFirst = true
         )
-        talkList.add(newPhoto)
+        talkList.add(index, newPhoto)
 
         val talkListChanges = mutableListOf<TalkListState>(TalkListState.Inserted(index))
         // 处理上下文。插入只影响本次和之后
@@ -474,7 +475,8 @@ class TalkViewModel @Inject constructor(
     }
 
     fun selectStudent(student: Character) {
-        _uiState.update { it.copy(currentStudent = student, isFirstTalking = true) }
+        val lastTalker = talkList.lastOrNull()?.getTalker()
+        _uiState.update { it.copy(currentStudent = student, isFirstTalking = student != lastTalker) }
     }
 
     fun addStudent(student: Character) = studentList.add(student)
