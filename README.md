@@ -38,7 +38,8 @@ Still WIP.
 - [x] Pre-include emojis.
 - [x] Search student by keyword.
 - [ ] DIY characters.
+- [ ] revert and reedit talks.
 - [ ] Import all students in BlueArchive.(WIP)
 - [ ] Numerous settings.
-- [ ] Student information browse.
+- [x] Student information browse.
 - [ ] Multi-language.

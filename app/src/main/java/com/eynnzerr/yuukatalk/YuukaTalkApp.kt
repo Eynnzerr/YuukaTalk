@@ -25,6 +25,7 @@ import com.eynnzerr.yuukatalk.ui.page.character.CharacterViewModel
 import com.eynnzerr.yuukatalk.ui.page.history.HistoryPage
 import com.eynnzerr.yuukatalk.ui.page.history.HistoryViewModel
 import com.eynnzerr.yuukatalk.ui.page.home.HomePage
+import com.eynnzerr.yuukatalk.ui.page.settings.SettingsPage
 import com.eynnzerr.yuukatalk.ui.page.talk.TalkPage
 import com.eynnzerr.yuukatalk.ui.page.talk.TalkViewModel
 import com.eynnzerr.yuukatalk.ui.theme.YuukaTalkTheme
@@ -72,7 +73,7 @@ private fun AppNavGraph() {
             CharacterPage(characterViewModel, appNavController)
         }
         animatedComposable(Destinations.SETTINGS) {
-
+            SettingsPage(appNavController)
         }
     }
 }

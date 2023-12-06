@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -63,7 +62,7 @@ fun StudentInfo(
         ) {
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
-                    .data(student.getAvatarPaths(context)[selectedIndex])
+                    .data(student.getAvatarPaths(context).getOrNull(selectedIndex))
                     .crossfade(true)
                     .build(),
                 contentDescription = null,
@@ -99,8 +98,10 @@ fun StudentInfo(
             exit = shrinkVertically()
         ) {
             LazyRow (
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 itemsIndexed(
                     items = student.getAvatarPaths(context),
@@ -154,11 +155,11 @@ fun SchoolLogo(school: String) {
 @Composable
 fun StudentInfoPreview() {
     val student = Character(
-        name = "优香",
-        nameRoma = "Yuuka",
-        school = "Millennium",
-        avatarPath = "millennium/yuuka/avatar",
-        emojiPath = "millennium/yuuka/emoji",
+        name = "妃咲",
+        nameRoma = "Kisaaki",
+        school = "Shanhaijing",
+        avatarPath = "Shanhaijing/Genryumon/Kissaki/avatar",
+        emojiPath = "Shanhaijing/Genryumon/Kissaki/emoji",
     )
 
     StudentInfo(student = student) {
@@ -173,7 +174,7 @@ object School {
     const val HYAKKIYAKO = "Hyakkiyako"
     const val MILLENNIUM = "Millennium"
     const val RED_WINTER = "Red Winter"
-    const val SHAN_HAI_JING = "Shan Hai Jing"
+    const val SHAN_HAI_JING = "Shanhaijing"
     const val SRT = "SRT"
     const val TRINITY = "Trinity"
     const val VALKYRIE = "Valkyrie"

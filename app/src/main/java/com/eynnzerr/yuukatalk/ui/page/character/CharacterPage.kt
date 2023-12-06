@@ -54,7 +54,7 @@ fun CharacterPage(
             ),
         topBar = {
             LargeTopAppBar(
-                title = { Text(stringResource(id = R.string.characters)) },
+                title = { Text(stringResource(id = R.string.characters) + "(${uiState.charactersList.size})") },
                 navigationIcon = {
                     IconButton(onClick = { navHostController.popBackStack() }) {
                         Icon(
@@ -99,7 +99,7 @@ fun CharacterPage(
         ) {
             items(uiState.charactersList) { student ->
                 StudentInfo(student = student) {
-                    // TODO expand to show avatars
+
                 }
             }
         }

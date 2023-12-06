@@ -38,6 +38,9 @@ sealed class TalkListState(type: Int) {
     class Refresh: TalkListState(type = 1)
     class Push: TalkListState(type = 2)
     class Pop: TalkListState(type = 3)
+    class Modified(val index: Int): TalkListState(type = 4)
+    class Removed(val index: Int): TalkListState(type = 5)
+    class ModifiedMultiple(val indexes: List<Int>): TalkListState(type = 6)
 }
 
 @HiltViewModel
@@ -121,7 +124,7 @@ class TalkViewModel @Inject constructor(
     }
 
     fun removeBranch() {
-        val newList = mutableListOf(*branchArray).apply { removeLastOrNull() }
+        val newList = mutableListOf(*branchArray).apply { if(size > 1) removeLastOrNull() }
         _uiState.update { it.copy(textBranches = newList) }
     }
 
@@ -210,6 +213,104 @@ class TalkViewModel @Inject constructor(
                 talkListState = TalkListState.Push(),
                 isEdited = true
             )
+        }
+    }
+
+    fun removeTalkPiece(index: Int) {
+        talkList.removeAt(index)
+
+        _uiState.update {
+            it.copy(
+                isEdited = true,
+                talkListState = TalkListState.Removed(index)
+            )
+        }
+    }
+
+    fun editTalkHistory(talk: Talk, index: Int) {
+        talkList[index] = talk
+        // 考虑上下文
+        when (talk) {
+            is Talk.PureText -> {
+                val changedIndexes = mutableListOf(index)
+                // 如有上文，当前isFirstTalking为!= lastCharacter
+                if (index > 0) {
+                    val lastTalk = talkList[index - 1]
+                    val lastTalker = if (lastTalk is Talk.PureText) lastTalk.talker else if (lastTalk is Talk.Photo) lastTalk.talker else null
+                    lastTalker?.let {
+                        talk.isFirst = talk.talker != it
+                        changedIndexes.add(index - 1)
+                    }
+                }
+                // 如有下文，顺便修改下文isFirstTalking为!= currentCharacter
+                if (index < talkList.lastIndex) {
+                    val nextTalk = talkList[index + 1]
+                    if (nextTalk is Talk.PureText) {
+                        nextTalk.isFirst = nextTalk.talker != talk.talker
+                        changedIndexes.add(index + 1)
+                    } else if (nextTalk is Talk.Photo) {
+                        nextTalk.isFirst = nextTalk.talker != talk.talker
+                        changedIndexes.add(index + 1)
+                    }
+                }  else {
+                    // 若为修改末尾消息，判断下一条消息是否为学生首次
+                    _uiState.update {
+                        it.copy(isFirstTalking = talk.talker != _uiState.value.currentStudent)
+                    }
+                }
+                _uiState.update {
+                    it.copy(
+                        isEdited = true,
+                        talkListState = TalkListState.ModifiedMultiple(changedIndexes)
+                    )
+                }
+            }
+
+            is Talk.Photo -> {
+                // 同PureText
+                val changedIndexes = mutableListOf(index)
+                // 如有上文，当前isFirstTalking为!= lastCharacter
+                if (index > 0) {
+                    val lastTalk = talkList[index - 1]
+                    val lastTalker = if (lastTalk is Talk.PureText) lastTalk.talker else if (lastTalk is Talk.Photo) lastTalk.talker else null
+                    lastTalker?.let {
+                        talk.isFirst = talk.talker != it
+                        changedIndexes.add(index - 1)
+                    }
+                }
+                // 如有下文，顺便修改下文isFirstTalking为!= currentCharacter
+                if (index < talkList.lastIndex) {
+                    val nextTalk = talkList[index + 1]
+                    if (nextTalk is Talk.PureText) {
+                        nextTalk.isFirst = nextTalk.talker != talk.talker
+                        changedIndexes.add(index + 1)
+                    } else if (nextTalk is Talk.Photo) {
+                        nextTalk.isFirst = nextTalk.talker != talk.talker
+                        changedIndexes.add(index + 1)
+                    }
+                }  else {
+                    // 若为修改末尾消息，判断下一条消息是否为学生首次
+                    _uiState.update {
+                        it.copy(isFirstTalking = talk.talker != _uiState.value.currentStudent)
+                    }
+                }
+                _uiState.update {
+                    it.copy(
+                        isEdited = true,
+                        talkListState = TalkListState.ModifiedMultiple(changedIndexes)
+                    )
+                }
+            }
+
+            else -> {
+                // 非文本/图片题材，不涉及说话人，直接更新
+                _uiState.update {
+                    it.copy(
+                        isEdited = true,
+                        talkListState = TalkListState.Modified(index)
+                    )
+                }
+            }
         }
     }
 
