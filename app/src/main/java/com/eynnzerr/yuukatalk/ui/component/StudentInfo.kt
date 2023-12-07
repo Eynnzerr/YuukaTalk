@@ -4,9 +4,12 @@ import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -42,6 +45,7 @@ import coil.request.ImageRequest
 import com.eynnzerr.yuukatalk.data.model.Character
 import com.eynnzerr.yuukatalk.R
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun StudentInfo(
     student: Character,
@@ -58,16 +62,11 @@ fun StudentInfo(
             modifier = modifier
                 .padding(16.dp)
                 .fillMaxWidth()
-                .pointerInput(Unit) {
-                    detectTapGestures(
-                        onTap = {
-                            expand = !expand
-                        },
-                        onLongPress = {
-                            onLongPress()
-                        }
-                    )
-                },
+                .combinedClickable(
+                    enabled = true,
+                    onClick = { expand = !expand },
+                    onLongClick = onLongPress
+                ),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             AsyncImage(

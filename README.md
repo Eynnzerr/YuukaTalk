@@ -47,3 +47,4 @@ Still WIP.
 - [x] Support insert message.
 - [ ] Find an app logo.
 - [ ] Support large-scale screens.
+- [ ] Add first-time guidance.

@@ -36,4 +36,10 @@ class HistoryViewModel @Inject constructor(
         }
     }
 
+    fun removeHistoryProject(project: TalkProject) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.removeProject(project)
+        }
+    }
+
 }
