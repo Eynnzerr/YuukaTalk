@@ -38,10 +38,11 @@ Still WIP.
 - [x] Browse histories.
 - [x] Pre-include emojis.
 - [x] Search student by keyword.
-- [ ] DIY characters.
+- [x] DIY characters.
 - [x] revert and reedit talks.
 - [ ] Import all students in BlueArchive.(WIP)
 - [ ] Numerous settings.
 - [x] Student information browse.
 - [ ] Multi-language.
-- [x] support insert message.
+- [x] Support insert message.
+- [ ] Find an app logo.

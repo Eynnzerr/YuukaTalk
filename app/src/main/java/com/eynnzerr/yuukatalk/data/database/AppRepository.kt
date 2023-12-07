@@ -27,4 +27,6 @@ class AppRepository @Inject constructor(
     fun fetchCharactersByKeyword(keyword: String) = characterDao.fetchCharactersByKeyword(keyword)
 
     fun importCharacters(vararg characters: Character) = characterDao.importCharacters(*characters)
+
+    fun removeAllCharacters() = characterDao.removeAllCharacters()
 }

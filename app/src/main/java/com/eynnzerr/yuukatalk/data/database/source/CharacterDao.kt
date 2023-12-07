@@ -22,4 +22,7 @@ interface CharacterDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun importCharacters(vararg characters: Character)
+
+    @Query("DELETE FROM momotalk_character")
+    fun removeAllCharacters()
 }
