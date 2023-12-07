@@ -1,6 +1,7 @@
 package com.eynnzerr.yuukatalk.data.database.source
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
@@ -25,4 +26,7 @@ interface CharacterDao {
 
     @Query("DELETE FROM momotalk_character")
     fun removeAllCharacters()
+
+    @Delete
+    fun removeCharacter(character: Character)
 }

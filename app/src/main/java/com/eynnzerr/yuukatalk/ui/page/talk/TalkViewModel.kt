@@ -364,12 +364,16 @@ class TalkViewModel @Inject constructor(
         // 如果删除位置为首位，检查删除后首位说话人，设其isFirst=true
         // 如果删除位置为末尾，直接删除即可
         // 如果删除位置在中间，检查若删除后上下文说话人相同，设置下文说话人isFirst=false,否则设为true，更新下文
+        // 如果删除的是唯一一条消息，设置isFirstTalking=true
         if (index == 0) {
             val firstTalk = talkList.firstOrNull()
             if (firstTalk is Talk.PureText) {
                 firstTalk.isFirst = true
             } else if (firstTalk is Talk.Photo) {
                 firstTalk.isFirst = true
+            }
+            if (firstTalk == null) {
+                _uiState.update { it.copy(isFirstTalking = true) }
             }
         } else if (index < talkList.size) {
             val nextTalk = talkList[index]

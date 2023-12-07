@@ -929,5 +929,271 @@
     "school": "Hyakkiyako",
     "avatarPath": "Hyakkiyako/EmptyClub/Kuzunoha/avatar",
     "emojiPath": "Hyakkiyako/EmptyClub/Kuzunoha/emoji"
+  },
+  {
+    "name": "切里诺",
+    "nameRoma": "Cherino",
+    "school": "Red Winter",
+    "avatarPath": "RedWinter/RedwinterSecretary/Cherino/avatar",
+    "emojiPath": "RedWinter/RedwinterSecretary/Cherino/emoji"
+  },
+  {
+    "name": "玛丽娜",
+    "nameRoma": "Marina",
+    "school": "Red Winter",
+    "avatarPath": "RedWinter/RedwinterSecretary/Marina/avatar",
+    "emojiPath": "RedWinter/RedwinterSecretary/Marina/emoji"
+  },
+  {
+    "name": "巴",
+    "nameRoma": "Tomoe",
+    "school": "Red Winter",
+    "avatarPath": "RedWinter/RedwinterSecretary/Tomoe/avatar",
+    "emojiPath": "RedWinter/RedwinterSecretary/Tomoe/emoji"
+  },
+  {
+    "name": "亲卫队成员",
+    "nameRoma": "RedWinterSecretaryMember",
+    "school": "Red Winter",
+    "avatarPath": "RedWinter/RedwinterSecretary/Member/avatar",
+    "emojiPath": "RedWinter/RedwinterSecretary/Member/emoji"
+  },
+  {
+    "name": "实梨",
+    "nameRoma": "Minori",
+    "school": "Red Winter",
+    "avatarPath": "RedWinter/LaborParty/Minori/avatar",
+    "emojiPath": "RedWinter/LaborParty/Minori/emoji"
+  },
+  {
+    "name": "工务部成员",
+    "nameRoma": "LaborPartyMember",
+    "school": "Red Winter",
+    "avatarPath": "RedWinter/LaborParty/Member/avatar",
+    "emojiPath": "RedWinter/LaborParty/Member/emoji"
+  },
+  {
+    "name": "红叶",
+    "nameRoma": "Momiji",
+    "school": "Red Winter",
+    "avatarPath": "RedWinter/KnowledgeLiberationFront/Momiji/avatar",
+    "emojiPath": "RedWinter/KnowledgeLiberationFront/Momiji/emoji"
+  },
+  {
+    "name": "梅露",
+    "nameRoma": "Meru",
+    "school": "Red Winter",
+    "avatarPath": "RedWinter/KnowledgeLiberationFront/Meru/avatar",
+    "emojiPath": "RedWinter/KnowledgeLiberationFront/Meru/emoji"
+  },
+  {
+    "name": "时雨",
+    "nameRoma": "Shigure",
+    "school": "Red Winter",
+    "avatarPath": "RedWinter/Class227/Shigure/avatar",
+    "emojiPath": "RedWinter/Class227/Shigure/emoji"
+  },
+  {
+    "name": "和香",
+    "nameRoma": "Nodoka",
+    "school": "Red Winter",
+    "avatarPath": "RedWinter/Class227/Nodoka/avatar",
+    "emojiPath": "RedWinter/Class227/Nodoka/emoji"
+  },
+  {
+    "name": "贵音",
+    "nameRoma": "Miyoshi",
+    "school": "Red Winter",
+    "avatarPath": "RedWinter/PublicationDepartment/Miyoshi/avatar",
+    "emojiPath": "RedWinter/PublicationDepartment/Miyoshi/emoji"
+  },
+  {
+    "name": "八云",
+    "nameRoma": "Yakumo",
+    "school": "Red Winter",
+    "avatarPath": "RedWinter/PublicationDepartment/Yakumo/avatar",
+    "emojiPath": "RedWinter/PublicationDepartment/Yakumo/emoji"
+  },
+  {
+    "name": "诗乃",
+    "nameRoma": "Shinon",
+    "school": "Cronos",
+    "avatarPath": "Cronos/PressDepartment/Shinon/avatar",
+    "emojiPath": "Cronos/PressDepartment/Shinon/emoji"
+  },
+  {
+    "name": "舞",
+    "nameRoma": "Mai",
+    "school": "Cronos",
+    "avatarPath": "Cronos/PressDepartment/Mai/avatar",
+    "emojiPath": "Cronos/PressDepartment/Mai/emoji"
+  },
+  {
+    "name": "小空",
+    "nameRoma": "Sora",
+    "school": "DU",
+    "avatarPath": "DU/Angel24/Sora/avatar",
+    "emojiPath": "DU/Angel24/Sora/emoji"
+  },
+  {
+    "name": "凛",
+    "nameRoma": "Rin",
+    "school": "Federal",
+    "avatarPath": "DU/GSC/Rin/avatar",
+    "emojiPath": "DU/GSC/Rin/emoji"
+  },
+  {
+    "name": "葵",
+    "nameRoma": "Aoi",
+    "school": "Federal",
+    "avatarPath": "DU/GSC/Aoi/avatar",
+    "emojiPath": "DU/GSC/Aoi/emoji"
+  },
+  {
+    "name": "步梦",
+    "nameRoma": "Ayumu",
+    "school": "Federal",
+    "avatarPath": "DU/GSC/Ayumu/avatar",
+    "emojiPath": "DU/GSC/Ayumu/emoji"
+  },
+  {
+    "name": "葵",
+    "nameRoma": "Aoi",
+    "school": "Federal",
+    "avatarPath": "DU/GSC/Aoi/avatar",
+    "emojiPath": "DU/GSC/Aoi/emoji"
+  },
+  {
+    "name": "灰音",
+    "nameRoma": "Heine",
+    "school": "Federal",
+    "avatarPath": "DU/GSC/Heine/avatar",
+    "emojiPath": "DU/GSC/Heine/emoji"
+  },
+  {
+    "name": "花耶",
+    "nameRoma": "Kaya",
+    "school": "Federal",
+    "avatarPath": "DU/GSC/Kaya/avatar",
+    "emojiPath": "DU/GSC/Kaya/emoji"
+  },
+  {
+    "name": "桃香",
+    "nameRoma": "Momoka",
+    "school": "Federal",
+    "avatarPath": "DU/GSC/Momoka/avatar",
+    "emojiPath": "DU/GSC/Momoka/emoji"
+  },
+  {
+    "name": "李",
+    "nameRoma": "Sumomo",
+    "school": "Federal",
+    "avatarPath": "DU/GSC/Sumomo/avatar",
+    "emojiPath": "DU/GSC/Sumomo/emoji"
+  },
+  {
+    "name": "联邦学生会长",
+    "nameRoma": "President",
+    "school": "Federal",
+    "avatarPath": "DU/GSC/President/avatar",
+    "emojiPath": "DU/GSC/President/emoji"
+  },
+  {
+    "name": "联邦学生会成员",
+    "nameRoma": "GSCMember",
+    "school": "Federal",
+    "avatarPath": "DU/GSC/Member/avatar",
+    "emojiPath": "DU/GSC/Member/emoji"
+  },
+  {
+    "name": "阿罗娜",
+    "nameRoma": "Arona",
+    "school": "Shittim",
+    "avatarPath": "DU/Shittim/Arona/avatar",
+    "emojiPath": "DU/Shittim/Arona/emoji"
+  },
+  {
+    "name": "普拉娜",
+    "nameRoma": "Plana",
+    "school": "Shittim",
+    "avatarPath": "DU/Shittim/Plana/avatar",
+    "emojiPath": "DU/Shittim/Plana/emoji"
+  },
+  {
+    "name": "初音未来",
+    "nameRoma": "Miku",
+    "school": "Empty",
+    "avatarPath": "ETC/EmptyClub/Miku/avatar",
+    "emojiPath": "ETC/EmptyClub/Miku/emoji"
+  },
+  {
+    "name": "佐天泪子",
+    "nameRoma": "Ruiko",
+    "school": "Empty",
+    "avatarPath": "ETC/EmptyClub/Ruiko/avatar",
+    "emojiPath": "ETC/EmptyClub/Ruiko/emoji"
+  },
+  {
+    "name": "御坂美琴",
+    "nameRoma": "Mikoto",
+    "school": "Empty",
+    "avatarPath": "ETC/EmptyClub/Mikoto/avatar",
+    "emojiPath": "ETC/EmptyClub/Mikoto/emoji"
+  },
+  {
+    "name": "食蜂操祈",
+    "nameRoma": "Misaki",
+    "school": "Empty",
+    "avatarPath": "ETC/EmptyClub/Misaki/avatar",
+    "emojiPath": "ETC/EmptyClub/Misaki/emoji"
+  },
+  {
+    "name": "黑服",
+    "nameRoma": "BlackSuit",
+    "school": "Gematria",
+    "avatarPath": "ETC/Gematria/BlackSuit/avatar",
+    "emojiPath": "ETC/Gematria/BlackSuit/emoji"
+  },
+  {
+    "name": "巨匠",
+    "nameRoma": "Maestro",
+    "school": "Gematria",
+    "avatarPath": "ETC/Gematria/Maestro/avatar",
+    "emojiPath": "ETC/Gematria/Maestro/emoji"
+  },
+  {
+    "name": "戈尔孔达",
+    "nameRoma": "Golconde",
+    "school": "Gematria",
+    "avatarPath": "ETC/Gematria/Golconde/avatar",
+    "emojiPath": "ETC/Gematria/Golconde/emoji"
+  },
+  {
+    "name": "印花釉法",
+    "nameRoma": "Décalcomanie",
+    "school": "Gematria",
+    "avatarPath": "ETC/Gematria/Décalcomanie/avatar",
+    "emojiPath": "ETC/Gematria/Décalcomanie/emoji"
+  },
+  {
+    "name": "弗朗西斯",
+    "nameRoma": "Francis",
+    "school": "Gematria",
+    "avatarPath": "ETC/Gematria/Francis/avatar",
+    "emojiPath": "ETC/Gematria/Francis/emoji"
+  },
+  {
+    "name": "贝阿朵莉切",
+    "nameRoma": "Beatrice",
+    "school": "Gematria",
+    "avatarPath": "ETC/Gematria/Beatrice/avatar",
+    "emojiPath": "ETC/Gematria/Beatrice/emoji"
+  },
+  {
+    "name": "市民",
+    "nameRoma": "Citizen",
+    "school": "Empty",
+    "avatarPath": "ETC/Citizen/avatar",
+    "emojiPath": "ETC/Citizen/emoji"
   }
 ]

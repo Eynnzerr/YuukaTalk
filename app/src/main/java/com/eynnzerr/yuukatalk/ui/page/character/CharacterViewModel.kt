@@ -65,31 +65,33 @@ class CharacterViewModel @Inject constructor(
         emojiUris: List<String>,
     ) {
         viewModelScope.launch(Dispatchers.IO) {
-            // 分别创建avatarPath和emojiPath目录，并从uri复制图片到其中。
-
-            for (uri in avatarUris) {
-                val contentResolver = YuukaTalkApplication.context.contentResolver
-                contentResolver.openInputStream(Uri.parse(uri))?.let { srcInputStream ->
-                    val avatarRoot = File(character.avatarPath).apply {
-                        if (!exists()) mkdirs()
+            if (!character.isAsset) {
+                // 分别创建avatarPath和emojiPath目录，并从uri复制图片到其中。
+                for (uri in avatarUris) {
+                    val contentResolver = YuukaTalkApplication.context.contentResolver
+                    contentResolver.openInputStream(Uri.parse(uri))?.let { srcInputStream ->
+                        val avatarRoot = File(character.avatarPath).apply {
+                            if (!exists()) mkdirs()
+                        }
+                        val dest = File(avatarRoot, getFileNameFromUri(Uri.parse(uri)) ?: File(uri).name).apply {
+                            if (!exists()) createNewFile()
+                        }
+                        val outputStream = dest.outputStream()
+                        val buffer = ByteArray(1024)
+                        var length: Int
+                        while (srcInputStream.read(buffer).also { length = it } > 0) {
+                            outputStream.write(buffer, 0, length)
+                        }
+                        outputStream.close()
+                        srcInputStream.close()
                     }
-                    val dest = File(avatarRoot, getFileNameFromUri(Uri.parse(uri)) ?: File(uri).name).apply {
-                        if (!exists()) createNewFile()
-                    }
-                    val outputStream = dest.outputStream()
-                    val buffer = ByteArray(1024)
-                    var length: Int
-                    while (srcInputStream.read(buffer).also { length = it } > 0) {
-                        outputStream.write(buffer, 0, length)
-                    }
-                    outputStream.close()
-                    srcInputStream.close()
                 }
+                for (uri in emojiUris) {
+                    // TODO()
+                }
+                character.currentAvatar = character.getAvatarPaths(YuukaTalkApplication.context).first()
             }
-            for (uri in emojiUris) {
-                // TODO()
-            }
-            character.currentAvatar = character.getAvatarPaths(YuukaTalkApplication.context).first()
+
             repository.importCharacters(character)
         }
     }
@@ -100,7 +102,13 @@ class CharacterViewModel @Inject constructor(
         }
     }
 
-    fun getFileNameFromUri(uri: Uri): String? {
+    fun removeCharacter(character: Character) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.removeCharacter(character = character)
+        }
+    }
+
+    private fun getFileNameFromUri(uri: Uri): String? {
         var fileName: String? = null
 
         // 判断URI的scheme

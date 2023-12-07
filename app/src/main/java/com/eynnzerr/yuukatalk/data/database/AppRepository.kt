@@ -29,4 +29,6 @@ class AppRepository @Inject constructor(
     fun importCharacters(vararg characters: Character) = characterDao.importCharacters(*characters)
 
     fun removeAllCharacters() = characterDao.removeAllCharacters()
+
+    fun removeCharacter(character: Character) = characterDao.removeCharacter(character)
 }

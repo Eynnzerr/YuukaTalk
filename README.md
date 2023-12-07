@@ -40,9 +40,10 @@ Still WIP.
 - [x] Search student by keyword.
 - [x] DIY characters.
 - [x] revert and reedit talks.
-- [ ] Import all students in BlueArchive.(WIP)
+- [ ] Import all students in BlueArchive.(WIP except few characters)
 - [ ] Numerous settings.
 - [x] Student information browse.
-- [ ] Multi-language.
+- [ ] Multi-language.(Only support Chinese currently)
 - [x] Support insert message.
 - [ ] Find an app logo.
+- [ ] Support large-scale screens.
