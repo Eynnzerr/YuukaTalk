@@ -9,7 +9,7 @@ import com.eynnzerr.yuukatalk.data.model.Character
 import com.eynnzerr.yuukatalk.data.model.TalkProject
 
 @Database(
-    version = 1,
+    version = 2,
     entities = [TalkProject::class, Character::class],
 )
 abstract class YuukaTalkDatabase: RoomDatabase() {

@@ -1,0 +1,91 @@
+<resources>
+    <string name="app_name">YuukaTalk</string>
+    <!--  HomePage  -->
+    <string name="new_entry_title">新建对话</string>
+    <string name="new_entry_desc">创建新的桃信对话</string>
+    <string name="history_entry_title">历史对话</string>
+    <string name="history_entry_desc">浏览已保存的历史桃信对话</string>
+    <string name="student_entry_title">角色</string>
+    <string name="student_entry_desc">管理角色（学生等）</string>
+    <string name="settings_entry_title">设置</string>
+    <string name="settings_entry_desc">管理设置（编辑器、主题……）</string>
+
+    <!--  TalkPage  -->
+    <string name="btn_narration">旁白</string>
+    <string name="btn_branch">选项分支</string>
+    <string name="btn_love">羁绊剧情</string>
+    <string name="btn_confirm">确定</string>
+    <string name="btn_cancel">取消</string>
+    <string name="title_narration_dialog">输入旁白内容。</string>
+    <string name="narration">旁白</string>
+    <string name="title_branch_dialog">添加分支选项。</string>
+    <string name="title_emoji_dialog">选择发送表情。</string>
+    <string name="title_save_dialog">命名当前工程。</string>
+    <string name="name">名称</string>
+    <string name="title_save_reminder_dialog">你还未保存当前对话，确认要离开吗？</string>
+    <string name="edit_piece">编辑当前内容</string>
+    <string name="remove_piece">删除该消息</string>
+    <string name="insert_piece">在之前插入</string>
+    <string name="gallery">系统相册</string>
+    <string name="emotions">表情包</string>
+
+    <!--  HistoryPage  -->
+    <string name="history">历史对话</string>
+    <string name="title_remove_dialog">确定删除当前对话？</string>
+
+    <!--  CharacterPage  -->
+    <string name="characters">角色</string>
+    <string name="diy">自定义</string>
+    <string name="title_diy_dialog">设计你的角色</string>
+    <string name="toast_remove_all_characters">正在清除全部角色……</string>
+    <string name="toast_reload_all_characters">正在载入预置角色……</string>
+    <string name="advanced_options">高级选项</string>
+    <string name="customize">派生自定义角色</string>
+    <string name="delete">删除</string>
+    <string name="english_name">外文名</string>
+    <string name="school">学院名</string>
+
+    <!--  SettingsPage  -->
+    <string name="settings">设置</string>
+    <string name="editor_options">编辑器设置</string>
+    <string name="appearance">外观</string>
+    <string name="languages">语言</string>
+    <string name="about">关于</string>
+    <string name="editor_options_desc">一些编辑器选项</string>
+    <string name="appearance_desc">应用主题、色调</string>
+    <string name="languages_desc">中文、英文，等等</string>
+    <string name="about_desc">作者信息、开源相关</string>
+    <string name="toast_language">暂不支持主动切换应用语言。</string>
+
+    <!--  EditorOptionsPage  -->
+    <string name="to_be_implemented">这项功能即将推出。感谢支持！</string>
+    <string name="watermark">水印</string>
+    <string name="watermark_desc">启用自动添加水印</string>
+    <string name="author_name">作者名称</string>
+    <string name="watermark_position">水印位置</string>
+    <string name="watermark_position_desc">决定水印在导出图片中的位置</string>
+    <string name="font">字体</string>
+    <string name="font_desc">选择编辑器字体</string>
+    <string name="background">背景</string>
+    <string name="background_desc">选择导出图片背景颜色</string>
+    <string name="title_author_name_dialog">填写你的名字。</string>
+    <string name="quality">输出质量</string>
+    <string name="quality_desc">选择输出图片质量。</string>
+
+    <!--  AboutPage  -->
+    <string name="version">版本</string>
+    <string name="toast_already_newest">已是最新版本。</string>
+    <string name="author">作者</string>
+    <string name="github">Github</string>
+    <string name="libraries">第三方库</string>
+    <string name="github_url">https://github.com/Eynnzerr/YuukaTalk</string>
+    <string name="libraries_description">查看使用的第三方库及致谢</string>
+    <string name="eynnzerr">Eynnzerr(博客: eynnzerr.top)</string>
+
+    <!--  AppearancePage  -->
+    <string name="option_dark">深色模式</string>
+    <string name="option_light">亮色模式</string>
+    <string name="option_follow">跟随系统</string>
+    <string name="option_dynamic">跟随壁纸</string>
+    <string name="option_self">自定义</string>
+</resources>

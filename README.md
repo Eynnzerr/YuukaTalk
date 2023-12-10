@@ -23,6 +23,7 @@ Why named YuukaTalk? I love Yuuka.
 - Complete offline.
 - Easy to operate.
 - Support all kinds of message.
+- Support edit history message.
 - Support saving talk projects.
 - Support DIY characters.
 - Much more to discover...
@@ -37,8 +38,19 @@ Still WIP.
 - [x] Browse histories.
 - [x] Pre-include emojis.
 - [x] Search student by keyword.
-- [ ] DIY characters.
-- [ ] Import all students in BlueArchive.(WIP)
-- [ ] Numerous settings.
-- [ ] Student information browse.
-- [ ] Multi-language.
+- [x] DIY characters.
+- [x] revert and reedit talks.
+- [x] Import all students in BlueArchive.(WIP except few non-student characters)
+- [x] Student information browse.
+- [x] Support insert message.
+- [ ] Multi-language.(Only support Chinese currently)
+- [ ] More settings.
+- [ ] Find an app logo.
+- [ ] Support large-scale screens.
+- [ ] Add first-time guidance.
+- [ ] Move images from bundled asset to remote to cut off package size.
+- [ ] multi-platform(iOS and desktop).
+
+# Credits
+
+[MoeTalk](https://github.com/ggg555ttt/MoeTalk) should be the best practice for creating MomoTalks, which has served for numerous excellent works.

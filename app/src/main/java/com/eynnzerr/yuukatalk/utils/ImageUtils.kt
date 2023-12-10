@@ -12,6 +12,8 @@ import android.util.Log
 import android.view.View
 import androidx.collection.LruCache
 import androidx.recyclerview.widget.RecyclerView
+import com.eynnzerr.yuukatalk.data.preference.PreferenceKeys
+import com.tencent.mmkv.MMKV
 import kotlinx.coroutines.suspendCancellableCoroutine
 import java.io.File
 import kotlin.coroutines.resume
@@ -61,6 +63,26 @@ object ImageUtils {
                     canvas.drawBitmap(bitmap!!, 0F + padding, iHeight + padding, paint)
                     iHeight += bitmap.height
                     bitmap.recycle()
+                }
+
+                // draw watermark
+                val mmkv = MMKV.defaultMMKV()
+                if (mmkv.decodeBool(PreferenceKeys.USE_WATERMARK, false)) {
+                    val author = mmkv.decodeString(PreferenceKeys.AUTHOR_NAME, "")
+                    paint.textSize = 20f
+                    paint.color = Color.DKGRAY
+                    canvas.drawText(
+                        "Author:$author",
+                        0f,
+                        (canvas.height - 25).toFloat(),
+                        paint
+                    )
+                    canvas.drawText(
+                        "Made by YuukaTalk",
+                        0f,
+                        (canvas.height - 5).toFloat(),
+                        paint
+                    )
                 }
 
                 screenshot

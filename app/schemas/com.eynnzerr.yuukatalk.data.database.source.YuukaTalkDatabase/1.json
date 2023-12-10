@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "b64c8b13e90bf33cd2fd062925f0844b",
+    "identityHash": "27aa0991988cdfce745384e135b9da3a",
     "entities": [
       {
         "tableName": "momotalk_project",
@@ -72,7 +72,7 @@
       },
       {
         "tableName": "momotalk_character",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`name` TEXT NOT NULL, `nameRoma` TEXT NOT NULL DEFAULT '', `school` TEXT NOT NULL DEFAULT '', `avatarPath` TEXT NOT NULL DEFAULT '', `emojiPath` TEXT NOT NULL DEFAULT '', `currentAvatar` TEXT NOT NULL DEFAULT '', PRIMARY KEY(`name`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`name` TEXT NOT NULL, `nameRoma` TEXT NOT NULL DEFAULT '', `school` TEXT NOT NULL DEFAULT '', `isAsset` INTEGER NOT NULL, `avatarPath` TEXT NOT NULL DEFAULT '', `emojiPath` TEXT NOT NULL DEFAULT '', `currentAvatar` TEXT NOT NULL DEFAULT '', PRIMARY KEY(`name`))",
         "fields": [
           {
             "fieldPath": "name",
@@ -93,6 +93,12 @@
             "affinity": "TEXT",
             "notNull": true,
             "defaultValue": "''"
+          },
+          {
+            "fieldPath": "isAsset",
+            "columnName": "isAsset",
+            "affinity": "INTEGER",
+            "notNull": true
           },
           {
             "fieldPath": "avatarPath",
@@ -129,7 +135,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b64c8b13e90bf33cd2fd062925f0844b')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '27aa0991988cdfce745384e135b9da3a')"
     ]
   }
 }

@@ -2,19 +2,45 @@
 <project version="4">
   <component name="deploymentTargetDropDown">
     <value>
-      <entry key="ChatBubblePreview">
-        <State />
+      <entry key="ColorButtonPreview">
+        <State>
+          <targetSelectedWithDropDown>
+            <Target>
+              <type value="QUICK_BOOT_TARGET" />
+              <deviceKey>
+                <Key>
+                  <type value="VIRTUAL_DEVICE_PATH" />
+                  <value value="$USER_HOME$/.android/avd/Pixel_8_Pro_API_34.avd" />
+                </Key>
+              </deviceKey>
+            </Target>
+          </targetSelectedWithDropDown>
+          <timeTargetWasSelectedWithDropDown value="2023-12-09T10:57:15.839454Z" />
+        </State>
       </entry>
       <entry key="HybridTextPiecePreview">
-        <State />
-      </entry>
-      <entry key="SearchBarPreview">
         <State />
       </entry>
       <entry key="StudentAvatarPreview">
         <State />
       </entry>
       <entry key="StudentInfoPreview">
+        <State>
+          <targetSelectedWithDropDown>
+            <Target>
+              <type value="QUICK_BOOT_TARGET" />
+              <deviceKey>
+                <Key>
+                  <type value="VIRTUAL_DEVICE_PATH" />
+                  <value value="$USER_HOME$/.android/avd/Pixel_8_Pro_API_34.avd" />
+                </Key>
+              </deviceKey>
+            </Target>
+          </targetSelectedWithDropDown>
+          <timeTargetWasSelectedWithDropDown value="2023-12-04T15:53:20.515753Z" />
+        </State>
+      </entry>
+      <entry key="SwitchPreview">
         <State />
       </entry>
       <entry key="app">

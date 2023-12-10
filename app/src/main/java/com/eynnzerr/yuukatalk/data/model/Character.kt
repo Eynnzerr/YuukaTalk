@@ -1,10 +1,13 @@
 package com.eynnzerr.yuukatalk.data.model
 
 import android.content.Context
+import android.os.Environment
+import android.util.Log
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import kotlinx.serialization.Serializable
+import java.io.File
 
 @Serializable
 @Entity(tableName = "momotalk_character")
@@ -16,6 +19,8 @@ open class Character(
     @ColumnInfo(defaultValue = "")
     val school: String,
     @ColumnInfo(defaultValue = "")
+    val isAsset: Boolean = true,
+    @ColumnInfo(defaultValue = "")
     val avatarPath: String,
     @ColumnInfo(defaultValue = "")
     val emojiPath: String,
@@ -23,18 +28,32 @@ open class Character(
     var currentAvatar: String = "file:///android_asset/$avatarPath/avatar_0.webp"
 ) {
 
-    fun getEmojiPaths(context: Context): List<String> {
-        val assetManager = context.assets
-        return assetManager.list(emojiPath)
-            ?.map { "file:///android_asset/$emojiPath/$it" }
-            ?: emptyList()
+    open fun getEmojiPaths(context: Context): List<String> {
+        return if (isAsset) {
+            val assetManager = context.assets
+            assetManager.list(emojiPath)
+                ?.map { "file:///android_asset/$emojiPath/$it" }
+                ?: emptyList()
+        } else {
+            val emojiRoot = File(emojiPath)
+            if (!emojiRoot.exists()) emojiRoot.mkdir()
+            emojiRoot.list()?.toList() ?: emptyList()
+        }
     }
 
-    fun getAvatarPaths(context: Context): List<String> {
-        val assetManager = context.assets
-        return assetManager.list(avatarPath)
-            ?.map { "file:///android_asset/$avatarPath/$it" }
-            ?: emptyList()
+    open fun getAvatarPaths(context: Context): List<String> {
+        return if (isAsset) {
+            val assetManager = context.assets
+            assetManager.list(avatarPath)
+                ?.map { "file:///android_asset/$avatarPath/$it" }
+                ?: emptyList()
+        } else {
+            val avatarRoot = File(avatarPath)
+            if (!avatarRoot.exists()) avatarRoot.mkdirs()
+            avatarRoot.list()
+                ?.map { "$avatarPath/$it" }
+                ?: emptyList()
+        }
     }
 
     override fun equals(other: Any?): Boolean {
@@ -61,7 +80,9 @@ open class Character(
 object Sensei: Character(
     name = "老师",
     nameRoma = "sensei",
-    school = "schale",
+    school = "Schale",
     avatarPath = "schale/sensei/avatar",
     emojiPath = "schale/sensei/emoji"
 )
+
+private const val TAG = "Character"

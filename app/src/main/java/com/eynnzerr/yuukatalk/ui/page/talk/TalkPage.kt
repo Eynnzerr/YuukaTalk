@@ -21,10 +21,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.padding
@@ -32,6 +35,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -39,28 +43,42 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircleOutline
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.EmojiEmotions
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FormatListBulleted
 import androidx.compose.material.icons.filled.GraphicEq
+import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.InsertEmoticon
+import androidx.compose.material.icons.filled.Link
 import androidx.compose.material.icons.filled.MenuOpen
+import androidx.compose.material.icons.filled.PhotoLibrary
 import androidx.compose.material.icons.filled.RemoveCircleOutline
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.filled.Undo
 import androidx.compose.material.icons.outlined.AddCircleOutline
+import androidx.compose.material.icons.outlined.Cancel
 import androidx.compose.material.icons.outlined.EmojiEmotions
 import androidx.compose.material.icons.outlined.FileDownload
+import androidx.compose.material.icons.outlined.FormatListBulleted
+import androidx.compose.material.icons.outlined.GraphicEq
 import androidx.compose.material.icons.outlined.Image
+import androidx.compose.material.icons.outlined.PhotoLibrary
 import androidx.compose.material.icons.outlined.SaveAs
+import androidx.compose.material.icons.outlined.TextFields
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.BottomAppBarDefaults
 import androidx.compose.material3.BottomSheetDefaults
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -76,6 +94,7 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -86,6 +105,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -101,6 +121,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -109,15 +130,22 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import coil.transform.RoundedCornersTransformation
 import com.eynnzerr.yuukatalk.R
 import com.eynnzerr.yuukatalk.data.model.SpecialPieceEntryItem
+import com.eynnzerr.yuukatalk.data.model.Talk
 import com.eynnzerr.yuukatalk.ui.component.DenseTextField
+import com.eynnzerr.yuukatalk.ui.component.PlainButton
 import com.eynnzerr.yuukatalk.ui.component.SpecialPieceEntryButton
 import com.eynnzerr.yuukatalk.ui.component.StudentAvatar
 import com.eynnzerr.yuukatalk.ui.component.StudentInfo
 import com.eynnzerr.yuukatalk.ui.component.StudentSearchBar
+import com.eynnzerr.yuukatalk.ui.component.dialog.BranchDialog
+import com.eynnzerr.yuukatalk.ui.component.dialog.EmojiPickerDialog
+import com.eynnzerr.yuukatalk.ui.component.dialog.NarrationDialog
 import com.eynnzerr.yuukatalk.ui.view.TalkAdapter
 import com.eynnzerr.yuukatalk.utils.ImageUtils
+import com.eynnzerr.yuukatalk.utils.PathUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -152,15 +180,15 @@ fun TalkPage(
     var openEmojiPickerDialog by rememberSaveable { mutableStateOf(false) }
     var openSaveDialog by rememberSaveable { mutableStateOf(false) }
     var openRemindSaveDialog by rememberSaveable { mutableStateOf(false) }
-    val pagerState = rememberPagerState(
-        initialPage = 0,
-        initialPageOffsetFraction = 0f
-    ) { 2 }
+    var openTalkPieceEditDialog by rememberSaveable { mutableStateOf(false) }
+    var openTalkPieceInsertDialog by rememberSaveable { mutableStateOf(false) }
+    var insertIndex by remember { mutableIntStateOf(0) }
 
     // Native RecyclerView adapter
     val talkAdapter = remember {
         TalkAdapter(uiState.talkList)
     }
+    val talkPieceEditState by talkAdapter.talkPieceState.collectAsState()
 
     // ActivityResultContract
     val selectPicture = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
@@ -202,20 +230,31 @@ fun TalkPage(
         ),
     )
 
-    LaunchedEffect(uiState.talkListState) {
-        when (uiState.talkListState) {
-            is TalkListState.Initialized -> {
-                // do nothing
-            }
-            is TalkListState.Push -> {
-                talkAdapter.notifyAppendItem()
-            }
-            is TalkListState.Pop -> {
-                talkAdapter.notifyRemoveItemAtLast()
-            }
-            is TalkListState.Refresh -> {
-                talkAdapter.notifyDataSetChanged()
-                talkAdapter.notifyScrollToLast()
+    LaunchedEffect(uiState.talkListStateChange) {
+        for (state in uiState.talkListStateChange) {
+            when (state) {
+                is TalkListState.Initialized -> {
+                    // do nothing
+                }
+                is TalkListState.Push -> {
+                    talkAdapter.notifyAppendItem()
+                }
+                is TalkListState.Pop -> {
+                    talkAdapter.notifyRemoveItemAtLast()
+                }
+                is TalkListState.Refresh -> {
+                    talkAdapter.notifyDataSetChanged()
+                    talkAdapter.notifyScrollToLast()
+                }
+                is TalkListState.Modified -> {
+                    talkAdapter.notifyItemChanged(state.index)
+                }
+                is TalkListState.Removed -> {
+                    talkAdapter.notifyItemRemoved(state.index)
+                }
+                is TalkListState.Inserted -> {
+                    talkAdapter.notifyItemInserted(state.index)
+                }
             }
         }
     }
@@ -451,6 +490,665 @@ fun TalkPage(
         }
     }
 
+    // dialog to edit single talk piece.
+    if (talkPieceEditState.openEditDialog) {
+        val radioOptions = listOf(
+            stringResource(id = R.string.edit_piece),
+            stringResource(id = R.string.remove_piece),
+            stringResource(id = R.string.insert_piece),
+        )
+        val (selectedOption, onOptionSelected) = remember { mutableStateOf(radioOptions[0]) }
+
+        AlertDialog(
+            onDismissRequest = {
+                talkAdapter.closeDialog()
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        talkAdapter.closeDialog()
+                        when (selectedOption) {
+                            radioOptions[0] -> {
+                                openTalkPieceEditDialog = true
+                            }
+                            radioOptions[1] -> {
+                                viewModel.removeTalkPiece(talkPieceEditState.position)
+                            }
+                            else -> {
+                                openTalkPieceInsertDialog = true
+                                insertIndex = talkPieceEditState.position
+                            }
+                        }
+                    },
+                ) {
+                    Text(stringResource(id = R.string.btn_confirm))
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        talkAdapter.closeDialog()
+                    },
+                ) {
+                    Text(stringResource(id = R.string.btn_cancel))
+                }
+            },
+            icon = {
+                Icon(
+                    imageVector = Icons.Filled.Edit,
+                    contentDescription = "edit talk history"
+                )
+            },
+            text = {
+                Column(Modifier.selectableGroup()) {
+                    radioOptions.forEach { text ->
+                        Row(
+                            Modifier
+                                .fillMaxWidth()
+                                .height(56.dp)
+                                .selectable(
+                                    selected = (text == selectedOption),
+                                    onClick = { onOptionSelected(text) },
+                                    role = Role.RadioButton
+                                )
+                                .padding(horizontal = 16.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            RadioButton(
+                                selected = (text == selectedOption),
+                                onClick = null
+                            )
+                            Text(
+                                text = text,
+                                style = MaterialTheme.typography.bodyLarge,
+                                modifier = Modifier.padding(start = 16.dp)
+                            )
+                        }
+                    }
+                }
+            }
+        )
+    }
+
+    if (openTalkPieceEditDialog) {
+        when (val talkData = talkPieceEditState.talkData) {
+            is Talk.PureText -> {
+                // 修改说话学生或文字 TODO 提取成组件
+                var talkingStudent by remember { mutableStateOf(talkData.talker) }
+                var text by remember { mutableStateOf(talkData.text) }
+                AlertDialog(
+                    onDismissRequest = {
+                        openTalkPieceEditDialog = false
+                    },
+                    confirmButton = {
+                        TextButton(
+                            onClick = {
+                                val newPureText = Talk.PureText(
+                                    talker = talkingStudent,
+                                    text = text,
+                                    isFirst = talkingStudent != talkData.talker // 考虑上文，如果修改了角色，认为是第一个；如果与上文角色相同，则又不是第一个
+                                )
+                                viewModel.editTalkHistory(newPureText, talkPieceEditState.position)
+                                openTalkPieceEditDialog = false
+                            },
+                        ) {
+                            Text(stringResource(id = R.string.btn_confirm))
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(
+                            onClick = {
+                                openTalkPieceEditDialog = false
+                            },
+                        ) {
+                            Text(stringResource(id = R.string.btn_cancel))
+                        }
+                    },
+                    text = {
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Text(
+                                text = "Character:",
+                                style = MaterialTheme.typography.titleMedium
+                            )
+                            LazyRow(
+                                horizontalArrangement = Arrangement.spacedBy(
+                                    space = 16.dp,
+                                    alignment = Alignment.Start
+                                ),
+                            ) {
+                                items(items = uiState.studentList) {
+                                    StudentAvatar(
+                                        url = it.currentAvatar,
+                                        withBorder = talkingStudent == it,
+                                        isSelected = talkingStudent == it,
+                                        size = 48.dp,
+                                        onClick = {
+                                            talkingStudent = it
+                                        }
+                                    )
+                                }
+                            }
+                            Text(
+                                text = "Text:",
+                                style = MaterialTheme.typography.titleMedium
+                            )
+                            OutlinedTextField(
+                                value = text,
+                                onValueChange = { text = it },
+                                label = { Text(text = "text") },
+                                trailingIcon = {
+                                    IconButton(onClick = { text = "" }) {
+                                        Icon(
+                                            imageVector = Icons.Outlined.Cancel,
+                                            contentDescription = "clear text"
+                                        )
+                                    }
+                                }
+                            )
+                        }
+                    }
+                )
+            }
+            is Talk.Photo -> {
+                // 选择：从相册读取或从表情包读取或删除 TODO 提取成组件
+                var talkingStudent by remember { mutableStateOf(talkData.talker) }
+                var uri by remember { mutableStateOf(talkData.uri) }
+                var openSubDialog by remember { mutableStateOf(false) }
+
+                val reselectPicture = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { photoUri ->
+                    photoUri?.let {
+                        val contentResolver = context.contentResolver
+                        val takeFlags = Intent.FLAG_GRANT_READ_URI_PERMISSION or
+                                Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                        contentResolver.takePersistableUriPermission(it, takeFlags)
+
+                        uri = it.toString()
+                    }
+                }
+
+                AlertDialog(
+                    onDismissRequest = {
+                        openTalkPieceEditDialog = false
+                    },
+                    confirmButton = {
+                        TextButton(
+                            onClick = {
+                                val newPhoto = Talk.Photo(
+                                    talker = talkingStudent,
+                                    uri = uri,
+                                    isFirst = talkingStudent != talkData.talker
+                                )
+                                viewModel.editTalkHistory(newPhoto, talkPieceEditState.position)
+                                openTalkPieceEditDialog = false
+                            },
+                        ) {
+                            Text(stringResource(id = R.string.btn_confirm))
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(
+                            onClick = {
+                                openTalkPieceEditDialog = false
+                            },
+                        ) {
+                            Text(stringResource(id = R.string.btn_cancel))
+                        }
+                    },
+                    text = {
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                        ) {
+                            LazyRow(
+                                horizontalArrangement = Arrangement.spacedBy(
+                                    space = 16.dp,
+                                    alignment = Alignment.Start
+                                ),
+                            ) {
+                                items(items = uiState.studentList) {
+                                    StudentAvatar(
+                                        url = it.currentAvatar,
+                                        withBorder = talkingStudent == it,
+                                        isSelected = talkingStudent == it,
+                                        size = 48.dp,
+                                        onClick = {
+                                            talkingStudent = it
+                                        }
+                                    )
+                                }
+                            }
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceEvenly
+                            ) {
+                                PlainButton(
+                                    onClick = { reselectPicture.launch(arrayOf("image/*")) },
+                                    imageVector = Icons.Outlined.PhotoLibrary,
+                                    text = stringResource(id = R.string.gallery)
+                                )
+                                PlainButton(
+                                    onClick = { openSubDialog = true },
+                                    imageVector = Icons.Outlined.EmojiEmotions,
+                                    text = stringResource(id = R.string.emotions)
+                                )
+                            }
+                            AsyncImage(
+                                model = ImageRequest
+                                    .Builder(context)
+                                    .data(uri)
+                                    .crossfade(true)
+                                    .transformations(RoundedCornersTransformation())
+                                    .build(),
+                                contentScale = ContentScale.Crop,
+                                contentDescription = "",
+                                modifier = Modifier.size(144.dp),
+                            )
+                        }
+                    }
+                )
+
+                if (openSubDialog) {
+                    EmojiPickerDialog(
+                        character = talkingStudent,
+                        onDismissRequest = { openSubDialog = false },
+                        onDismiss = { openSubDialog = false },
+                        onPickEmoji = { path ->
+                            uri = path
+                            openSubDialog = false
+                        }
+                    )
+                }
+            }
+            is Talk.Narration -> {
+                // 选择：修改文案或删除
+                var narrationText by remember { mutableStateOf(talkData.text) }
+                NarrationDialog(
+                    onDismissRequest = {
+                        openTalkPieceEditDialog = false
+                    },
+                    onConfirm = {
+                        val newNarration = Talk.Narration(narrationText)
+                        viewModel.editTalkHistory(newNarration, talkPieceEditState.position)
+                        openTalkPieceEditDialog = false
+                    },
+                    onDismiss = {
+                        openTalkPieceEditDialog = false
+                    },
+                    value = narrationText,
+                    onValueChange = { narrationText = it }
+                )
+            }
+            is Talk.Branch -> {
+                var textBranches by remember { mutableStateOf(listOf(*talkData.textOptions.toTypedArray())) }
+                BranchDialog(
+                    onDismissRequest = {
+                        openTalkPieceEditDialog = false
+                    },
+                    onConfirm = {
+                        val newBranch = Talk.Branch(textBranches)
+                        viewModel.editTalkHistory(newBranch, talkPieceEditState.position)
+                        openTalkPieceEditDialog = false
+                    },
+                    onDismiss = {
+                        openTalkPieceEditDialog = false
+                    },
+                    onAdd = {
+                        textBranches = listOf(*textBranches.toTypedArray(), "")
+                    },
+                    onRemove = {
+                        textBranches = mutableListOf(*textBranches.toTypedArray()).apply { if(size > 1) removeLastOrNull() }
+                    },
+                    values = textBranches,
+                    onValueChange = { newText, index ->
+                        textBranches = mutableListOf(*textBranches.toTypedArray()).apply { this[index] = newText }
+                    }
+                )
+            }
+            is Talk.LoveScene -> {
+                // 列出当前对话中学生列表 TODO 也封成一个Dialog组件
+                var loveName by remember { mutableStateOf(talkData.studentName) }
+                AlertDialog(
+                    onDismissRequest = {
+                        openTalkPieceEditDialog = false
+                    },
+                    confirmButton = {
+                        TextButton(
+                            onClick = {
+                                val newLoveScene = Talk.LoveScene(loveName)
+                                viewModel.editTalkHistory(newLoveScene, talkPieceEditState.position)
+                                openTalkPieceEditDialog = false
+                            },
+                        ) {
+                            Text(stringResource(id = R.string.btn_confirm))
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(
+                            onClick = {
+                                openTalkPieceEditDialog = false
+                            },
+                        ) {
+                            Text(stringResource(id = R.string.btn_cancel))
+                        }
+                    },
+                    text = {
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Text(
+                                text = "Character: $loveName",
+                                style = MaterialTheme.typography.titleMedium
+                            )
+                            LazyRow(
+                                horizontalArrangement = Arrangement.spacedBy(
+                                    space = 16.dp,
+                                    alignment = Alignment.Start
+                                ),
+                            ) {
+                                items(items = uiState.studentList) {
+                                    StudentAvatar(
+                                        url = it.currentAvatar,
+                                        withBorder = loveName == it.name,
+                                        isSelected = loveName == it.name,
+                                        size = 48.dp,
+                                        onClick = {
+                                            loveName = it.name
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                    }
+                )
+            }
+        }
+    }
+
+    if (openTalkPieceInsertDialog) {
+        // local dialog switches
+        var openInsertIndex by remember { mutableIntStateOf(-1) }
+
+        AlertDialog(
+            onDismissRequest = {
+                openTalkPieceInsertDialog = false
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        openTalkPieceInsertDialog = false
+                    },
+                ) {
+                    Text(stringResource(id = R.string.btn_cancel))
+                }
+            },
+            icon = {
+                Text(text = "Choose insert type.")
+            },
+            text = {
+                Column(
+                    verticalArrangement = Arrangement.SpaceBetween,
+                    horizontalAlignment = Alignment.Start,
+                ) {
+                    // 选择插入文字、图片、旁白、分支、羁绊剧情
+                    PlainButton(
+                        onClick = { openInsertIndex = 0 },
+                        imageVector = Icons.Outlined.TextFields,
+                        text = "Text"
+                    )
+                    PlainButton(
+                        onClick = { openInsertIndex = 1 },
+                        imageVector = Icons.Outlined.Image,
+                        text = "Image"
+                    )
+                    PlainButton(
+                        onClick = { openInsertIndex = 2 },
+                        imageVector = Icons.Outlined.GraphicEq,
+                        text = "Narration"
+                    )
+                    PlainButton(
+                        onClick = { openInsertIndex = 3 },
+                        imageVector = Icons.Outlined.FormatListBulleted,
+                        text = "Branch"
+                    )
+                    PlainButton(
+                        onClick = {
+                            viewModel.sendLoveScene(insertIndex)
+                            openInsertIndex = -1
+                            openTalkPieceInsertDialog = false
+                        },
+                        imageVector = Icons.Filled.Favorite,
+                        text = "Love Scene"
+                    )
+                }
+            }
+        )
+
+        when (openInsertIndex) {
+            0 -> {
+                AlertDialog(
+                    onDismissRequest = {
+                       openInsertIndex = -1
+                    },
+                    confirmButton = {
+                        TextButton(
+                            onClick = {
+                                viewModel.sendPureText(insertIndex)
+                                openInsertIndex = -1
+                                openTalkPieceInsertDialog = false
+                            },
+                        ) {
+                            Text(stringResource(id = R.string.btn_confirm))
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(
+                            onClick = {
+                                openInsertIndex = -1
+                            },
+                        ) {
+                            Text(stringResource(id = R.string.btn_cancel))
+                        }
+                    },
+                    text = {
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Text(
+                                text = "Character:",
+                                style = MaterialTheme.typography.titleMedium
+                            )
+                            LazyRow(
+                                horizontalArrangement = Arrangement.spacedBy(
+                                    space = 16.dp,
+                                    alignment = Alignment.Start
+                                ),
+                            ) {
+                                items(items = uiState.studentList) {
+                                    StudentAvatar(
+                                        url = it.currentAvatar,
+                                        withBorder = uiState.currentStudent == it,
+                                        isSelected = uiState.currentStudent == it,
+                                        size = 48.dp,
+                                        onClick = {
+                                            viewModel.selectStudent(it)
+                                        }
+                                    )
+                                }
+                            }
+                            Text(
+                                text = "Text:",
+                                style = MaterialTheme.typography.titleMedium
+                            )
+                            OutlinedTextField(
+                                value = uiState.text,
+                                onValueChange = { viewModel.updateText(it) },
+                                label = { Text(text = "text") },
+                                trailingIcon = {
+                                    IconButton(onClick = { viewModel.updateText("") }) {
+                                        Icon(
+                                            imageVector = Icons.Outlined.Cancel,
+                                            contentDescription = "clear text"
+                                        )
+                                    }
+                                }
+                            )
+                        }
+                    }
+                )
+            }
+            1 -> {
+                var uri by remember { mutableStateOf(uiState.currentStudent.currentAvatar) }
+                var openSubDialog by remember { mutableStateOf(false) }
+
+                val reselectPicture = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { photoUri ->
+                    photoUri?.let {
+                        val contentResolver = context.contentResolver
+                        val takeFlags = Intent.FLAG_GRANT_READ_URI_PERMISSION or
+                                Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                        contentResolver.takePersistableUriPermission(it, takeFlags)
+
+                        uri = it.toString()
+                    }
+                }
+
+                AlertDialog(
+                    onDismissRequest = {
+                        openInsertIndex = -1
+                    },
+                    confirmButton = {
+                        TextButton(
+                            onClick = {
+                                viewModel.sendPhoto(uri, insertIndex)
+                                openInsertIndex = -1
+                                openTalkPieceInsertDialog = false
+                            },
+                        ) {
+                            Text(stringResource(id = R.string.btn_confirm))
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(
+                            onClick = {
+                                openInsertIndex = -1
+                            },
+                        ) {
+                            Text(stringResource(id = R.string.btn_cancel))
+                        }
+                    },
+                    text = {
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                        ) {
+                            LazyRow(
+                                horizontalArrangement = Arrangement.spacedBy(
+                                    space = 16.dp,
+                                    alignment = Alignment.Start
+                                ),
+                            ) {
+                                items(items = uiState.studentList) {
+                                    StudentAvatar(
+                                        url = it.currentAvatar,
+                                        withBorder = uiState.currentStudent == it,
+                                        isSelected = uiState.currentStudent == it,
+                                        size = 48.dp,
+                                        onClick = {
+                                            viewModel.selectStudent(it)
+                                        }
+                                    )
+                                }
+                            }
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceEvenly
+                            ) {
+                                PlainButton(
+                                    onClick = { reselectPicture.launch(arrayOf("image/*")) },
+                                    imageVector = Icons.Outlined.PhotoLibrary,
+                                    text = stringResource(id = R.string.gallery)
+                                )
+                                PlainButton(
+                                    onClick = { openSubDialog = true },
+                                    imageVector = Icons.Outlined.EmojiEmotions,
+                                    text = stringResource(id = R.string.emotions)
+                                )
+                            }
+                            AsyncImage(
+                                model = ImageRequest
+                                    .Builder(context)
+                                    .data(uri)
+                                    .crossfade(true)
+                                    .transformations(RoundedCornersTransformation())
+                                    .build(),
+                                contentScale = ContentScale.Crop,
+                                contentDescription = "",
+                                modifier = Modifier.size(144.dp),
+                            )
+                        }
+                    }
+                )
+
+                if (openSubDialog) {
+                    EmojiPickerDialog(
+                        character = uiState.currentStudent,
+                        onDismissRequest = { openSubDialog = false },
+                        onDismiss = { openSubDialog = false },
+                        onPickEmoji = { path ->
+                            uri = path
+                            openSubDialog = false
+                        }
+                    )
+                }
+            }
+            2 -> {
+                NarrationDialog(
+                    onDismissRequest = {
+                        openInsertIndex = -1
+                    },
+                    onConfirm = {
+                        viewModel.sendNarration(insertIndex)
+                        openInsertIndex = -1
+                        openTalkPieceInsertDialog = false
+                    },
+                    onDismiss = {
+                        openInsertIndex = -1
+                    },
+                    value = uiState.narrationText,
+                    onValueChange = {
+                        viewModel.updateNarrationText(it)
+                    }
+                )
+            }
+            3 -> {
+                BranchDialog(
+                    onDismissRequest = {
+                        openInsertIndex = -1
+                    },
+                    onConfirm = {
+                        viewModel.sendBranches(insertIndex)
+                        openInsertIndex = -1
+                        openTalkPieceInsertDialog = false
+                    },
+                    onDismiss = {
+                        openInsertIndex = -1
+                    },
+                    onAdd = {
+                        viewModel.appendBranch()
+                    },
+                    onRemove = {
+                        viewModel.removeBranch()
+                    },
+                    values = uiState.textBranches,
+                    onValueChange = { newText, index ->
+                        viewModel.editBranchAtIndex(newText, index)
+                    }
+                )
+            }
+        }
+    }
+
     if (openBottomSheet) {
         ModalBottomSheet(
             onDismissRequest = { openBottomSheet = false },
@@ -483,223 +1181,57 @@ fun TalkPage(
     }
 
     if (openNarrationDialog) {
-        AlertDialog(
+        NarrationDialog(
             onDismissRequest = {
                 openNarrationDialog = false
             },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        if (uiState.narrationText != "") {
-                            viewModel.sendNarration()
-                        }
-                        openNarrationDialog = false
-                    },
-                ) {
-                    Text(stringResource(id = R.string.btn_confirm))
+            onConfirm = {
+                if (uiState.narrationText != "") {
+                    viewModel.sendNarration()
                 }
+                openNarrationDialog = false
             },
-            dismissButton = {
-                TextButton(
-                    onClick = {
-                        openNarrationDialog = false
-                    },
-                ) {
-                    Text(stringResource(id = R.string.btn_cancel))
-                }
+            onDismiss = {
+                openNarrationDialog = false
             },
-            icon = {
-                Icon(
-                    imageVector = Icons.Filled.GraphicEq,
-                    contentDescription = "narration dialog icon"
-                )
-            },
-            title = {
-                Text(text = stringResource(id = R.string.title_narration_dialog))
-            },
-            text = {
-                OutlinedTextField(
-                    value = uiState.narrationText,
-                    onValueChange = { viewModel.updateNarrationText(it) },
-                    label = { Text(text = stringResource(id = R.string.narration)) },
-                )
-            }
+            value = uiState.narrationText,
+            onValueChange = { viewModel.updateNarrationText(it) }
         )
     }
 
     if (openBranchDialog) {
-        AlertDialog(
+        BranchDialog(
             onDismissRequest = {
                 openBranchDialog = false
             },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        viewModel.sendBranches()
-                        openBranchDialog = false
-                    },
-                ) {
-                    Text(stringResource(id = R.string.btn_confirm))
-                }
+            onConfirm = {
+                viewModel.sendBranches()
+                openBranchDialog = false
             },
-            dismissButton = {
-                TextButton(
-                    onClick = {
-                        openBranchDialog = false
-                    },
-                ) {
-                    Text(stringResource(id = R.string.btn_cancel))
-                }
+            onDismiss = {
+                openBranchDialog = false
             },
-            icon = {
-                Icon(
-                    imageVector = Icons.Filled.FormatListBulleted,
-                    contentDescription = "branch dialog icon"
-                )
+            onAdd = {
+                viewModel.appendBranch()
             },
-            title = {
-                Text(text = stringResource(id = R.string.title_branch_dialog))
+            onRemove = {
+                viewModel.removeBranch()
             },
-            text = {
-                LazyColumn(
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    stickyHeader {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.End
-                        ) {
-                            IconButton(
-                                onClick = {
-                                    viewModel.appendBranch()
-                                }
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Filled.AddCircleOutline,
-                                    contentDescription = "add branch."
-                                )
-                            }
-                            IconButton(
-                                onClick = {
-                                    viewModel.removeBranch()
-                                }
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Filled.RemoveCircleOutline,
-                                    contentDescription = "remove branch"
-                                )
-                            }
-                        }
-                    }
-                    itemsIndexed(
-                        items = uiState.textBranches,
-                        key = { index, _ -> index }
-                    ) { index, item ->
-                        OutlinedTextField(
-                            value = item,
-                            onValueChange = { viewModel.editBranchAtIndex(it, index) },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(bottom = 6.dp),
-                            singleLine = true,
-                            prefix = { Text(text = "$index.") }
-                        )
-                    }
-                }
+            values = uiState.textBranches,
+            onValueChange = { newText, index ->
+                viewModel.editBranchAtIndex(newText, index)
             }
         )
     }
 
     if (openEmojiPickerDialog) {
-        AlertDialog(
+        EmojiPickerDialog(
+            character = uiState.currentStudent,
             onDismissRequest = { openEmojiPickerDialog = false },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        openEmojiPickerDialog = false
-                    },
-                ) {
-                    Text(stringResource(id = R.string.btn_cancel))
-                }
-            },
-            icon = {
-                Icon(
-                    imageVector = Icons.Outlined.EmojiEmotions,
-                    contentDescription = "emoji dialog icon"
-                )
-            },
-            title = {
-                Text(text = stringResource(id = R.string.title_emoji_dialog))
-            },
-            text = {
-                Column {
-                    Row(
-                        Modifier
-                            .wrapContentHeight()
-                            .fillMaxWidth()
-                            .padding(bottom = 8.dp),
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        repeat(pagerState.pageCount) { iteration ->
-                            val color = if (pagerState.currentPage == iteration) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.inversePrimary
-                            Box(
-                                modifier = Modifier
-                                    .padding(4.dp)
-                                    .clip(CircleShape)
-                                    .background(color)
-                                    .size(8.dp)
-                            )
-                        }
-                    }
-                    HorizontalPager(state = pagerState) { page ->
-                        val emojiData = if (page == 0) uiState.currentStudent.getEmojiPaths(context) else getCommonEmojiPaths(context)
-                        LazyVerticalGrid(
-                            modifier = Modifier
-                                .heightIn(0.dp, 350.dp)
-                                .graphicsLayer {
-                                    val pageOffset = (
-                                            (pagerState.currentPage - page) + pagerState
-                                                .currentPageOffsetFraction
-                                            ).absoluteValue
-
-                                    alpha = lerp(
-                                        start = 0.5f,
-                                        stop = 1f,
-                                        fraction = 1f - pageOffset.coerceIn(0f, 1f)
-                                    )
-                                },
-                            columns = GridCells.Adaptive(minSize = 64.dp),
-                            verticalArrangement = Arrangement.spacedBy(8.dp),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        ) {
-                            items(
-                                items = emojiData,
-                                key = { it.hashCode() }
-                            ) { path ->
-                                Card(
-                                    colors = CardDefaults.cardColors(containerColor = Color.White),
-                                    onClick = {
-                                        viewModel.sendPhoto(path)
-                                        openEmojiPickerDialog = false
-                                    }
-                                ) {
-                                    AsyncImage(
-                                        model = ImageRequest
-                                            .Builder(context)
-                                            .data(path)
-                                            .crossfade(true)
-                                            .build(),
-                                        contentScale = ContentScale.Crop,
-                                        contentDescription = "",
-                                        modifier = Modifier
-                                            .padding(8.dp)
-                                            .aspectRatio(1f)
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
+            onDismiss = { openEmojiPickerDialog = false },
+            onPickEmoji = {uri ->
+                viewModel.sendPhoto(uri)
+                openEmojiPickerDialog = false
             }
         )
     }
@@ -783,13 +1315,6 @@ fun TalkPage(
             }
         )
     }
-}
-
-private fun getCommonEmojiPaths(context: Context): List<String> {
-    val assetManager = context.assets
-    return assetManager.list("common_emojis")
-        ?.map { "file:///android_asset/common_emojis/$it" }
-        ?: emptyList()
 }
 
 private const val TAG = "TalkPage"

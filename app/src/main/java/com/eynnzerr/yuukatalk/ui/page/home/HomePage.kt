@@ -7,7 +7,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircleOutline
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.PersonOutline
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.HelpOutline
 import androidx.compose.material.icons.outlined.KeyboardArrowRight
 import androidx.compose.material.icons.outlined.Settings
@@ -67,7 +66,7 @@ fun HomePage(
             icon = Icons.Outlined.Settings,
             color = MaterialTheme.colorScheme.surface,
             onClick = {
-                navController.pushTo(Destinations.SETTINGS)
+                navController.pushTo(Destinations.SETTINGS_ROUTE)
             }
         )
     )

@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 2,
-    "identityHash": "59497ec922a5a4a08d5243d6e3f4a69e",
+    "identityHash": "27aa0991988cdfce745384e135b9da3a",
     "entities": [
       {
         "tableName": "momotalk_project",
@@ -72,7 +72,7 @@
       },
       {
         "tableName": "momotalk_character",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`name` TEXT NOT NULL, `nameRoma` TEXT NOT NULL, `school` TEXT NOT NULL, `avatarPath` TEXT NOT NULL, `emojiPath` TEXT NOT NULL, `currentAvatar` TEXT NOT NULL, PRIMARY KEY(`name`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`name` TEXT NOT NULL, `nameRoma` TEXT NOT NULL DEFAULT '', `school` TEXT NOT NULL DEFAULT '', `isAsset` INTEGER NOT NULL, `avatarPath` TEXT NOT NULL DEFAULT '', `emojiPath` TEXT NOT NULL DEFAULT '', `currentAvatar` TEXT NOT NULL DEFAULT '', PRIMARY KEY(`name`))",
         "fields": [
           {
             "fieldPath": "name",
@@ -84,31 +84,42 @@
             "fieldPath": "nameRoma",
             "columnName": "nameRoma",
             "affinity": "TEXT",
-            "notNull": true
+            "notNull": true,
+            "defaultValue": "''"
           },
           {
             "fieldPath": "school",
             "columnName": "school",
             "affinity": "TEXT",
+            "notNull": true,
+            "defaultValue": "''"
+          },
+          {
+            "fieldPath": "isAsset",
+            "columnName": "isAsset",
+            "affinity": "INTEGER",
             "notNull": true
           },
           {
             "fieldPath": "avatarPath",
             "columnName": "avatarPath",
             "affinity": "TEXT",
-            "notNull": true
+            "notNull": true,
+            "defaultValue": "''"
           },
           {
             "fieldPath": "emojiPath",
             "columnName": "emojiPath",
             "affinity": "TEXT",
-            "notNull": true
+            "notNull": true,
+            "defaultValue": "''"
           },
           {
             "fieldPath": "currentAvatar",
             "columnName": "currentAvatar",
             "affinity": "TEXT",
-            "notNull": true
+            "notNull": true,
+            "defaultValue": "''"
           }
         ],
         "primaryKey": {
@@ -124,7 +135,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '59497ec922a5a4a08d5243d6e3f4a69e')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '27aa0991988cdfce745384e135b9da3a')"
     ]
   }
 }

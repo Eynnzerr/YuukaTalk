@@ -8,7 +8,10 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.foundation.background
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavBackStackEntry
@@ -25,13 +28,24 @@ import com.eynnzerr.yuukatalk.ui.page.character.CharacterViewModel
 import com.eynnzerr.yuukatalk.ui.page.history.HistoryPage
 import com.eynnzerr.yuukatalk.ui.page.history.HistoryViewModel
 import com.eynnzerr.yuukatalk.ui.page.home.HomePage
+import com.eynnzerr.yuukatalk.ui.page.settings.SettingsPage
+import com.eynnzerr.yuukatalk.ui.page.settings.about.AboutPage
+import com.eynnzerr.yuukatalk.ui.page.settings.appearance.AppearancePage
+import com.eynnzerr.yuukatalk.ui.page.settings.appearance.AppearanceViewModel
+import com.eynnzerr.yuukatalk.ui.page.settings.editor_options.EditorOptionsPage
+import com.eynnzerr.yuukatalk.ui.page.settings.editor_options.EditorOptionsViewModel
 import com.eynnzerr.yuukatalk.ui.page.talk.TalkPage
 import com.eynnzerr.yuukatalk.ui.page.talk.TalkViewModel
 import com.eynnzerr.yuukatalk.ui.theme.YuukaTalkTheme
+import com.eynnzerr.yuukatalk.utils.AppearanceUtils
 
 @Composable
 fun YuukaTalkApp() {
-    YuukaTalkTheme {
+    val appearanceState by AppearanceUtils.appearanceState.collectAsState()
+    YuukaTalkTheme(
+        paletteOption = appearanceState.paletteOption,
+        seedColor = Color(appearanceState.assignedSeedColor)
+    ) {
         AppNavGraph()
     }
 }
@@ -71,8 +85,22 @@ private fun AppNavGraph() {
             val characterViewModel = hiltViewModel<CharacterViewModel>()
             CharacterPage(characterViewModel, appNavController)
         }
-        animatedComposable(Destinations.SETTINGS) {
+        animatedComposable(Destinations.SETTINGS_ROUTE) {
+            SettingsPage(appNavController)
+        }
+        animatedComposable(Destinations.EDITOR_OPTIONS_ROUTE) {
+            val editorOptionsViewModel = hiltViewModel<EditorOptionsViewModel>()
+            EditorOptionsPage(appNavController, editorOptionsViewModel)
+        }
+        animatedComposable(Destinations.APPEARANCE_ROUTE) {
+            val appearanceViewModel = hiltViewModel<AppearanceViewModel>()
+            AppearancePage(appearanceViewModel, appNavController)
+        }
+        animatedComposable(Destinations.LANGUAGE_ROUTE) {
 
+        }
+        animatedComposable(Destinations.ABOUT_ROUTE) {
+            AboutPage(appNavController)
         }
     }
 }

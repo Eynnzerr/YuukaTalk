@@ -4,8 +4,12 @@ import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -15,7 +19,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -28,6 +31,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -41,11 +45,13 @@ import coil.request.ImageRequest
 import com.eynnzerr.yuukatalk.data.model.Character
 import com.eynnzerr.yuukatalk.R
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun StudentInfo(
     student: Character,
     modifier: Modifier = Modifier,
     onPickAvatar: () -> Unit = {},
+    onLongPress: () -> Unit = {}
 ) {
     var expand by remember { mutableStateOf(false) }
     var selectedIndex by remember { mutableIntStateOf(0) }
@@ -56,14 +62,16 @@ fun StudentInfo(
             modifier = modifier
                 .padding(16.dp)
                 .fillMaxWidth()
-                .clickable {
-                    expand = !expand
-                },
+                .combinedClickable(
+                    enabled = true,
+                    onClick = { expand = !expand },
+                    onLongClick = onLongPress
+                ),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
-                    .data(student.getAvatarPaths(context)[selectedIndex])
+                    .data(student.getAvatarPaths(context).getOrNull(selectedIndex))
                     .crossfade(true)
                     .build(),
                 contentDescription = null,
@@ -99,8 +107,10 @@ fun StudentInfo(
             exit = shrinkVertically()
         ) {
             LazyRow (
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 itemsIndexed(
                     items = student.getAvatarPaths(context),
@@ -136,7 +146,8 @@ fun SchoolLogo(school: String) {
         School.TRINITY -> painterResource(id = R.drawable.school_logo_trinity)
         School.VALKYRIE -> painterResource(id = R.drawable.school_logo_valkyrie)
         School.ARIUS -> painterResource(id = R.drawable.student_logo_arius)
-        else -> painterResource(id = R.drawable.school_logo_federal)
+        School.Kronos -> painterResource(id = R.drawable.school_logo_kronos)
+        else -> painterResource(id = R.drawable.school_logo_federal) // TODO 搞个别的placeholder
     }
 
     Image(
@@ -154,11 +165,11 @@ fun SchoolLogo(school: String) {
 @Composable
 fun StudentInfoPreview() {
     val student = Character(
-        name = "优香",
-        nameRoma = "Yuuka",
-        school = "Millennium",
-        avatarPath = "millennium/yuuka/avatar",
-        emojiPath = "millennium/yuuka/emoji",
+        name = "妃咲",
+        nameRoma = "Kisaaki",
+        school = "Shanhaijing",
+        avatarPath = "Shanhaijing/Genryumon/Kissaki/avatar",
+        emojiPath = "Shanhaijing/Genryumon/Kissaki/emoji",
     )
 
     StudentInfo(student = student) {
@@ -173,11 +184,12 @@ object School {
     const val HYAKKIYAKO = "Hyakkiyako"
     const val MILLENNIUM = "Millennium"
     const val RED_WINTER = "Red Winter"
-    const val SHAN_HAI_JING = "Shan Hai Jing"
+    const val SHAN_HAI_JING = "Shanhaijing"
     const val SRT = "SRT"
     const val TRINITY = "Trinity"
     const val VALKYRIE = "Valkyrie"
     const val ARIUS = "Arius"
+    const val Kronos = "Kronos"
 }
 
 private const val TAG = "StudentInfo"

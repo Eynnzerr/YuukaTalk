@@ -153,8 +153,8 @@ private fun BranchPiece(talk: Talk.Branch) {
             containerColor = BranchDefaultColors.containerBackgroundColor
         ),
         modifier = Modifier
-            .padding(start = 72.dp, bottom = 8.dp)
             .fillMaxWidth()
+            .padding(start = 72.dp, bottom = 8.dp)
     ) {
         Column(
             modifier = Modifier.padding(12.dp),
@@ -213,8 +213,8 @@ private fun LoveScenePiece(talk: Talk.LoveScene) {
             containerColor = LoveSceneDefaultColors.containerBackgroundColor
         ),
         modifier = Modifier
-            .padding(start = 72.dp, bottom = 8.dp)
             .fillMaxWidth()
+            .padding(start = 72.dp, bottom = 8.dp)
     ) {
         Box(
             modifier = Modifier.fillMaxSize()

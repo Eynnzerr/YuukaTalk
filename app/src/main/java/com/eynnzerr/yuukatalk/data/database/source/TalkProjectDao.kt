@@ -18,7 +18,7 @@ interface TalkProjectDao {
     fun fetchProjectById(id: Int): TalkProject
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun addProject(project: TalkProject)
+    fun addProject(project: TalkProject): Long
 
     @Update
     fun updateProject(project: TalkProject)
