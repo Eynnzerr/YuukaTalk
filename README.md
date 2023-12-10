@@ -43,9 +43,9 @@ Still WIP.
 - [x] Import all students in BlueArchive.(WIP except few non-student characters)
 - [x] Student information browse.
 - [x] Support insert message.
+- [x] Find an app logo.
 - [ ] Multi-language.(Only support Chinese currently)
 - [ ] More settings.
-- [ ] Find an app logo.
 - [ ] Support large-scale screens.
 - [ ] Add first-time guidance.
 - [ ] Move images from bundled asset to remote to cut off package size.
