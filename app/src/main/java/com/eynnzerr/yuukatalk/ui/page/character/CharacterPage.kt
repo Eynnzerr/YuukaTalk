@@ -124,7 +124,11 @@ fun CharacterPage(
                     IconButton(
                         onClick = {
                             viewModel.removeAllCharacters()
-                            Toast.makeText(context, "清除全部学生数据……", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(
+                                context,
+                                context.resources.getText(R.string.toast_remove_all_characters),
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
                     ) {
                         Icon(
@@ -136,7 +140,11 @@ fun CharacterPage(
                         onClick = {
                             // re-import characters
                             viewModel.importCharactersFromFile()
-                            Toast.makeText(context, "正在重新导入学生数据……", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(
+                                context,
+                                context.resources.getText(R.string.toast_reload_all_characters),
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
                     ) {
                         Icon(
@@ -197,7 +205,7 @@ fun CharacterPage(
                 Icon(imageVector = Icons.Filled.Grade, contentDescription = "")
             },
             title = {
-                Text(text = "Advanced Options")        
+                Text(text = stringResource(id = R.string.advanced_options))
             },
             text = {
                 Column(
@@ -219,7 +227,7 @@ fun CharacterPage(
                             openDIYDialog = true
                         },
                         imageVector = Icons.Filled.DesignServices,
-                        text = "customize"
+                        text = stringResource(id = R.string.customize)
                     )
                     PlainButton(
                         onClick = {
@@ -227,7 +235,7 @@ fun CharacterPage(
                             openCharacterDialog = false
                         },
                         imageVector = Icons.Filled.DeleteForever,
-                        text = "delete"
+                        text = stringResource(id = R.string.delete)
                     )
                 }
             }
@@ -296,28 +304,28 @@ fun CharacterPage(
 
                         Icon(
                             imageVector = Icons.Filled.AddCircle,
-                            contentDescription = ""
+                            contentDescription = "",
                         )
                     }
 
                     OutlinedTextField(
                         value = name,
                         onValueChange = { name = it },
-                        label = { Text(text = "Name") },
+                        label = { Text(text = stringResource(id = R.string.name)) },
                         modifier = Modifier.padding(vertical = 16.dp)
                     )
 
                     OutlinedTextField(
                         value = nameRoma,
                         onValueChange = { nameRoma = it },
-                        label = { Text(text = "English Name") },
+                        label = { Text(text = stringResource(id = R.string.english_name)) },
                         modifier = Modifier.padding(bottom = 16.dp)
                     )
 
                     OutlinedTextField(
                         value = school,
                         onValueChange = { school = it },
-                        label = { Text(text = "School") },
+                        label = { Text(text = stringResource(id = R.string.school)) },
                         modifier = Modifier.padding(bottom = 16.dp)
                     )
                     // Text(text = "Emojis:") TODO DIY emojis

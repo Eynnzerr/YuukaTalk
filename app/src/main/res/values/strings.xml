@@ -1,0 +1,90 @@
+<resources>
+    <string name="app_name">YuukaTalk</string>
+    <!--  HomePage  -->
+    <string name="new_entry_title">New Talk</string>
+    <string name="new_entry_desc">Create new momotalks</string>
+    <string name="history_entry_title">History</string>
+    <string name="history_entry_desc">Browse momotalk histories</string>
+    <string name="student_entry_title">Characters</string>
+    <string name="student_entry_desc">Manage characters</string>
+    <string name="settings_entry_title">Settings</string>
+    <string name="settings_entry_desc">Manage settings</string>
+
+    <!--  TalkPage  -->
+    <string name="btn_narration">Narration</string>
+    <string name="btn_branch">Branch</string>
+    <string name="btn_love">Love Scene</string>
+    <string name="btn_confirm">Confirm</string>
+    <string name="btn_cancel">Cancel</string>
+    <string name="title_narration_dialog">Input piece of narration.</string>
+    <string name="narration">narration</string>
+    <string name="title_branch_dialog">Add reply branches.</string>
+    <string name="title_emoji_dialog">Select emoji to send.</string>
+    <string name="title_save_dialog">Name your project.</string>
+    <string name="name">name</string>
+    <string name="title_save_reminder_dialog">You haven\'t saved talk yet. Still leaving?</string>
+    <string name="edit_piece">Edit content</string>
+    <string name="remove_piece">Remove message</string>
+    <string name="insert_piece">Insert before</string>
+    <string name="gallery">Gallery</string>
+    <string name="emotions">Emotions</string>
+
+    <!--  HistoryPage  -->
+    <string name="history">History</string>
+    <string name="title_remove_dialog">Are you sure you want to remove this momotalk project?</string>
+
+    <!--  CharacterPage  -->
+    <string name="characters">Characters</string>
+    <string name="diy">DIY</string>
+    <string name="title_diy_dialog">Design Your Character</string>
+    <string name="toast_remove_all_characters">Removing all characters…</string>
+    <string name="toast_reload_all_characters">Reloading all characters…</string>
+    <string name="advanced_options">Advanced Options</string>
+    <string name="customize">customize</string>
+    <string name="delete">delete</string>
+    <string name="english_name">English name</string>
+    <string name="school">school</string>
+
+    <!--  SettingsPage  -->
+    <string name="settings">Settings</string>
+    <string name="editor_options">Editor Options</string>
+    <string name="appearance">Appearance</string>
+    <string name="languages">Languages</string>
+    <string name="about">About</string>
+    <string name="editor_options_desc">momotalk editor settings</string>
+    <string name="appearance_desc">app theme, colors, palette</string>
+    <string name="languages_desc">English, Chinese, etc.</string>
+    <string name="about_desc">author, open source</string>
+    <string name="toast_language">Only support following system now.</string>
+
+    <!--  EditorOptionsPage  -->
+    <string name="to_be_implemented">This function shall be implemented soon.</string>
+    <string name="watermark">Watermark</string>
+    <string name="watermark_desc">enable watermark automatically</string>
+    <string name="author_name">Author Name</string>
+    <string name="watermark_position">Watermark Position</string>
+    <string name="watermark_position_desc">decide where to display watermark</string>
+    <string name="font">Font</string>
+    <string name="font_desc">select editor font</string>
+    <string name="background">Background</string>
+    <string name="background_desc">select background color for pictures exported</string>
+    <string name="title_author_name_dialog">Fill in your name.</string>
+
+    <!--  AboutPage  -->
+    <string name="version">Version</string>
+    <string name="toast_already_newest">Already the newest version.</string>
+    <string name="author">Author</string>
+    <string name="github">Github</string>
+    <string name="libraries">Libraries</string>
+    <string name="github_url">https://github.com/Eynnzerr/YuukaTalk</string>
+    <string name="libraries_description">View used open source libraries</string>
+    <string name="eynnzerr">Eynnzerr(blog: eynnzerr.top)</string>
+
+    <!--  AppearancePage  -->
+    <string name="option_dark">Dark Mode</string>
+    <string name="option_light">Light Mode</string>
+    <string name="option_follow">Follow System</string>
+    <string name="option_dynamic">From Wallpaper</string>
+    <string name="option_self">Self Assigned</string>
+
+</resources>

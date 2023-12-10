@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -120,7 +121,7 @@ fun SettingGroupItem(
                 Icon(
                     painter = it,
                     contentDescription = title,
-                    modifier = Modifier.padding(start = 8.dp, end = 16.dp),
+                    modifier = Modifier.padding(start = 8.dp, end = 16.dp).size(24.dp),
                     tint = if (selected) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }

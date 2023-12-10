@@ -17,12 +17,12 @@ import com.kyant.m3color.scheme.SchemeRainbow
 import com.kyant.m3color.scheme.SchemeTonalSpot
 import com.kyant.m3color.scheme.SchemeVibrant
 
-enum class PaletteOption {
-    Light,
-    Dark,
-    FollowSystem,
-    Dynamic,
-    SelfAssigned
+object PaletteOption {
+    const val LIGHT = 0
+    const val DARK = 1
+    const val FOLLOW_SYSTEM = 2
+    const val DYNAMIC = 3
+    const val SELF_ASSIGNED = 4
 }
 
 enum class PaletteStyle {

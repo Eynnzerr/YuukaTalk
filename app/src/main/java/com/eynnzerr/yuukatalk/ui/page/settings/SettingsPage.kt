@@ -1,5 +1,6 @@
 package com.eynnzerr.yuukatalk.ui.page.settings
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -21,13 +22,16 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.eynnzerr.yuukatalk.R
 import com.eynnzerr.yuukatalk.data.model.SettingsItem
+import com.eynnzerr.yuukatalk.ui.common.Destinations
 import com.eynnzerr.yuukatalk.ui.component.SettingGroupItem
 import com.eynnzerr.yuukatalk.ui.ext.appBarScroll
+import com.eynnzerr.yuukatalk.ui.ext.pushTo
 import com.eynnzerr.yuukatalk.ui.ext.surfaceColorAtElevation
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -35,35 +39,36 @@ import com.eynnzerr.yuukatalk.ui.ext.surfaceColorAtElevation
 fun SettingsPage(
     navHostController: NavHostController
 ) {
+    val context = LocalContext.current
+
     val settingsItems = listOf(
         SettingsItem(
             title = stringResource(id = R.string.editor_options),
             desc = stringResource(id = R.string.editor_options_desc),
             icon = Icons.Outlined.EditNote,
-            onClick = {}
+            onClick = { navHostController.pushTo(Destinations.EDITOR_OPTIONS_ROUTE) }
         ),
         SettingsItem(
             title = stringResource(id = R.string.appearance),
             desc = stringResource(id = R.string.appearance_desc),
             icon = Icons.Outlined.Palette,
-            onClick = {}
+            onClick = { navHostController.pushTo(Destinations.APPEARANCE_ROUTE) }
         ),
         SettingsItem(
             title = stringResource(id = R.string.languages),
             desc = stringResource(id = R.string.languages_desc),
             icon = Icons.Outlined.Language,
-            onClick = {}
+            onClick = { Toast.makeText(context, context.resources.getText(R.string.toast_language), Toast.LENGTH_SHORT).show() }
         ),
         SettingsItem(
             title = stringResource(id = R.string.about),
             desc = stringResource(id = R.string.about_desc),
             icon = Icons.Outlined.Lightbulb,
-            onClick = {}
+            onClick = { navHostController.pushTo(Destinations.ABOUT_ROUTE) }
         ),
     )
 
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
-
     Scaffold(
         modifier = Modifier
             .appBarScroll(true, scrollBehavior)

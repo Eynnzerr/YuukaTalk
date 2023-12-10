@@ -931,6 +931,34 @@
     "emojiPath": "Hyakkiyako/EmptyClub/Kuzunoha/emoji"
   },
   {
+    "name": "紫篱",
+    "nameRoma": "Yukari",
+    "school": "Hyakkiyako",
+    "avatarPath": "Hyakkiyako/Hyakkayouran/Yukari/avatar",
+    "emojiPath": "Hyakkiyako/Hyakkayouran/Yukari/emoji"
+  },
+  {
+    "name": "名草",
+    "nameRoma": "Nagusa",
+    "school": "Hyakkiyako",
+    "avatarPath": "Hyakkiyako/Hyakkayouran/Nagusa/avatar",
+    "emojiPath": "Hyakkiyako/Hyakkayouran/Nagusa/emoji"
+  },
+  {
+    "name": "桔梗",
+    "nameRoma": "Kikyo",
+    "school": "Hyakkiyako",
+    "avatarPath": "Hyakkiyako/Hyakkayouran/Kikyo/avatar",
+    "emojiPath": "Hyakkiyako/Hyakkayouran/Kikyo/emoji"
+  },
+  {
+    "name": "莲华",
+    "nameRoma": "Lisa",
+    "school": "Hyakkiyako",
+    "avatarPath": "Hyakkiyako/Hyakkayouran/Lisa/avatar",
+    "emojiPath": "Hyakkiyako/Hyakkayouran/Lisa/emoji"
+  },
+  {
     "name": "切里诺",
     "nameRoma": "Cherino",
     "school": "Red Winter",
