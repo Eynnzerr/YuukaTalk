@@ -15,6 +15,7 @@ import androidx.compose.material.icons.filled.Radar
 import androidx.compose.material.icons.filled.TextFields
 import androidx.compose.material.icons.filled.Undo
 import androidx.compose.material.icons.outlined.HelpOutline
+import androidx.compose.material.icons.outlined.HighQuality
 import androidx.compose.material.icons.outlined.WaterDrop
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -122,6 +123,14 @@ fun EditorOptionsPage(
                     )
                 }
             }
+            SettingGroupItem(
+                title = stringResource(id = R.string.font),
+                desc = stringResource(id = R.string.font_desc),
+                icon = Icons.Outlined.HighQuality,
+                onClick = {
+                    Toast.makeText(context, context.getText(R.string.to_be_implemented), Toast.LENGTH_SHORT).show()
+                }
+            )
             SettingGroupItem(
                 title = stringResource(id = R.string.font),
                 desc = stringResource(id = R.string.font_desc),

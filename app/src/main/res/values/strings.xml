@@ -69,6 +69,8 @@
     <string name="background">Background</string>
     <string name="background_desc">select background color for pictures exported</string>
     <string name="title_author_name_dialog">Fill in your name.</string>
+    <string name="quality">Image Quality</string>
+    <string name="quality_desc">select output image quality</string>
 
     <!--  AboutPage  -->
     <string name="version">Version</string>
