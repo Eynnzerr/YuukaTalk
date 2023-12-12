@@ -54,3 +54,4 @@ Still WIP.
 # Credits
 
 [MoeTalk](https://github.com/ggg555ttt/MoeTalk) should be the best practice for creating MomoTalks, which has served for numerous excellent works.
+[bluearchive-logo](https://github.com/nulla2011/bluearchive-logo) supports logo.
