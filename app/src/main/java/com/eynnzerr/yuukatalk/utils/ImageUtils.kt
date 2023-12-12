@@ -7,6 +7,7 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.media.MediaScannerConnection
 import android.net.Uri
+import android.os.Build
 import android.os.Environment
 import android.util.Log
 import android.view.View
@@ -19,6 +20,9 @@ import java.io.File
 import kotlin.coroutines.resume
 
 object ImageUtils {
+
+    private val mmkv = MMKV.defaultMMKV()
+
     fun generateBitmap(view: View): Bitmap {
         if (view is RecyclerView) {
             return view.adapter?.let { adapter ->
@@ -56,7 +60,10 @@ object ImageUtils {
 
                 val padding = 16
                 val screenshot = Bitmap.createBitmap(view.width + 2 * padding, totalHeight.toInt() + 2 * padding, Bitmap.Config.ARGB_8888)
-                val canvas = Canvas(screenshot).apply { drawColor(Color.parseColor("#fff7e3")) }
+                val canvas = Canvas(screenshot).apply {
+                    val bgColor = mmkv.decodeString(PreferenceKeys.BACKGROUND_COLOR) ?: "fff7e3"
+                    drawColor(Color.parseColor(bgColor))
+                }
 
                 for (i in 0 until adapter.itemCount) {
                     val bitmap = bitmapCache[i]

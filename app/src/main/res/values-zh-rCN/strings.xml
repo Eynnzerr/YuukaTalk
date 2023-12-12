@@ -67,10 +67,14 @@
     <string name="font">字体</string>
     <string name="font_desc">选择编辑器字体</string>
     <string name="background">背景</string>
-    <string name="background_desc">选择导出图片背景颜色</string>
+    <string name="background_desc">导出图片背景颜色</string>
     <string name="title_author_name_dialog">填写你的名字。</string>
     <string name="quality">输出质量</string>
     <string name="quality_desc">选择输出图片质量。</string>
+    <string name="bg_option_classic">经典原色</string>
+    <string name="bg_option_white">白色</string>
+    <string name="bg_option_follow">跟随主题</string>
+    <string name="bg_option_reminder">需要 Android 版本 >= 10</string>
 
     <!--  AboutPage  -->
     <string name="version">版本</string>

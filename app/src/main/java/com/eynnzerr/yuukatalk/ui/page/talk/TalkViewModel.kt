@@ -28,7 +28,7 @@ data class TalkUiState(
     val searchText: String,
     val narrationText: String,
     val textBranches: List<String>,
-    val talkListStateChange: List<TalkListState>, // // operate with recyclerView change
+    val talkListStateChange: List<TalkListState>, // operate with recyclerView change
     val filteredStudents: List<Character>,
     val isEdited: Boolean,
 )
@@ -96,11 +96,15 @@ class TalkViewModel @Inject constructor(
                     repository.fetchProjectById(projectId)
                 }
                 talkList.addAll(historyState.talkHistory)
+                studentList.apply {
+                    clear()
+                    addAll(historyState.studentList)
+                }
                 _uiState.update {
                     it.copy(
                         chatName = historyState.name,
                         talkList = historyState.talkHistory,
-                        studentList = historyState.studentList,
+                        // studentList = historyState.studentList,
                         currentStudent = historyState.currentStudent,
                         isFirstTalking = historyState.isFirstTalking,
                         talkListStateChange = listOf(TalkListState.Refresh()),
@@ -516,7 +520,7 @@ class TalkViewModel @Inject constructor(
                 val currentProject = TalkProject(
                     id = projectId,
                     name = _uiState.value.chatName,
-                    talkHistory = _uiState.value.talkList,
+                    talkHistory = talkList,
                     studentList = _uiState.value.studentList,
                     currentStudent = _uiState.value.currentStudent,
                     isFirstTalking = _uiState.value.isFirstTalking,
