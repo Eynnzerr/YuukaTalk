@@ -7,9 +7,13 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Abc
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.ArrowDropUp
 import androidx.compose.material.icons.filled.Gradient
 import androidx.compose.material.icons.filled.Radar
 import androidx.compose.material.icons.filled.TextFields
@@ -40,10 +44,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.eynnzerr.yuukatalk.R
+import com.eynnzerr.yuukatalk.ui.component.Banner
 import com.eynnzerr.yuukatalk.ui.component.SettingGroupItem
 import com.eynnzerr.yuukatalk.ui.component.SettingGroupSwitch
+import com.eynnzerr.yuukatalk.ui.component.SettingsRadioButton
 import com.eynnzerr.yuukatalk.ui.ext.appBarScroll
 import com.eynnzerr.yuukatalk.ui.ext.surfaceColorAtElevation
+import com.eynnzerr.yuukatalk.ui.ext.toHexLong
+import com.eynnzerr.yuukatalk.ui.ext.toHexString
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -55,6 +63,7 @@ fun EditorOptionsPage(
     val context = LocalContext.current
 
     var openAuthorNameDialog by remember { mutableStateOf(false) }
+    var showBackgroundOption by remember { mutableStateOf(false) }
 
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     Scaffold(
@@ -124,8 +133,8 @@ fun EditorOptionsPage(
                 }
             }
             SettingGroupItem(
-                title = stringResource(id = R.string.font),
-                desc = stringResource(id = R.string.font_desc),
+                title = stringResource(id = R.string.quality),
+                desc = stringResource(id = R.string.quality_desc),
                 icon = Icons.Outlined.HighQuality,
                 onClick = {
                     Toast.makeText(context, context.getText(R.string.to_be_implemented), Toast.LENGTH_SHORT).show()
@@ -144,9 +153,44 @@ fun EditorOptionsPage(
                 desc = stringResource(id = R.string.background_desc),
                 icon = Icons.Filled.Gradient,
                 onClick = {
-                    // TODO 设置导出图片背景颜色
+                    showBackgroundOption = !showBackgroundOption
+                },
+                action = {
+                    Icon(
+                        imageVector = if (showBackgroundOption) Icons.Filled.ArrowDropDown else Icons.Filled.ArrowDropUp,
+                        contentDescription = ""
+                    )
                 }
             )
+            AnimatedVisibility(
+                visible = showBackgroundOption,
+                enter = expandVertically(),
+                exit = shrinkVertically()
+            ) {
+                Column(
+                    modifier = Modifier
+                        .selectableGroup()
+                ) {
+                    SettingsRadioButton(
+                        title = stringResource(id = R.string.bg_option_classic),
+                        isSelected = uiState.screenshotBackground == "#fff7e3",
+                        onSelect = { viewModel.updateBackgroundColor("#fff7e3") }
+                    )
+
+                    SettingsRadioButton(
+                        title = stringResource(id = R.string.bg_option_white),
+                        isSelected = uiState.screenshotBackground == "#ffffff",
+                        onSelect = { viewModel.updateBackgroundColor("#ffffff") }
+                    )
+
+                    val background = MaterialTheme.colorScheme.surface.toHexString()
+                    SettingsRadioButton(
+                        title = stringResource(id = R.string.bg_option_follow),
+                        isSelected = uiState.screenshotBackground == background,
+                        onSelect = { viewModel.updateBackgroundColor(background) }
+                    )
+                }
+            }
         }
     }
 

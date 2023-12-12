@@ -1,5 +1,6 @@
 package com.eynnzerr.yuukatalk.ui.page.settings.editor_options
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.eynnzerr.yuukatalk.data.preference.PreferenceKeys
 import com.tencent.mmkv.MMKV
@@ -13,7 +14,7 @@ data class EditorOptionsState(
     val enableWatermark: Boolean,
     val authorName: String,
     val watermarkPosition: Int,
-    val screenshotBackground: Int,
+    val screenshotBackground: String,
 )
 
 @HiltViewModel
@@ -24,7 +25,7 @@ class EditorOptionsViewModel @Inject constructor(
         enableWatermark = mmkv.decodeBool(PreferenceKeys.USE_WATERMARK, false),
         authorName = mmkv.decodeString(PreferenceKeys.AUTHOR_NAME) ?: "",
         watermarkPosition = mmkv.decodeInt(PreferenceKeys.WATERMARK_POSITION, 0),
-        screenshotBackground = mmkv.decodeInt(PreferenceKeys.BACKGROUND_COLOR, 0)
+        screenshotBackground = mmkv.decodeString(PreferenceKeys.BACKGROUND_COLOR) ?: "#fff7e3"
     ))
     private val stateValue
         get() = _uiState.value
@@ -41,4 +42,12 @@ class EditorOptionsViewModel @Inject constructor(
     }
 
     fun saveAuthorName() = mmkv.encode(PreferenceKeys.AUTHOR_NAME, stateValue.authorName)
+
+    fun updateBackgroundColor(color: String) {
+        Log.d(TAG, "updateBackgroundColor: color hex: $color")
+        _uiState.update { it.copy(screenshotBackground = color) }
+        mmkv.encode(PreferenceKeys.BACKGROUND_COLOR, color)
+    }
 }
+
+private const val TAG = "EditorOptionsViewModel"

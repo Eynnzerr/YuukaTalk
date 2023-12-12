@@ -96,6 +96,8 @@ import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -175,6 +177,7 @@ fun TalkPage(
     val bottomSheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = false
     )
+    val snackbarHostState = remember { SnackbarHostState() }
     var openNarrationDialog by rememberSaveable { mutableStateOf(false) }
     var openBranchDialog by rememberSaveable { mutableStateOf(false) }
     var openEmojiPickerDialog by rememberSaveable { mutableStateOf(false) }
@@ -302,6 +305,7 @@ fun TalkPage(
         gesturesEnabled = true
     ) {
         Scaffold(
+            snackbarHost = { SnackbarHost(snackbarHostState) },
             topBar = {
                 Surface {
                     CenterAlignedTopAppBar(
@@ -474,15 +478,19 @@ fun TalkPage(
                     update = { view ->
                         if (screenshotTalk) {
                             scope.launch(Dispatchers.Main) {
-                                screenshotTalk = false
+                                try {
+                                    screenshotTalk = false
 
-                                val bitmap = ImageUtils.generateBitmap(view)
-                                val imageUri = withContext(Dispatchers.IO) {
-                                    ImageUtils.saveBitMapToDisk(bitmap, context)
+                                    val bitmap = ImageUtils.generateBitmap(view)
+                                    val imageUri = withContext(Dispatchers.IO) {
+                                        ImageUtils.saveBitMapToDisk(bitmap, context)
+                                    }
+                                    snackbarHostState.showSnackbar("picture saved to ${imageUri.path}")
+                                    // Toast.makeText(context, "saved to" + imageUri.path, Toast.LENGTH_SHORT).show()
+                                } catch (e: Exception) {
+                                    viewModel.updateText(e.toString() + "\n" + e.stackTraceToString())
+                                    viewModel.sendPureText()
                                 }
-                                // TODO bug: 偶现这里没切回主线程导致异常
-                                Log.d(TAG, "TalkPage: current thread: ${Thread.currentThread().name}")
-                                Toast.makeText(context, "saved to" + imageUri.path, Toast.LENGTH_SHORT).show()
                             }
                         }
                     }

@@ -67,10 +67,14 @@
     <string name="font">Font</string>
     <string name="font_desc">select editor font</string>
     <string name="background">Background</string>
-    <string name="background_desc">select background color for pictures exported</string>
+    <string name="background_desc">background color for exported picture</string>
     <string name="title_author_name_dialog">Fill in your name.</string>
     <string name="quality">Image Quality</string>
     <string name="quality_desc">select output image quality</string>
+    <string name="bg_option_classic">Classic</string>
+    <string name="bg_option_white">White</string>
+    <string name="bg_option_follow">Follow App Theme</string>
+    <string name="bg_option_reminder">Need Android version >= 10!</string>
 
     <!--  AboutPage  -->
     <string name="version">Version</string>

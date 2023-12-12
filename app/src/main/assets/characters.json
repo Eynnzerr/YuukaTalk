@@ -959,6 +959,20 @@
     "emojiPath": "Hyakkiyako/Hyakkayouran/Lisa/emoji"
   },
   {
+    "name": "棕榈",
+    "nameRoma": "Shuro",
+    "school": "Hyakkiyako",
+    "avatarPath": "Hyakkiyako/KachouFuugetsu/Shuro/avatar",
+    "emojiPath": "Hyakkiyako/KachouFuugetsu/Shuro/emoji"
+  },
+  {
+    "name": "虞美人",
+    "nameRoma": "Hinageshi",
+    "school": "Hyakkiyako",
+    "avatarPath": "Hyakkiyako/KachouFuugetsu/Hinageshi/avatar",
+    "emojiPath": "Hyakkiyako/KachouFuugetsu/Hinageshi/emoji"
+  },
+  {
     "name": "切里诺",
     "nameRoma": "Cherino",
     "school": "Red Winter",
@@ -1216,6 +1230,27 @@
     "school": "Gematria",
     "avatarPath": "ETC/Gematria/Beatrice/avatar",
     "emojiPath": "ETC/Gematria/Beatrice/emoji"
+  },
+  {
+    "name": "光",
+    "nameRoma": "Hikari",
+    "school": "Decagrammation",
+    "avatarPath": "ETC/Decagrammaton/Hikari/avatar",
+    "emojiPath": "ETC/Decagrammaton/Hikari/emoji"
+  },
+  {
+    "name": "无",
+    "nameRoma": "Mu",
+    "school": "Decagrammation",
+    "avatarPath": "ETC/Decagrammaton/Mu/avatar",
+    "emojiPath": "ETC/Decagrammaton/Mu/emoji"
+  },
+  {
+    "name": "限",
+    "nameRoma": "Kagen",
+    "school": "Decagrammation",
+    "avatarPath": "ETC/Decagrammaton/Kagen/avatar",
+    "emojiPath": "ETC/Decagrammaton/Kagen/emoji"
   },
   {
     "name": "市民",

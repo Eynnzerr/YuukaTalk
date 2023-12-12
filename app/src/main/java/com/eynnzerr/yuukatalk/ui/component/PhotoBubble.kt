@@ -4,8 +4,10 @@ import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.runtime.Composable
@@ -35,7 +37,8 @@ fun PhotoBubble(
             modifier = modifier
                 .align(if (isMyMessage) Alignment.End else Alignment.Start)
                 .padding(bottom = 8.dp)
-                .size(size),
+                .width(size)
+                .heightIn(size, Dp.Unspecified),
             colors = CardDefaults.cardColors(containerColor = Color.White)
         ) {
             // 无意发现AsyncImage一个bug:只有外面被row/column包一层后，才能在bitmap上绘制出来
