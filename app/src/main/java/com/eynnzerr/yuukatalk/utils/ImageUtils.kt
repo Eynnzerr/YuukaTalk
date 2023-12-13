@@ -113,14 +113,19 @@ object ImageUtils {
     }
 
     suspend fun saveBitMapToDisk(bitmap: Bitmap, context: Context): Uri {
-        val file = File(
-            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
-            "screenshot-${System.currentTimeMillis()}.png"
-        )
-
         val formatIndex = mmkv.decodeInt(PreferenceKeys.COMPRESS_FORMAT, 1)
         val format = getCompressFormat(formatIndex)
+        val suffix = when (formatIndex) {
+            0 -> "jpeg"
+            1 -> "png"
+            else -> "webp"
+        }
         Log.d(TAG, "saveBitMapToDisk: format: ${format.name}")
+
+        val file = File(
+            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
+            "screenshot-${System.currentTimeMillis()}.$suffix"
+        )
         val quality = mmkv.decodeInt(PreferenceKeys.IMAGE_QUALITY, 100)
         file.writeBitmap(bitmap, format, quality)
 
