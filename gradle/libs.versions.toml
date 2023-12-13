@@ -1,4 +1,5 @@
 [versions]
+accompanist = "0.30.1"
 agp = "8.2.0"
 kotlin = "1.9.10"
 coreKtx = "1.12.0"
@@ -63,6 +64,8 @@ coil-kt-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "
 recyclerview = { group = "androidx.recyclerview", name = "recyclerview", version.ref = "recyclerview" }
 
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
+
+accompanist-permissions = { group = "com.google.accompanist", name = "accompanist-permissions", version.ref = "accompanist" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

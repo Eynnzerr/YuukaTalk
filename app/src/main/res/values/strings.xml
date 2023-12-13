@@ -9,6 +9,7 @@
     <string name="student_entry_desc">Manage characters</string>
     <string name="settings_entry_title">Settings</string>
     <string name="settings_entry_desc">Manage settings</string>
+    <string name="title_permission_dialog">You haven\'nt grant permissions yet.</string>
 
     <!--  TalkPage  -->
     <string name="btn_narration">Narration</string>
@@ -70,11 +71,17 @@
     <string name="background_desc">background color for exported picture</string>
     <string name="title_author_name_dialog">Fill in your name.</string>
     <string name="quality">Image Quality</string>
-    <string name="quality_desc">select output image quality</string>
+    <string name="quality_desc">select output image quality(100 is lossless)</string>
     <string name="bg_option_classic">Classic</string>
     <string name="bg_option_white">White</string>
     <string name="bg_option_follow">Follow App Theme</string>
     <string name="bg_option_reminder">Need Android version >= 10!</string>
+    <string name="compress_format">Compress Format</string>
+    <string name="compress_format_desc">compress format for exported picture</string>
+    <string name="format_option_jpeg">JPEG</string>
+    <string name="format_option_png">PNG</string>
+    <string name="format_option_webp_lossy">WEBP_LOSSY (Android>10)</string>
+    <string name="format_option_webp_lossless">WEBP_LOSSLESS (Android>10)</string>
 
     <!--  AboutPage  -->
     <string name="version">Version</string>

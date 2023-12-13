@@ -8,4 +8,6 @@ object PreferenceKeys {
     const val BACKGROUND_COLOR = "screenshot_background"
     const val APPEARANCE_OPTION = "appearance_option"
     const val SEED_COLOR = "seed_color"
+    const val IMAGE_QUALITY = "image_quality"
+    const val COMPRESS_FORMAT = "compress_format"
 }

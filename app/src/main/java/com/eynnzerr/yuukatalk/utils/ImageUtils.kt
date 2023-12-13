@@ -61,7 +61,7 @@ object ImageUtils {
                 val padding = 16
                 val screenshot = Bitmap.createBitmap(view.width + 2 * padding, totalHeight.toInt() + 2 * padding, Bitmap.Config.ARGB_8888)
                 val canvas = Canvas(screenshot).apply {
-                    val bgColor = mmkv.decodeString(PreferenceKeys.BACKGROUND_COLOR) ?: "fff7e3"
+                    val bgColor = mmkv.decodeString(PreferenceKeys.BACKGROUND_COLOR) ?: "#fff7e3"
                     drawColor(Color.parseColor(bgColor))
                 }
 
@@ -118,7 +118,11 @@ object ImageUtils {
             "screenshot-${System.currentTimeMillis()}.png"
         )
 
-        file.writeBitmap(bitmap, Bitmap.CompressFormat.PNG, 100)
+        val formatIndex = mmkv.decodeInt(PreferenceKeys.COMPRESS_FORMAT, 1)
+        val format = getCompressFormat(formatIndex)
+        Log.d(TAG, "saveBitMapToDisk: format: ${format.name}")
+        val quality = mmkv.decodeInt(PreferenceKeys.IMAGE_QUALITY, 100)
+        file.writeBitmap(bitmap, format, quality)
 
         return scanFilePath(context, file.path) ?: throw Exception("File could not be saved")
     }
@@ -135,7 +139,7 @@ object ImageUtils {
             MediaScannerConnection.scanFile(
                 context,
                 arrayOf(filePath),
-                arrayOf("image/png")
+                arrayOf("image/*")
             ) { _, scannedUri ->
                 if (scannedUri == null) {
                     continuation.cancel(Exception("File $filePath could not be scanned"))
@@ -145,6 +149,22 @@ object ImageUtils {
             }
         }
     }
+
+    private val compressFormatMap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        mapOf(
+            0 to Bitmap.CompressFormat.JPEG,
+            1 to Bitmap.CompressFormat.PNG,
+            2 to Bitmap.CompressFormat.WEBP_LOSSY,
+            3 to Bitmap.CompressFormat.WEBP_LOSSLESS
+        )
+    } else {
+        mapOf(
+            0 to Bitmap.CompressFormat.JPEG,
+            1 to Bitmap.CompressFormat.PNG,
+        )
+    }
+
+    private fun getCompressFormat(index: Int) = compressFormatMap.getOrDefault(index, Bitmap.CompressFormat.PNG)
 
     private const val TAG = "ImageUtils"
 }

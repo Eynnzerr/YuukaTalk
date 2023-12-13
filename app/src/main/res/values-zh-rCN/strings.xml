@@ -9,6 +9,7 @@
     <string name="student_entry_desc">管理角色（学生等）</string>
     <string name="settings_entry_title">设置</string>
     <string name="settings_entry_desc">管理设置（编辑器、主题……）</string>
+    <string name="title_permission_dialog">你还未授予app权限，无法使用功能。</string>
 
     <!--  TalkPage  -->
     <string name="btn_narration">旁白</string>
@@ -70,11 +71,17 @@
     <string name="background_desc">导出图片背景颜色</string>
     <string name="title_author_name_dialog">填写你的名字。</string>
     <string name="quality">输出质量</string>
-    <string name="quality_desc">选择输出图片质量。</string>
+    <string name="quality_desc">选择输出图片质量(100为无损)。</string>
     <string name="bg_option_classic">经典原色</string>
     <string name="bg_option_white">白色</string>
     <string name="bg_option_follow">跟随主题</string>
     <string name="bg_option_reminder">需要 Android 版本 >= 10</string>
+    <string name="compress_format">压缩格式</string>
+    <string name="compress_format_desc">选择输出图片压缩格式</string>
+    <string name="format_option_jpeg">JPEG</string>
+    <string name="format_option_png">PNG</string>
+    <string name="format_option_webp_lossy">有损WEBP (需Android 11)</string>
+    <string name="format_option_webp_lossless">无损WEBP (需Android 11)</string>
 
     <!--  AboutPage  -->
     <string name="version">版本</string>
