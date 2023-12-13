@@ -1,5 +1,6 @@
 package com.eynnzerr.yuukatalk.utils
 
+import android.util.Log
 import com.eynnzerr.yuukatalk.data.preference.PreferenceKeys
 import com.eynnzerr.yuukatalk.ui.theme.PaletteOption
 import com.tencent.mmkv.MMKV
@@ -31,4 +32,15 @@ object AppearanceUtils {
         _appearanceState.update { it.copy(assignedSeedColor = color) }
         mmkv.encode(PreferenceKeys.SEED_COLOR, color)
     }
+
+    fun updateExportBackground(color: String) {
+        // 如果 background 设定为follow app，则更新背景颜色设定
+        val background = mmkv.decodeString(PreferenceKeys.BACKGROUND_COLOR, "#fff7e3")
+        if (background != "#fff7e3" && background != "#ffffff") {
+            Log.d(TAG, "updateExportBackground: change export background: $color")
+            mmkv.encode(PreferenceKeys.BACKGROUND_COLOR, color)
+        }
+    }
+
+    private const val TAG = "AppearanceUtils"
 }

@@ -1,5 +1,6 @@
 package com.eynnzerr.yuukatalk.ui.page.settings.appearance
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.eynnzerr.yuukatalk.data.preference.PreferenceKeys
 import com.eynnzerr.yuukatalk.ui.theme.PaletteOption
@@ -37,4 +38,15 @@ class AppearanceViewModel @Inject constructor(
         _uiState.update { it.copy(currentSeedColor = color) }
         AppearanceUtils.updateSeedColor(color)
     }
+
+    fun updateExportBackground(color: String) {
+        // 如果 background 设定为follow app，则更新背景颜色设定
+        val background = mmkv.decodeString(PreferenceKeys.BACKGROUND_COLOR, "#fff7e3")
+        if (background != "#fff7e3" && background != "#ffffff") {
+            Log.d(TAG, "updateExportBackground: change export background: $color")
+            mmkv.encode(PreferenceKeys.BACKGROUND_COLOR, color)    
+        }
+    }
 }
+
+private const val TAG = "AppearanceViewModel"

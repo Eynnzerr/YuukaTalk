@@ -48,7 +48,6 @@ class EditorOptionsViewModel @Inject constructor(
     fun saveAuthorName() = mmkv.encode(PreferenceKeys.AUTHOR_NAME, stateValue.authorName)
 
     fun updateBackgroundColor(color: String) {
-        Log.d(TAG, "updateBackgroundColor: color hex: $color")
         _uiState.update { it.copy(screenshotBackground = color) }
         mmkv.encode(PreferenceKeys.BACKGROUND_COLOR, color)
     }

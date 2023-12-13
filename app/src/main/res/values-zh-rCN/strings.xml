@@ -24,6 +24,7 @@
     <string name="title_save_dialog">命名当前工程。</string>
     <string name="name">名称</string>
     <string name="title_save_reminder_dialog">你还未保存当前对话，确认要离开吗？</string>
+    <string name="title_clear_dialog">你确定要清空当前对话吗？</string>
     <string name="edit_piece">编辑当前内容</string>
     <string name="remove_piece">删除该消息</string>
     <string name="insert_piece">在之前插入</string>

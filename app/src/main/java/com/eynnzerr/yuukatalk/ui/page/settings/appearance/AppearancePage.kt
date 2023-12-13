@@ -43,6 +43,7 @@ import com.eynnzerr.yuukatalk.ui.component.SettingsRadioButton
 import com.eynnzerr.yuukatalk.ui.component.StudentAvatar
 import com.eynnzerr.yuukatalk.ui.ext.appBarScroll
 import com.eynnzerr.yuukatalk.ui.ext.surfaceColorAtElevation
+import com.eynnzerr.yuukatalk.ui.ext.toHexString
 import com.eynnzerr.yuukatalk.ui.theme.PaletteOption
 import com.eynnzerr.yuukatalk.ui.theme.defaultColors
 import com.eynnzerr.yuukatalk.utils.AppearanceUtils
@@ -62,6 +63,7 @@ fun AppearancePage(
         PaletteOption.DYNAMIC to stringResource(id = R.string.option_dynamic),
         PaletteOption.SELF_ASSIGNED to stringResource(id = R.string.option_self)
     )
+    // val backgroundColor = MaterialTheme.colorScheme.surface
 
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     Scaffold(
@@ -106,7 +108,10 @@ fun AppearancePage(
                     SettingsRadioButton(
                         title = title,
                         isSelected = paletteOption == uiState.currentOption,
-                        onSelect = { viewModel.updatePaletteOption(paletteOption) }
+                        onSelect = {
+                            viewModel.updatePaletteOption(paletteOption)
+                            // viewModel.updateExportBackground(backgroundColor.toHexString())
+                        }
                     )
                 }
             }
@@ -129,7 +134,10 @@ fun AppearancePage(
                             ColorButton(
                                 color = color,
                                 selected = uiState.currentSeedColor == color,
-                                onSelect = { viewModel.updateSeedColor(color) }
+                                onSelect = {
+                                    viewModel.updateSeedColor(color)
+                                    // viewModel.updateExportBackground(backgroundColor.toHexString())
+                                }
                             )
                         }
                     }

@@ -49,6 +49,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircleOutline
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.EmojiEmotions
 import androidx.compose.material.icons.filled.Favorite
@@ -65,6 +66,7 @@ import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.filled.Undo
 import androidx.compose.material.icons.outlined.AddCircleOutline
 import androidx.compose.material.icons.outlined.Cancel
+import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.EmojiEmotions
 import androidx.compose.material.icons.outlined.FileDownload
 import androidx.compose.material.icons.outlined.FormatListBulleted
@@ -101,6 +103,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -166,7 +169,6 @@ fun TalkPage(
     val uiState by viewModel.uiState.collectAsState()
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
-    val imePadding = with(LocalDensity.current) { WindowInsets.ime.getBottom(this).toDp() }
 
     // interaction signal with AndroidView
     var screenshotTalk by remember { mutableStateOf(false) }
@@ -178,6 +180,7 @@ fun TalkPage(
         skipPartiallyExpanded = false
     )
     val snackbarHostState = remember { SnackbarHostState() }
+    var openClearDialog by rememberSaveable { mutableStateOf(false) }
     var openNarrationDialog by rememberSaveable { mutableStateOf(false) }
     var openBranchDialog by rememberSaveable { mutableStateOf(false) }
     var openEmojiPickerDialog by rememberSaveable { mutableStateOf(false) }
@@ -308,7 +311,7 @@ fun TalkPage(
             snackbarHost = { SnackbarHost(snackbarHostState) },
             topBar = {
                 Surface {
-                    CenterAlignedTopAppBar(
+                    TopAppBar(
                         title = {
                             Text(text = uiState.chatName)
                         },
@@ -329,6 +332,16 @@ fun TalkPage(
                             }
                         },
                         actions = {
+                            IconButton(
+                                onClick = {
+                                    openClearDialog = true
+                                }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Outlined.Delete,
+                                    contentDescription = "clear all message"
+                                )
+                            }
                             IconButton(
                                 onClick = {
                                     if (viewModel.isHistoryTalk()) {
@@ -1320,6 +1333,42 @@ fun TalkPage(
             },
             text = {
                 Text(text = stringResource(id = R.string.title_save_reminder_dialog))
+            }
+        )
+    }
+
+    if (openClearDialog) {
+        AlertDialog(
+            onDismissRequest = {
+                openClearDialog = false
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        viewModel.clearTalk()
+                        openClearDialog = false
+                    },
+                ) {
+                    Text(stringResource(id = R.string.btn_confirm))
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        openClearDialog = false
+                    },
+                ) {
+                    Text(stringResource(id = R.string.btn_cancel))
+                }
+            },
+            icon = {
+                Icon(
+                    imageVector = Icons.Filled.Delete,
+                    contentDescription = "clear all messages"
+                )
+            },
+            text = {
+                Text(text = stringResource(id = R.string.title_clear_dialog))
             }
         )
     }

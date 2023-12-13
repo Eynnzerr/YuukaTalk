@@ -491,6 +491,15 @@ class TalkViewModel @Inject constructor(
 
     fun removeStudent(student: Character) = studentList.remove(student)
 
+    fun clearTalk() {
+        talkList.clear()
+        _uiState.update { it.copy(
+            isFirstTalking = true,
+            isEdited = true,
+            talkListStateChange = listOf(TalkListState.Refresh())
+        ) }
+    }
+
     fun updateSearchText(newText: String) {
         _uiState.update {
             it.copy(
