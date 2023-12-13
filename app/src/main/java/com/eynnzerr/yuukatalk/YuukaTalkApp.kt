@@ -8,6 +8,7 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.foundation.background
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -23,6 +24,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.eynnzerr.yuukatalk.ui.common.Destinations
+import com.eynnzerr.yuukatalk.ui.ext.toHexString
 import com.eynnzerr.yuukatalk.ui.page.character.CharacterPage
 import com.eynnzerr.yuukatalk.ui.page.character.CharacterViewModel
 import com.eynnzerr.yuukatalk.ui.page.history.HistoryPage
@@ -46,6 +48,13 @@ fun YuukaTalkApp() {
         paletteOption = appearanceState.paletteOption,
         seedColor = Color(appearanceState.assignedSeedColor)
     ) {
+
+        // observe theme change
+        val backgroundColor = MaterialTheme.colorScheme.surface.toHexString()
+        LaunchedEffect(backgroundColor) {
+            AppearanceUtils.updateExportBackground(backgroundColor)
+        }
+
         AppNavGraph()
     }
 }

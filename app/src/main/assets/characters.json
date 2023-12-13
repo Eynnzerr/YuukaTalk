@@ -1258,5 +1258,61 @@
     "school": "Empty",
     "avatarPath": "ETC/Citizen/avatar",
     "emojiPath": "ETC/Citizen/emoji"
+  },
+  {
+    "name": "兰舞",
+    "nameRoma": "Rabu",
+    "school": "Empty",
+    "avatarPath": "ETC/HelmetGang/Rabu/avatar",
+    "emojiPath": "ETC/HelmetGang/Rabu/emoji"
+  },
+  {
+    "name": "头盔团成员",
+    "nameRoma": "HelmetGangMember",
+    "school": "Empty",
+    "avatarPath": "ETC/HelmetGang/Member/avatar",
+    "emojiPath": "ETC/HelmetGang/Member/emoji"
+  },
+  {
+    "name": "普雷纳帕特斯",
+    "nameRoma": "Frenapates",
+    "school": "Empty",
+    "avatarPath": "ETC/Color/Frenapates/avatar",
+    "emojiPath": "ETC/Color/Frenapates/emoji"
+  },
+  {
+    "name": "无名司祭",
+    "nameRoma": "Priests",
+    "school": "Empty",
+    "avatarPath": "ETC/Nameless/Priests/avatar",
+    "emojiPath": "ETC/Nameless/Priests/emoji"
+  },
+  {
+    "name": "凯撒总裁",
+    "nameRoma": "KaiserPresident",
+    "school": "Empty",
+    "avatarPath": "ETC/Kaiser/President/avatar",
+    "emojiPath": "ETC/Kaiser/President/emoji"
+  },
+  {
+    "name": "凯撒PMC将军",
+    "nameRoma": "KaiserGeneral",
+    "school": "Empty",
+    "avatarPath": "ETC/Kaiser/General/avatar",
+    "emojiPath": "ETC/Kaiser/General/emoji"
+  },
+  {
+    "name": "凯撒PMC理事",
+    "nameRoma": "KaiserDirector",
+    "school": "Empty",
+    "avatarPath": "ETC/Kaiser/Director/avatar",
+    "emojiPath": "ETC/Kaiser/Director/emoji"
+  },
+  {
+    "name": "凯撒PMC士兵",
+    "nameRoma": "KaiserSoldier",
+    "school": "Empty",
+    "avatarPath": "ETC/Kaiser/Soldier/avatar",
+    "emojiPath": "ETC/Kaiser/Soldier/emoji"
   }
 ]

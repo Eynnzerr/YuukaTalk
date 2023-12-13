@@ -24,6 +24,7 @@
     <string name="title_save_dialog">Name your project.</string>
     <string name="name">name</string>
     <string name="title_save_reminder_dialog">You haven\'t saved talk yet. Still leaving?</string>
+    <string name="title_clear_dialog">Are you sure you want to clear the talk?</string>
     <string name="edit_piece">Edit content</string>
     <string name="remove_piece">Remove message</string>
     <string name="insert_piece">Insert before</string>

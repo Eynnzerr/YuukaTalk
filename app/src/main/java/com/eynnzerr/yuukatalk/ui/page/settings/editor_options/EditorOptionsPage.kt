@@ -68,6 +68,8 @@ fun EditorOptionsPage(
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
 
+    val background = MaterialTheme.colorScheme.surface.toHexString()
+
     var openAuthorNameDialog by remember { mutableStateOf(false) }
     var showBackgroundOption by remember { mutableStateOf(false) }
     var showImageQualitySlider by remember { mutableStateOf(false) }
@@ -285,10 +287,9 @@ fun EditorOptionsPage(
                             onSelect = { viewModel.updateBackgroundColor("#ffffff") }
                         )
 
-                        val background = MaterialTheme.colorScheme.surface.toHexString()
                         SettingsRadioButton(
                             title = stringResource(id = R.string.bg_option_follow),
-                            isSelected = uiState.screenshotBackground == background,
+                            isSelected = uiState.screenshotBackground != "#ffffff" && uiState.screenshotBackground != "#fff7e3",
                             onSelect = { viewModel.updateBackgroundColor(background) }
                         )
                     }
