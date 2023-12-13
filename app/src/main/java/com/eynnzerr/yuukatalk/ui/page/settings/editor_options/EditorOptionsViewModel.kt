@@ -15,6 +15,8 @@ data class EditorOptionsState(
     val authorName: String,
     val watermarkPosition: Int,
     val screenshotBackground: String,
+    val compressFormatIndex: Int,
+    val imageQuality: Int,
 )
 
 @HiltViewModel
@@ -25,7 +27,9 @@ class EditorOptionsViewModel @Inject constructor(
         enableWatermark = mmkv.decodeBool(PreferenceKeys.USE_WATERMARK, false),
         authorName = mmkv.decodeString(PreferenceKeys.AUTHOR_NAME) ?: "",
         watermarkPosition = mmkv.decodeInt(PreferenceKeys.WATERMARK_POSITION, 0),
-        screenshotBackground = mmkv.decodeString(PreferenceKeys.BACKGROUND_COLOR) ?: "#fff7e3"
+        screenshotBackground = mmkv.decodeString(PreferenceKeys.BACKGROUND_COLOR) ?: "#fff7e3",
+        compressFormatIndex = mmkv.decodeInt(PreferenceKeys.COMPRESS_FORMAT, 1),
+        imageQuality = mmkv.decodeInt(PreferenceKeys.IMAGE_QUALITY, 100)
     ))
     private val stateValue
         get() = _uiState.value
@@ -47,6 +51,17 @@ class EditorOptionsViewModel @Inject constructor(
         Log.d(TAG, "updateBackgroundColor: color hex: $color")
         _uiState.update { it.copy(screenshotBackground = color) }
         mmkv.encode(PreferenceKeys.BACKGROUND_COLOR, color)
+    }
+
+    fun updateImageQuality(quality: Int) {
+        _uiState.update { it.copy(imageQuality = quality) }
+    }
+
+    fun encodeImageQuality() = mmkv.encode(PreferenceKeys.IMAGE_QUALITY, _uiState.value.imageQuality)
+
+    fun updateCompressFormat(formatIndex: Int) {
+        _uiState.update { it.copy(compressFormatIndex = formatIndex) }
+        mmkv.encode(PreferenceKeys.COMPRESS_FORMAT, formatIndex)
     }
 }
 

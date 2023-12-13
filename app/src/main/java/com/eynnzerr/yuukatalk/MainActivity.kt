@@ -6,6 +6,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.core.app.ActivityCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import com.tencent.mmkv.MMKV
@@ -17,6 +18,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setImmerseStatusBar(window)
         MMKV.initialize(this)
+
         setContent {
             YuukaTalkApp()
         }
@@ -29,6 +31,7 @@ class MainActivity : ComponentActivity() {
             insets
         }
     }
+
 }
 
 @Preview(showBackground = true)

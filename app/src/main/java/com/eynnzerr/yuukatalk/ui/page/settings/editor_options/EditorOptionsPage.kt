@@ -5,7 +5,10 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.selection.selectableGroup
@@ -14,6 +17,8 @@ import androidx.compose.material.icons.filled.Abc
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ArrowDropUp
+import androidx.compose.material.icons.filled.ArrowLeft
+import androidx.compose.material.icons.filled.Compress
 import androidx.compose.material.icons.filled.Gradient
 import androidx.compose.material.icons.filled.Radar
 import androidx.compose.material.icons.filled.TextFields
@@ -29,6 +34,7 @@ import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
@@ -64,6 +70,8 @@ fun EditorOptionsPage(
 
     var openAuthorNameDialog by remember { mutableStateOf(false) }
     var showBackgroundOption by remember { mutableStateOf(false) }
+    var showImageQualitySlider by remember { mutableStateOf(false) }
+    var showCompressFormatOption by remember { mutableStateOf(false) }
 
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     Scaffold(
@@ -98,97 +106,192 @@ fun EditorOptionsPage(
             )
         },
     ) { scaffoldPadding ->
-        Column(
+        LazyColumn(
             modifier = Modifier.padding(scaffoldPadding)
         ) {
-            SettingGroupSwitch(
-                title = stringResource(id = R.string.watermark),
-                icon = Icons.Outlined.WaterDrop,
-                desc = stringResource(id = R.string.watermark_desc),
-                checked = uiState.enableWatermark,
-                onSwitch = { viewModel.switchWatermark() }
-            )
-            AnimatedVisibility(
-                visible = uiState.enableWatermark,
-                enter = expandVertically(),
-                exit = shrinkVertically()
-            ) {
-                Column {
-                    SettingGroupItem(
-                        title = stringResource(id = R.string.author_name),
-                        desc = uiState.authorName,
-                        icon = Icons.Filled.Abc,
-                        onClick = {
-                            openAuthorNameDialog = true
-                        }
-                    )
-                    SettingGroupItem(
-                        title = stringResource(id = R.string.watermark_position),
-                        desc = stringResource(id = R.string.watermark_position_desc),
-                        icon = Icons.Filled.Radar,
-                        onClick = {
-                            Toast.makeText(context, context.getText(R.string.to_be_implemented), Toast.LENGTH_SHORT).show()
-                        }
-                    )
+            item {
+                SettingGroupSwitch(
+                    title = stringResource(id = R.string.watermark),
+                    icon = Icons.Outlined.WaterDrop,
+                    desc = stringResource(id = R.string.watermark_desc),
+                    checked = uiState.enableWatermark,
+                    onSwitch = { viewModel.switchWatermark() }
+                )
+            }
+            item {
+                AnimatedVisibility(
+                    visible = uiState.enableWatermark,
+                    enter = expandVertically(),
+                    exit = shrinkVertically()
+                ) {
+                    Column {
+                        SettingGroupItem(
+                            title = stringResource(id = R.string.author_name),
+                            desc = uiState.authorName,
+                            icon = Icons.Filled.Abc,
+                            onClick = {
+                                openAuthorNameDialog = true
+                            }
+                        )
+                        SettingGroupItem(
+                            title = stringResource(id = R.string.watermark_position),
+                            desc = stringResource(id = R.string.watermark_position_desc),
+                            icon = Icons.Filled.Radar,
+                            onClick = {
+                                Toast.makeText(context, context.getText(R.string.to_be_implemented), Toast.LENGTH_SHORT).show()
+                            }
+                        )
+                    }
                 }
             }
-            SettingGroupItem(
-                title = stringResource(id = R.string.quality),
-                desc = stringResource(id = R.string.quality_desc),
-                icon = Icons.Outlined.HighQuality,
-                onClick = {
-                    Toast.makeText(context, context.getText(R.string.to_be_implemented), Toast.LENGTH_SHORT).show()
-                }
-            )
-            SettingGroupItem(
-                title = stringResource(id = R.string.font),
-                desc = stringResource(id = R.string.font_desc),
-                icon = Icons.Filled.TextFields,
-                onClick = {
-                    Toast.makeText(context, context.getText(R.string.to_be_implemented), Toast.LENGTH_SHORT).show()
-                }
-            )
-            SettingGroupItem(
-                title = stringResource(id = R.string.background),
-                desc = stringResource(id = R.string.background_desc),
-                icon = Icons.Filled.Gradient,
-                onClick = {
-                    showBackgroundOption = !showBackgroundOption
-                },
-                action = {
-                    Icon(
-                        imageVector = if (showBackgroundOption) Icons.Filled.ArrowDropDown else Icons.Filled.ArrowDropUp,
-                        contentDescription = ""
-                    )
-                }
-            )
-            AnimatedVisibility(
-                visible = showBackgroundOption,
-                enter = expandVertically(),
-                exit = shrinkVertically()
-            ) {
-                Column(
-                    modifier = Modifier
-                        .selectableGroup()
+            item {
+                SettingGroupItem(
+                    title = stringResource(id = R.string.quality),
+                    desc = stringResource(id = R.string.quality_desc),
+                    icon = Icons.Outlined.HighQuality,
+                    onClick = {
+                        showImageQualitySlider = !showImageQualitySlider
+                    },
+                    action = {
+                        Icon(
+                            imageVector = if (showImageQualitySlider) Icons.Filled.ArrowDropDown else Icons.Filled.ArrowLeft,
+                            contentDescription = ""
+                        )
+                    }
+                )
+            }
+            item {
+                AnimatedVisibility(
+                    visible = showImageQualitySlider,
+                    enter = expandVertically(),
+                    exit = shrinkVertically()
                 ) {
-                    SettingsRadioButton(
-                        title = stringResource(id = R.string.bg_option_classic),
-                        isSelected = uiState.screenshotBackground == "#fff7e3",
-                        onSelect = { viewModel.updateBackgroundColor("#fff7e3") }
-                    )
+                    Column(
+                        modifier = Modifier.padding(horizontal = 24.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                        ) {
+                            Text(text = "0")
+                            Text(text = "100")
+                        }
+                        Slider(
+                            value = uiState.imageQuality.toFloat(),
+                            onValueChange = { viewModel.updateImageQuality(it.toInt()) },
+                            valueRange = 0f..100f,
+                            onValueChangeFinished = { viewModel.encodeImageQuality() },
+                        )
+                    }
+                }
+            }
+            item {
+                SettingGroupItem(
+                    title = stringResource(id = R.string.compress_format),
+                    desc = stringResource(id = R.string.compress_format_desc),
+                    icon = Icons.Filled.Compress,
+                    onClick = {
+                        showCompressFormatOption = !showCompressFormatOption
+                    },
+                    action = {
+                        Icon(
+                            imageVector = if (showCompressFormatOption) Icons.Filled.ArrowDropDown else Icons.Filled.ArrowLeft,
+                            contentDescription = ""
+                        )
+                    }
+                )
+            }
+            item {
+                AnimatedVisibility(
+                    visible = showCompressFormatOption,
+                    enter = expandVertically(),
+                    exit = shrinkVertically()
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp)
+                            .selectableGroup()
+                    ) {
+                        // TODO convert to list
+                        SettingsRadioButton(
+                            title = stringResource(id = R.string.format_option_jpeg),
+                            isSelected = uiState.compressFormatIndex == 0,
+                            onSelect = { viewModel.updateCompressFormat(0) }
+                        )
+                        SettingsRadioButton(
+                            title = stringResource(id = R.string.format_option_png),
+                            isSelected = uiState.compressFormatIndex == 1,
+                            onSelect = { viewModel.updateCompressFormat(1) }
+                        )
+                        SettingsRadioButton(
+                            title = stringResource(id = R.string.format_option_webp_lossy),
+                            isSelected = uiState.compressFormatIndex == 2,
+                            onSelect = { viewModel.updateCompressFormat(2) }
+                        )
+                        SettingsRadioButton(
+                            title = stringResource(id = R.string.format_option_webp_lossless),
+                            isSelected = uiState.compressFormatIndex == 3,
+                            onSelect = { viewModel.updateCompressFormat(3) }
+                        )
+                    }
+                }
+            }
+            item {
+                SettingGroupItem(
+                    title = stringResource(id = R.string.font),
+                    desc = stringResource(id = R.string.font_desc),
+                    icon = Icons.Filled.TextFields,
+                    onClick = {
+                        Toast.makeText(context, context.getText(R.string.to_be_implemented), Toast.LENGTH_SHORT).show()
+                    }
+                )
+            }
+            item {
+                SettingGroupItem(
+                    title = stringResource(id = R.string.background),
+                    desc = stringResource(id = R.string.background_desc),
+                    icon = Icons.Filled.Gradient,
+                    onClick = {
+                        showBackgroundOption = !showBackgroundOption
+                    },
+                    action = {
+                        Icon(
+                            imageVector = if (showBackgroundOption) Icons.Filled.ArrowDropDown else Icons.Filled.ArrowLeft,
+                            contentDescription = ""
+                        )
+                    }
+                )
+            }
+            item {
+                AnimatedVisibility(
+                    visible = showBackgroundOption,
+                    enter = expandVertically(),
+                    exit = shrinkVertically()
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp)
+                            .selectableGroup()
+                    ) {
+                        SettingsRadioButton(
+                            title = stringResource(id = R.string.bg_option_classic),
+                            isSelected = uiState.screenshotBackground == "#fff7e3",
+                            onSelect = { viewModel.updateBackgroundColor("#fff7e3") }
+                        )
 
-                    SettingsRadioButton(
-                        title = stringResource(id = R.string.bg_option_white),
-                        isSelected = uiState.screenshotBackground == "#ffffff",
-                        onSelect = { viewModel.updateBackgroundColor("#ffffff") }
-                    )
+                        SettingsRadioButton(
+                            title = stringResource(id = R.string.bg_option_white),
+                            isSelected = uiState.screenshotBackground == "#ffffff",
+                            onSelect = { viewModel.updateBackgroundColor("#ffffff") }
+                        )
 
-                    val background = MaterialTheme.colorScheme.surface.toHexString()
-                    SettingsRadioButton(
-                        title = stringResource(id = R.string.bg_option_follow),
-                        isSelected = uiState.screenshotBackground == background,
-                        onSelect = { viewModel.updateBackgroundColor(background) }
-                    )
+                        val background = MaterialTheme.colorScheme.surface.toHexString()
+                        SettingsRadioButton(
+                            title = stringResource(id = R.string.bg_option_follow),
+                            isSelected = uiState.screenshotBackground == background,
+                            onSelect = { viewModel.updateBackgroundColor(background) }
+                        )
+                    }
                 }
             }
         }
