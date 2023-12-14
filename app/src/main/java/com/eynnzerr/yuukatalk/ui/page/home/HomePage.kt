@@ -7,10 +7,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircleOutline
+import androidx.compose.material.icons.filled.Help
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.PersonOutline
 import androidx.compose.material.icons.filled.SdCard
-import androidx.compose.material.icons.filled.Undo
 import androidx.compose.material.icons.outlined.HelpOutline
 import androidx.compose.material.icons.outlined.KeyboardArrowRight
 import androidx.compose.material.icons.outlined.Settings
@@ -34,18 +34,23 @@ import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavHostController
 import com.eynnzerr.yuukatalk.R
 import com.eynnzerr.yuukatalk.data.model.PageEntryItem
+import com.eynnzerr.yuukatalk.data.preference.PreferenceKeys
 import com.eynnzerr.yuukatalk.ui.common.Destinations
 import com.eynnzerr.yuukatalk.ui.component.Banner
+import com.eynnzerr.yuukatalk.ui.component.dialog.GuidanceDialog
 import com.eynnzerr.yuukatalk.ui.ext.pushTo
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
+import com.tencent.mmkv.MMKV
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
 @Composable
 fun HomePage(
+    viewModel: HomeViewModel,
     navController: NavHostController
 ) {
     var openPermissionRequestDialog by remember { mutableStateOf(false) }
+    var openGuidanceDialog by remember { mutableStateOf(false) }
 
     val requestPermissions = rememberMultiplePermissionsState(permissions = listOf(
         android.Manifest.permission.READ_EXTERNAL_STORAGE,
@@ -59,7 +64,9 @@ fun HomePage(
             icon = Icons.Filled.AddCircleOutline,
             color = MaterialTheme.colorScheme.primaryContainer,
             onClick = {
-                if (requestPermissions.allPermissionsGranted || Build.VERSION.SDK_INT > 29) {
+                if (requestPermissions.allPermissionsGranted ||
+                    Build.VERSION.SDK_INT > Build.VERSION_CODES.Q
+                ) {
                     navController.pushTo(Destinations.TALK_ROUTE + "/-1")
                 } else {
                     openPermissionRequestDialog = true
@@ -95,9 +102,13 @@ fun HomePage(
         )
     )
 
-    if (!requestPermissions.allPermissionsGranted && Build.VERSION.SDK_INT <= 29) {
-        // request write permission under Android Q
-        LaunchedEffect(Unit) {
+    LaunchedEffect(Unit) {
+        if (viewModel.isShowGuidance()) {
+            openGuidanceDialog = true
+        }
+
+        if (!requestPermissions.allPermissionsGranted &&
+            Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q) {
             requestPermissions.launchMultiplePermissionRequest()
         }
     }
@@ -108,7 +119,7 @@ fun HomePage(
                 title = { Text(stringResource(id = R.string.app_name)) },
                 navigationIcon = {},
                 actions = {
-                    IconButton(onClick = { /*TODO*/ }) {
+                    IconButton(onClick = { openGuidanceDialog = true }) {
                         Icon(
                             imageVector = Icons.Outlined.HelpOutline,
                             contentDescription = "help"
@@ -164,6 +175,22 @@ fun HomePage(
             },
             text = {
                 Text(text = stringResource(id = R.string.title_permission_dialog))
+            }
+        )
+    }
+
+    if (openGuidanceDialog) {
+        GuidanceDialog(
+            onDismissRequest = {
+                openGuidanceDialog = false
+            },
+            onConfirm = {
+                openGuidanceDialog = false
+                viewModel.encodeHideGuidance()
+                viewModel.importCharactersFromFile()
+            },
+            onDismiss = {
+                openGuidanceDialog = false
             }
         )
     }

@@ -47,7 +47,7 @@ class TalkAdapter(
         val talkPieceView = holder.itemView as TalkPieceView
         val talkData = talkList[position]
         talkPieceView.talkData = talkData
-        talkPieceView.setOnLongClickListener {
+        talkPieceView.onLongClick = {
             Log.d(TAG, "long pressed. position: ${holder.bindingAdapterPosition}")
             _talkPieceState.update {
                 it.copy(
@@ -56,7 +56,6 @@ class TalkAdapter(
                     openEditDialog = true
                 )
             }
-            true
         }
     }
 

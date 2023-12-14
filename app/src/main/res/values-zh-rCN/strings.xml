@@ -10,6 +10,12 @@
     <string name="settings_entry_title">设置</string>
     <string name="settings_entry_desc">管理设置（编辑器、主题……）</string>
     <string name="title_permission_dialog">你还未授予app权限，无法使用功能。</string>
+    <string name="title_guidance_dialog">使用指南</string>
+    <string name="desc_guidance_new">打开桃信编辑器，创建你的作品，保存进度或导出为本地图片。</string>
+    <string name="desc_guidance_history">浏览你曾经保存过的桃信对话，并按所保存的进度重新打开它们。</string>
+    <string name="desc_guidance_character">加载并浏览自带角色，或创建你的自定义角色。</string>
+    <string name="desc_guidance_settings">应用设置，包括编辑器行为、应用外观、应用信息等。</string>
+    <string name="desc_guidance_more">如果您正在使用安卓10及以下版本，请授予我们权限以正常使用导出功能。当您点击确定后，将自动导入自带角色，并不再显示本指引。</string>
 
     <!--  TalkPage  -->
     <string name="btn_narration">旁白</string>
@@ -30,6 +36,8 @@
     <string name="insert_piece">在之前插入</string>
     <string name="gallery">系统相册</string>
     <string name="emotions">表情包</string>
+    <string name="toast_save_project">项目已保存，名称:</string>
+    <string name="toast_export_project">图片已导出，路径:</string>
 
     <!--  HistoryPage  -->
     <string name="history">历史对话</string>
