@@ -30,6 +30,7 @@ import com.eynnzerr.yuukatalk.ui.page.character.CharacterViewModel
 import com.eynnzerr.yuukatalk.ui.page.history.HistoryPage
 import com.eynnzerr.yuukatalk.ui.page.history.HistoryViewModel
 import com.eynnzerr.yuukatalk.ui.page.home.HomePage
+import com.eynnzerr.yuukatalk.ui.page.home.HomeViewModel
 import com.eynnzerr.yuukatalk.ui.page.settings.SettingsPage
 import com.eynnzerr.yuukatalk.ui.page.settings.about.AboutPage
 import com.eynnzerr.yuukatalk.ui.page.settings.appearance.AppearancePage
@@ -69,7 +70,8 @@ private fun AppNavGraph() {
         startDestination = startDestination,
     ) {
         animatedComposable(Destinations.HOME_ROUTE) {
-            HomePage(appNavController)
+            val homeViewModel = hiltViewModel<HomeViewModel>()
+            HomePage(homeViewModel, appNavController)
         }
         animatedComposable(Destinations.HISTORY_ROUTE) {
             val historyViewModel = hiltViewModel<HistoryViewModel>()

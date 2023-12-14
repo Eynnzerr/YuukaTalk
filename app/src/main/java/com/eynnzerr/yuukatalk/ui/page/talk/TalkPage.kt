@@ -1,7 +1,6 @@
 package com.eynnzerr.yuukatalk.ui.page.talk
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.content.Intent
 import android.util.Log
 import android.view.ViewGroup
@@ -14,53 +13,31 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AddCircleOutline
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.EmojiEmotions
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FormatListBulleted
 import androidx.compose.material.icons.filled.GraphicEq
-import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.InsertEmoticon
-import androidx.compose.material.icons.filled.Link
 import androidx.compose.material.icons.filled.MenuOpen
-import androidx.compose.material.icons.filled.PhotoLibrary
-import androidx.compose.material.icons.filled.RemoveCircleOutline
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.filled.Undo
@@ -79,11 +56,6 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.BottomAppBarDefaults
 import androidx.compose.material3.BottomSheetDefaults
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -118,17 +90,12 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.util.lerp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavHostController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -150,15 +117,12 @@ import com.eynnzerr.yuukatalk.ui.component.dialog.EmojiPickerDialog
 import com.eynnzerr.yuukatalk.ui.component.dialog.NarrationDialog
 import com.eynnzerr.yuukatalk.ui.view.TalkAdapter
 import com.eynnzerr.yuukatalk.utils.ImageUtils
-import com.eynnzerr.yuukatalk.utils.PathUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlin.math.absoluteValue
 
 @SuppressLint("NotifyDataSetChanged")
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class,
-    ExperimentalFoundationApi::class
 )
 @Composable
 fun TalkPage(
@@ -370,9 +334,7 @@ fun TalkPage(
                 }
             },
             bottomBar = {
-                Column(
-                    // modifier = Modifier.padding(bottom = imePadding)
-                ) {
+                Column {
                     AnimatedVisibility(
                         visible = uiState.isMoreToolsOpen,
                         enter = expandVertically(),
@@ -498,8 +460,7 @@ fun TalkPage(
                                     val imageUri = withContext(Dispatchers.IO) {
                                         ImageUtils.saveBitMapToDisk(bitmap, context)
                                     }
-                                    snackbarHostState.showSnackbar("picture saved to ${imageUri.path}")
-                                    // Toast.makeText(context, "saved to" + imageUri.path, Toast.LENGTH_SHORT).show()
+                                    snackbarHostState.showSnackbar(context.getText(R.string.toast_export_project).toString() + " ${imageUri.path}")
                                 } catch (e: Exception) {
                                     viewModel.updateText(e.toString() + "\n" + e.stackTraceToString())
                                     viewModel.sendPureText()
@@ -1266,7 +1227,11 @@ fun TalkPage(
                 TextButton(
                     onClick = {
                         viewModel.saveProject()
-                        Toast.makeText(context, "project saved as ${uiState.chatName}", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            context,
+                            context.getText(R.string.toast_save_project).toString() + " ${uiState.chatName}",
+                            Toast.LENGTH_SHORT
+                        ).show()
                         openSaveDialog = false
                     },
                 ) {

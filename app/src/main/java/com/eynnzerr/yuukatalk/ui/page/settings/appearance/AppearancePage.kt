@@ -63,7 +63,6 @@ fun AppearancePage(
         PaletteOption.DYNAMIC to stringResource(id = R.string.option_dynamic),
         PaletteOption.SELF_ASSIGNED to stringResource(id = R.string.option_self)
     )
-    // val backgroundColor = MaterialTheme.colorScheme.surface
 
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     Scaffold(
@@ -110,7 +109,6 @@ fun AppearancePage(
                         isSelected = paletteOption == uiState.currentOption,
                         onSelect = {
                             viewModel.updatePaletteOption(paletteOption)
-                            // viewModel.updateExportBackground(backgroundColor.toHexString())
                         }
                     )
                 }
@@ -136,7 +134,6 @@ fun AppearancePage(
                                 selected = uiState.currentSeedColor == color,
                                 onSelect = {
                                     viewModel.updateSeedColor(color)
-                                    // viewModel.updateExportBackground(backgroundColor.toHexString())
                                 }
                             )
                         }
