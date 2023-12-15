@@ -442,7 +442,6 @@ fun TalkPage(
 
                             layoutManager = LinearLayoutManager(context)
                             adapter = talkAdapter
-
                             // bind adapter and layoutManager
                             talkAdapter.layoutManager = layoutManager
                         }
@@ -455,7 +454,6 @@ fun TalkPage(
                             scope.launch(Dispatchers.Main) {
                                 try {
                                     screenshotTalk = false
-
                                     val bitmap = ImageUtils.generateBitmap(view)
                                     val imageUri = withContext(Dispatchers.IO) {
                                         ImageUtils.saveBitMapToDisk(bitmap, context)

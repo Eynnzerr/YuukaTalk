@@ -108,4 +108,9 @@
     <string name="option_follow">跟随系统</string>
     <string name="option_dynamic">跟随壁纸</string>
     <string name="option_self">自定义</string>
+
+    <!--  PreviewPage  -->
+    <string name="current_font">当前字体</string>
+    <string name="preview">预览</string>
+    <string name="title_font_picker_dialog">选择一款字体。</string>
 </resources>

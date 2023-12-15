@@ -109,4 +109,9 @@
     <string name="option_dynamic">From Wallpaper</string>
     <string name="option_self">Self Assigned</string>
 
+    <!--  PreviewPage  -->
+    <string name="current_font">Current Font</string>
+    <string name="preview">Preview</string>
+    <string name="title_font_picker_dialog">Choose one font.</string>
+
 </resources>

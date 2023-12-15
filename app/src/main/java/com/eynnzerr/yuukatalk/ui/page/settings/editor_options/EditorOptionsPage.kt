@@ -50,11 +50,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.eynnzerr.yuukatalk.R
+import com.eynnzerr.yuukatalk.ui.common.Destinations
 import com.eynnzerr.yuukatalk.ui.component.Banner
 import com.eynnzerr.yuukatalk.ui.component.SettingGroupItem
 import com.eynnzerr.yuukatalk.ui.component.SettingGroupSwitch
 import com.eynnzerr.yuukatalk.ui.component.SettingsRadioButton
 import com.eynnzerr.yuukatalk.ui.ext.appBarScroll
+import com.eynnzerr.yuukatalk.ui.ext.pushTo
 import com.eynnzerr.yuukatalk.ui.ext.surfaceColorAtElevation
 import com.eynnzerr.yuukatalk.ui.ext.toHexLong
 import com.eynnzerr.yuukatalk.ui.ext.toHexString
@@ -244,7 +246,7 @@ fun EditorOptionsPage(
                     desc = stringResource(id = R.string.font_desc),
                     icon = Icons.Filled.TextFields,
                     onClick = {
-                        Toast.makeText(context, context.getText(R.string.to_be_implemented), Toast.LENGTH_SHORT).show()
+                        navHostController.pushTo(Destinations.PREVIEW_ROUTE)
                     }
                 )
             }
