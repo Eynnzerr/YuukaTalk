@@ -38,10 +38,13 @@
     <string name="emotions">表情包</string>
     <string name="toast_save_project">项目已保存，名称:</string>
     <string name="toast_export_project">图片已导出，路径:</string>
+    <string name="export_as_pic">导出为图片</string>
+    <string name="export_as_file">导出为文件</string>
 
     <!--  HistoryPage  -->
     <string name="history">历史对话</string>
     <string name="title_remove_dialog">确定删除当前对话？</string>
+    <string name="toast_invalid_file">非法存档文件，导入失败！</string>
 
     <!--  CharacterPage  -->
     <string name="characters">角色</string>

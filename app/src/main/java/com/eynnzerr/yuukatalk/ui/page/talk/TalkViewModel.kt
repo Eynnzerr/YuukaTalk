@@ -2,6 +2,7 @@ package com.eynnzerr.yuukatalk.ui.page.talk
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.eynnzerr.yuukatalk.base.YuukaTalkApplication
 import com.eynnzerr.yuukatalk.data.database.AppRepository
 import com.eynnzerr.yuukatalk.data.model.Character
 import com.eynnzerr.yuukatalk.data.model.Sensei
@@ -15,6 +16,9 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import java.io.File
 import javax.inject.Inject
 
 data class TalkUiState(
@@ -541,6 +545,26 @@ class TalkViewModel @Inject constructor(
     }
 
     fun isHistoryTalk() = projectId >= 0
+
+    fun saveTalkAsJson() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val currentProject = TalkProject(
+                name = _uiState.value.chatName,
+                talkHistory = talkList,
+                studentList = _uiState.value.studentList,
+                currentStudent = _uiState.value.currentStudent,
+                isFirstTalking = _uiState.value.isFirstTalking
+            )
+            val jsonString = Json.encodeToString(currentProject)
+            val jsonFileRoot = File(YuukaTalkApplication.context.getExternalFilesDir(null), "json").apply {
+                if (!exists()) mkdirs()
+            }
+            val jsonFile = File(jsonFileRoot, "${_uiState.value.chatName}.json").apply {
+                if (!exists()) createNewFile()
+            }
+            jsonFile.writeText(jsonString)
+        }
+    }
 
     private fun Talk.hasTalker() = this is Talk.PureText || this is Talk.Photo
     private fun Talk.getTalker() = if (this is Talk.PureText) this.talker else if (this is Talk.Photo) this.talker else null
