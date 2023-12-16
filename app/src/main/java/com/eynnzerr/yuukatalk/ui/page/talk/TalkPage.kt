@@ -14,16 +14,19 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -38,9 +41,11 @@ import androidx.compose.material.icons.filled.FormatListBulleted
 import androidx.compose.material.icons.filled.GraphicEq
 import androidx.compose.material.icons.filled.InsertEmoticon
 import androidx.compose.material.icons.filled.MenuOpen
+import androidx.compose.material.icons.filled.Photo
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.filled.Undo
+import androidx.compose.material.icons.filled.UploadFile
 import androidx.compose.material.icons.outlined.AddCircleOutline
 import androidx.compose.material.icons.outlined.Cancel
 import androidx.compose.material.icons.outlined.Delete
@@ -49,6 +54,7 @@ import androidx.compose.material.icons.outlined.FileDownload
 import androidx.compose.material.icons.outlined.FormatListBulleted
 import androidx.compose.material.icons.outlined.GraphicEq
 import androidx.compose.material.icons.outlined.Image
+import androidx.compose.material.icons.outlined.Photo
 import androidx.compose.material.icons.outlined.PhotoLibrary
 import androidx.compose.material.icons.outlined.SaveAs
 import androidx.compose.material.icons.outlined.TextFields
@@ -57,6 +63,8 @@ import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.BottomAppBarDefaults
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
@@ -144,6 +152,7 @@ fun TalkPage(
         skipPartiallyExpanded = false
     )
     val snackbarHostState = remember { SnackbarHostState() }
+    var expandDropDown by remember { mutableStateOf(false) }
     var openClearDialog by rememberSaveable { mutableStateOf(false) }
     var openNarrationDialog by rememberSaveable { mutableStateOf(false) }
     var openBranchDialog by rememberSaveable { mutableStateOf(false) }
@@ -321,13 +330,52 @@ fun TalkPage(
                                     contentDescription = "save as project"
                                 )
                             }
-                            IconButton(
-                                onClick = { screenshotTalk = true }
+                            Box(
+                                modifier = Modifier
+                                    .wrapContentSize(Alignment.TopStart)
                             ) {
-                                Icon(
-                                    imageVector = Icons.Outlined.FileDownload,
-                                    contentDescription = "export as picture"
-                                )
+                                IconButton(
+                                    onClick = { expandDropDown = true }
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Outlined.FileDownload,
+                                        contentDescription = "export"
+                                    )
+                                }
+                                DropdownMenu(
+                                    expanded = expandDropDown,
+                                    onDismissRequest = { expandDropDown = false },
+                                ) {
+                                    DropdownMenuItem(
+                                        leadingIcon = {
+                                            Icon(
+                                                imageVector = Icons.Outlined.Photo,
+                                                contentDescription = "as picture"
+                                            )
+                                        },
+                                        text = { Text(text = stringResource(id = R.string.export_as_pic)) },
+                                        onClick = {
+                                            expandDropDown = false
+                                            screenshotTalk = true
+                                        }
+                                    )
+                                    DropdownMenuItem(
+                                        leadingIcon = {
+                                            Icon(
+                                                imageVector = Icons.Filled.UploadFile,
+                                                contentDescription = "as json"
+                                            )
+                                        },
+                                        text = { Text(text = stringResource(id = R.string.export_as_file)) },
+                                        onClick = {
+                                            expandDropDown = false
+                                            viewModel.saveTalkAsJson()
+                                            scope.launch {
+                                                snackbarHostState.showSnackbar("Successfully export talk as json file.")
+                                            }
+                                        }
+                                    )
+                                }
                             }
                         },
                     )
@@ -442,7 +490,6 @@ fun TalkPage(
 
                             layoutManager = LinearLayoutManager(context)
                             adapter = talkAdapter
-
                             // bind adapter and layoutManager
                             talkAdapter.layoutManager = layoutManager
                         }
@@ -455,7 +502,6 @@ fun TalkPage(
                             scope.launch(Dispatchers.Main) {
                                 try {
                                     screenshotTalk = false
-
                                     val bitmap = ImageUtils.generateBitmap(view)
                                     val imageUri = withContext(Dispatchers.IO) {
                                         ImageUtils.saveBitMapToDisk(bitmap, context)

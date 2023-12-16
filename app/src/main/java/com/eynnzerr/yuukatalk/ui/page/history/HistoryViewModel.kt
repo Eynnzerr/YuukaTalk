@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.serialization.json.Json
 import javax.inject.Inject
 
 data class HistoryUiState(
@@ -39,6 +40,13 @@ class HistoryViewModel @Inject constructor(
     fun removeHistoryProject(project: TalkProject) {
         viewModelScope.launch(Dispatchers.IO) {
             repository.removeProject(project)
+        }
+    }
+
+    fun importHistoryFromJson(jsonString: String) {
+        val project = Json.decodeFromString<TalkProject>(jsonString)
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.addProject(project)
         }
     }
 

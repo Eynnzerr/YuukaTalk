@@ -37,9 +37,12 @@ import com.eynnzerr.yuukatalk.ui.page.settings.appearance.AppearancePage
 import com.eynnzerr.yuukatalk.ui.page.settings.appearance.AppearanceViewModel
 import com.eynnzerr.yuukatalk.ui.page.settings.editor_options.EditorOptionsPage
 import com.eynnzerr.yuukatalk.ui.page.settings.editor_options.EditorOptionsViewModel
+import com.eynnzerr.yuukatalk.ui.page.settings.preview.PreviewPage
+import com.eynnzerr.yuukatalk.ui.page.settings.preview.PreviewViewModel
 import com.eynnzerr.yuukatalk.ui.page.talk.TalkPage
 import com.eynnzerr.yuukatalk.ui.page.talk.TalkViewModel
 import com.eynnzerr.yuukatalk.ui.theme.YuukaTalkTheme
+import com.eynnzerr.yuukatalk.ui.theme.getTypography
 import com.eynnzerr.yuukatalk.utils.AppearanceUtils
 
 @Composable
@@ -47,7 +50,8 @@ fun YuukaTalkApp() {
     val appearanceState by AppearanceUtils.appearanceState.collectAsState()
     YuukaTalkTheme(
         paletteOption = appearanceState.paletteOption,
-        seedColor = Color(appearanceState.assignedSeedColor)
+        seedColor = Color(appearanceState.assignedSeedColor),
+        typography = getTypography(appearanceState.fontResource)
     ) {
 
         // observe theme change
@@ -112,6 +116,13 @@ private fun AppNavGraph() {
         }
         animatedComposable(Destinations.ABOUT_ROUTE) {
             AboutPage(appNavController)
+        }
+        animatedComposable(Destinations.PREVIEW_ROUTE) {
+            val previewViewModel = hiltViewModel<PreviewViewModel>()
+            PreviewPage(
+                viewModel = previewViewModel,
+                onBack = { appNavController.popBackStack() }
+            )
         }
     }
 }

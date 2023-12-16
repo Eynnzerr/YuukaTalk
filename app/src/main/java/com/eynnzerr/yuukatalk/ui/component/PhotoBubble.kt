@@ -37,8 +37,7 @@ fun PhotoBubble(
             modifier = modifier
                 .align(if (isMyMessage) Alignment.End else Alignment.Start)
                 .padding(bottom = 8.dp)
-                .width(size)
-                .heightIn(size, Dp.Unspecified),
+                .width(size),
             colors = CardDefaults.cardColors(containerColor = Color.White)
         ) {
             // 无意发现AsyncImage一个bug:只有外面被row/column包一层后，才能在bitmap上绘制出来

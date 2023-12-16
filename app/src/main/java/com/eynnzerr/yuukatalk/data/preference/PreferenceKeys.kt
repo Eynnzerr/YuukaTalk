@@ -10,4 +10,5 @@ object PreferenceKeys {
     const val SEED_COLOR = "seed_color"
     const val IMAGE_QUALITY = "image_quality"
     const val COMPRESS_FORMAT = "compress_format"
+    const val FONT_RESOURCE = "font_resource"
 }

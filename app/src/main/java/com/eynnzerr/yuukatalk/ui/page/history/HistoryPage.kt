@@ -1,15 +1,17 @@
 package com.eynnzerr.yuukatalk.ui.page.history
 
+import android.util.Log
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.DeleteForever
-import androidx.compose.material.icons.filled.Undo
-import androidx.compose.material.icons.outlined.HelpOutline
+import androidx.compose.material.icons.outlined.DownloadForOffline
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -28,6 +30,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -45,12 +48,28 @@ fun HistoryPage(
     navHostController: NavHostController
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val context = LocalContext.current
 
     var openRemoveDialog by remember { mutableStateOf(false) }
     var selectedIndex by remember { mutableIntStateOf(-1) }
 
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+    val selectFile = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        uri?.let {
+            try {
+                val contentResolver = context.contentResolver
+                contentResolver.openInputStream(it)?.let { inputStream ->
+                    val json = inputStream.bufferedReader().use { reader -> reader.readText() }
+                    viewModel.importHistoryFromJson(json)
+                    inputStream.close()
+                }
+            } catch (e: Exception) {
+                Toast.makeText(context, context.getText(R.string.toast_invalid_file), Toast.LENGTH_SHORT).show()
+                e.printStackTrace()
+            }
+        }
+    }
 
+    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     Scaffold(
         modifier = Modifier
             .appBarScroll(true, scrollBehavior)
@@ -72,10 +91,14 @@ fun HistoryPage(
                     }
                 },
                 actions = {
-                    IconButton(onClick = { /*TODO*/ }) {
+                    IconButton(
+                        onClick = {
+                            selectFile.launch(arrayOf("application/json"))
+                        }
+                    ) {
                         Icon(
-                            imageVector = Icons.Outlined.HelpOutline,
-                            contentDescription = "help"
+                            imageVector = Icons.Outlined.DownloadForOffline,
+                            contentDescription = "import file."
                         )
                     }
                 },
@@ -136,3 +159,5 @@ fun HistoryPage(
         )
     }
 }
+
+private const val TAG = "HistoryPage"
