@@ -29,17 +29,17 @@ fun DenseTextField(
         value = value,
         onValueChange = onValueChange,
         modifier = modifier,
-        singleLine = true,
+        singleLine = false,
     ) { innerTextField ->
         OutlinedTextFieldDefaults.DecorationBox(
             value = value,
             innerTextField = innerTextField,
             enabled = true,
-            singleLine = true,
+            singleLine = false,
             visualTransformation = VisualTransformation.None,
             colors = OutlinedTextFieldDefaults.colors(),
             contentPadding = TextFieldDefaults.contentPaddingWithoutLabel(
-                top = 0.dp,
+                top = 7.dp,
                 bottom = 0.dp,
             ),
             interactionSource = interactionSource,

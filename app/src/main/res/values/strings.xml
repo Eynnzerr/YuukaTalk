@@ -40,6 +40,8 @@
     <string name="toast_export_project">picture saved to</string>
     <string name="export_as_pic">export as photo</string>
     <string name="export_as_file">export as file</string>
+    <string name="search_bar_hint">Search.</string>
+    <string name="textfield_hint">Enjoy!</string>
 
     <!--  HistoryPage  -->
     <string name="history">History</string>
@@ -57,6 +59,7 @@
     <string name="delete">delete</string>
     <string name="english_name">English name</string>
     <string name="school">school</string>
+    <string name="emojis">Add Emojis(DIY only):</string>
 
     <!--  SettingsPage  -->
     <string name="settings">Settings</string>

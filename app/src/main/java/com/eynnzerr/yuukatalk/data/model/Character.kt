@@ -1,8 +1,6 @@
 package com.eynnzerr.yuukatalk.data.model
 
 import android.content.Context
-import android.os.Environment
-import android.util.Log
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
@@ -36,8 +34,10 @@ open class Character(
                 ?: emptyList()
         } else {
             val emojiRoot = File(emojiPath)
-            if (!emojiRoot.exists()) emojiRoot.mkdir()
-            emojiRoot.list()?.toList() ?: emptyList()
+            if (!emojiRoot.exists()) emojiRoot.mkdirs()
+            emojiRoot.list()
+                ?.map { "$emojiPath/$it" }
+                ?: emptyList()
         }
     }
 
