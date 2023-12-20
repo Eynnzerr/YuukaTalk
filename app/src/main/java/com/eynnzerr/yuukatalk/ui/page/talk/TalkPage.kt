@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -98,6 +99,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -146,6 +148,7 @@ fun TalkPage(
     var screenshotTalk by remember { mutableStateOf(false) }
 
     // component states
+    var isTextFieldFocused by remember { mutableStateOf(false) }
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     var openBottomSheet by rememberSaveable { mutableStateOf(false) }
     val bottomSheetState = rememberModalBottomSheetState(
@@ -180,7 +183,7 @@ fun TalkPage(
             viewModel.sendPhoto(it.toString())
         }
     }
-    
+
     // static ui data
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
     val textFieldSize = screenWidth - 56.dp - 112.dp - 25.dp
@@ -382,7 +385,9 @@ fun TalkPage(
                 }
             },
             bottomBar = {
-                Column {
+                Column(
+                    modifier = if (isTextFieldFocused) Modifier.imePadding() else Modifier
+                ) {
                     AnimatedVisibility(
                         visible = uiState.isMoreToolsOpen,
                         enter = expandVertically(),
@@ -435,10 +440,14 @@ fun TalkPage(
                             }
 
                             DenseTextField(
-                                modifier = Modifier.size(textFieldSize, 40.dp),
+                                modifier = Modifier
+                                    .size(textFieldSize, 40.dp)
+                                    .onFocusChanged { focusState ->
+                                        isTextFieldFocused = focusState.isFocused
+                                    },
                                 value = uiState.text,
                                 onValueChange = { viewModel.updateText(it) },
-                                placeholder = { Text(text = "enjoy!") },
+                                placeholder = { Text(text = stringResource(id = R.string.textfield_hint)) },
                                 trailingIcon = {
                                     IconButton(onClick = {
                                         // open emoji picker for current student
@@ -614,7 +623,7 @@ fun TalkPage(
                                 val newPureText = Talk.PureText(
                                     talker = talkingStudent,
                                     text = text,
-                                    isFirst = talkingStudent != talkData.talker // 考虑上文，如果修改了角色，认为是第一个；如果与上文角色相同，则又不是第一个
+                                    isFirst = (talkingStudent != talkData.talker) || talkData.isFirst // 考虑上文，如果修改了角色，认为是第一个；如果与上文角色相同，则又不是第一个
                                 )
                                 viewModel.editTalkHistory(newPureText, talkPieceEditState.position)
                                 openTalkPieceEditDialog = false
@@ -706,7 +715,7 @@ fun TalkPage(
                                 val newPhoto = Talk.Photo(
                                     talker = talkingStudent,
                                     uri = uri,
-                                    isFirst = talkingStudent != talkData.talker
+                                    isFirst = (talkingStudent != talkData.talker) || talkData.isFirst
                                 )
                                 viewModel.editTalkHistory(newPhoto, talkPieceEditState.position)
                                 openTalkPieceEditDialog = false

@@ -67,12 +67,35 @@ class CharacterViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             if (!character.isAsset) {
                 // 分别创建avatarPath和emojiPath目录，并从uri复制图片到其中。
-                for (uri in avatarUris) {
-                    val contentResolver = YuukaTalkApplication.context.contentResolver
-                    contentResolver.openInputStream(Uri.parse(uri))?.let { srcInputStream ->
-                        val avatarRoot = File(character.avatarPath).apply {
-                            if (!exists()) mkdirs()
+                val avatarRoot = File(character.avatarPath).apply {
+                    if (exists()) {
+                        // 已有重名角色，清空已有文件
+                        listFiles()?.let { files ->
+                            files.forEach { file ->
+                                file.deleteRecursively()
+                            }
                         }
+                    } else {
+                        mkdirs()
+                    }
+                }
+
+                val emojiRoot = File(character.emojiPath).apply {
+                    if (exists()) {
+                        // 已有重名角色，清空已有文件
+                        listFiles()?.let { files ->
+                            files.forEach { file ->
+                                file.deleteRecursively()
+                            }
+                        }
+                    } else {
+                        mkdirs()
+                    }
+                }
+
+                val contentResolver = YuukaTalkApplication.context.contentResolver
+                for (uri in avatarUris) {
+                    contentResolver.openInputStream(Uri.parse(uri))?.let { srcInputStream ->
                         val dest = File(avatarRoot, getFileNameFromUri(Uri.parse(uri)) ?: File(uri).name).apply {
                             if (!exists()) createNewFile()
                         }
@@ -87,7 +110,19 @@ class CharacterViewModel @Inject constructor(
                     }
                 }
                 for (uri in emojiUris) {
-                    // TODO()
+                    contentResolver.openInputStream(Uri.parse(uri))?.let { srcInputStream ->
+                        val dest = File(emojiRoot, getFileNameFromUri(Uri.parse(uri)) ?: File(uri).name).apply {
+                            if (!exists()) createNewFile()
+                        }
+                        val outputStream = dest.outputStream()
+                        val buffer = ByteArray(1024)
+                        var length: Int
+                        while (srcInputStream.read(buffer).also { length = it } > 0) {
+                            outputStream.write(buffer, 0, length)
+                        }
+                        outputStream.close()
+                        srcInputStream.close()
+                    }
                 }
                 character.currentAvatar = character.getAvatarPaths(YuukaTalkApplication.context).first()
             }
@@ -105,15 +140,20 @@ class CharacterViewModel @Inject constructor(
     fun removeCharacter(character: Character) {
         viewModelScope.launch(Dispatchers.IO) {
             repository.removeCharacter(character = character)
+            if (!character.isAsset) {
+                // 清理自定义角色图片文件夹内容
+                val avatarFolder = File(character.avatarPath)
+                if (avatarFolder.exists()) avatarFolder.deleteRecursively()
+                val emojiFolder = File(character.emojiPath)
+                if (emojiFolder.exists()) emojiFolder.deleteRecursively()
+            }
         }
     }
 
     private fun getFileNameFromUri(uri: Uri): String? {
         var fileName: String? = null
 
-        // 判断URI的scheme
         if (uri.scheme == "content") {
-            // 通过ContentResolver获取文件名
             YuukaTalkApplication.context.contentResolver.query(uri, null, null, null, null)?.use { cursor ->
                 if (cursor.moveToFirst()) {
                     val displayNameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)

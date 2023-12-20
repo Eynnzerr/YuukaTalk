@@ -40,6 +40,9 @@
     <string name="toast_export_project">图片已导出，路径:</string>
     <string name="export_as_pic">导出为图片</string>
     <string name="export_as_file">导出为文件</string>
+    <string name="emojis">表情包(仅自定义有效):</string>
+    <string name="search_bar_hint">搜索角色。</string>
+    <string name="textfield_hint">输入文字。</string>
 
     <!--  HistoryPage  -->
     <string name="history">历史对话</string>

@@ -17,8 +17,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.eynnzerr.yuukatalk.R
 
 @Composable
 fun StudentSearchBar(
@@ -36,7 +38,7 @@ fun StudentSearchBar(
         PlainTextField(
             value = textValue,
             onValueChange = onTextChanged,
-            placeholder = { Text("Search Student.") },
+            placeholder = { Text(stringResource(id = R.string.search_bar_hint)) },
             leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
             trailingIcon = { Icon(Icons.Outlined.Edit, contentDescription = null) },
         )
