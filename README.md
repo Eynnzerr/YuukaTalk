@@ -30,7 +30,7 @@ Why named YuukaTalk? I love Yuuka.
 
 # Installation
 
-Still WIP.
+Go to [release page](https://github.com/Eynnzerr/YuukaTalk/releases) and download for app of latest version.
 
 # TODOs
 
