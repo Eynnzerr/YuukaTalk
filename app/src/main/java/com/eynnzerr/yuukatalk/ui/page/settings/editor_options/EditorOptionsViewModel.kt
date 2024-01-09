@@ -2,7 +2,10 @@ package com.eynnzerr.yuukatalk.ui.page.settings.editor_options
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
+import com.eynnzerr.yuukatalk.base.YuukaTalkApplication
 import com.eynnzerr.yuukatalk.data.preference.PreferenceKeys
+import com.eynnzerr.yuukatalk.utils.ImageUtils
+import com.eynnzerr.yuukatalk.utils.PathUtils
 import com.tencent.mmkv.MMKV
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,6 +20,8 @@ data class EditorOptionsState(
     val screenshotBackground: String,
     val compressFormatIndex: Int,
     val imageQuality: Int,
+    val imageExportPath: String,
+    val fileExportPath: String,
 )
 
 @HiltViewModel
@@ -29,7 +34,9 @@ class EditorOptionsViewModel @Inject constructor(
         watermarkPosition = mmkv.decodeInt(PreferenceKeys.WATERMARK_POSITION, 0),
         screenshotBackground = mmkv.decodeString(PreferenceKeys.BACKGROUND_COLOR) ?: "#fff7e3",
         compressFormatIndex = mmkv.decodeInt(PreferenceKeys.COMPRESS_FORMAT, 1),
-        imageQuality = mmkv.decodeInt(PreferenceKeys.IMAGE_QUALITY, 100)
+        imageQuality = mmkv.decodeInt(PreferenceKeys.IMAGE_QUALITY, 100),
+        imageExportPath = mmkv.decodeString(PreferenceKeys.IMAGE_EXPORT_PATH) ?: ImageUtils.defaultExportPath,
+        fileExportPath = mmkv.decodeString(PreferenceKeys.FILE_EXPORT_PATH) ?: PathUtils.getDefaultExportDir().absolutePath
     ))
     private val stateValue
         get() = _uiState.value
@@ -61,6 +68,16 @@ class EditorOptionsViewModel @Inject constructor(
     fun updateCompressFormat(formatIndex: Int) {
         _uiState.update { it.copy(compressFormatIndex = formatIndex) }
         mmkv.encode(PreferenceKeys.COMPRESS_FORMAT, formatIndex)
+    }
+
+    fun updateImageExportPath(path: String) {
+        _uiState.update { it.copy(imageExportPath = path) }
+        mmkv.encode(PreferenceKeys.IMAGE_EXPORT_PATH, path)
+    }
+
+    fun updateFileExportPath(path: String) {
+        _uiState.update { it.copy(fileExportPath = path) }
+        mmkv.encode(PreferenceKeys.FILE_EXPORT_PATH, path)
     }
 }
 

@@ -11,4 +11,7 @@ object PreferenceKeys {
     const val IMAGE_QUALITY = "image_quality"
     const val COMPRESS_FORMAT = "compress_format"
     const val FONT_RESOURCE = "font_resource"
+    const val IMAGE_EXPORT_PATH = "img_export_path"
+    const val FILE_EXPORT_PATH = "file_export_path"
+    const val VERSIONS_IGNORE = "versions_ignore"
 }

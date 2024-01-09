@@ -23,6 +23,8 @@ object ImageUtils {
 
     private val mmkv = MMKV.defaultMMKV()
 
+    val defaultExportPath: String = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).absolutePath
+
     fun generateBitmap(view: View): Bitmap {
         if (view is RecyclerView) {
             return view.adapter?.let { adapter ->
@@ -123,7 +125,8 @@ object ImageUtils {
         Log.d(TAG, "saveBitMapToDisk: format: ${format.name}")
 
         val file = File(
-            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
+            // Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
+            mmkv.decodeString(PreferenceKeys.IMAGE_EXPORT_PATH) ?: PathUtils.getDefaultExportDir().absolutePath,
             "screenshot-${System.currentTimeMillis()}.$suffix"
         )
         val quality = mmkv.decodeInt(PreferenceKeys.IMAGE_QUALITY, 100)

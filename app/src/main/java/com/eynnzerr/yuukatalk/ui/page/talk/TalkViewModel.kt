@@ -2,17 +2,18 @@ package com.eynnzerr.yuukatalk.ui.page.talk
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.eynnzerr.yuukatalk.base.YuukaTalkApplication
-import com.eynnzerr.yuukatalk.data.database.AppRepository
+import com.eynnzerr.yuukatalk.data.AppRepository
 import com.eynnzerr.yuukatalk.data.model.Character
 import com.eynnzerr.yuukatalk.data.model.Sensei
 import com.eynnzerr.yuukatalk.data.model.Talk
 import com.eynnzerr.yuukatalk.data.model.TalkProject
+import com.eynnzerr.yuukatalk.data.preference.PreferenceKeys
+import com.eynnzerr.yuukatalk.utils.PathUtils
+import com.tencent.mmkv.MMKV
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -49,7 +50,8 @@ sealed class TalkListState(type: Int) {
 
 @HiltViewModel
 class TalkViewModel @Inject constructor(
-    private val repository: AppRepository
+    private val repository: AppRepository,
+    private val mmkv: MMKV,
 ) : ViewModel() {
 
     private val talkList = mutableListOf<Talk>()
@@ -556,7 +558,9 @@ class TalkViewModel @Inject constructor(
                 isFirstTalking = _uiState.value.isFirstTalking
             )
             val jsonString = Json.encodeToString(currentProject)
-            val jsonFileRoot = File(YuukaTalkApplication.context.getExternalFilesDir(null), "json").apply {
+            val jsonFileRoot = File(
+                mmkv.decodeString(PreferenceKeys.FILE_EXPORT_PATH) ?: PathUtils.getDefaultExportDir().absolutePath
+            ).apply {
                 if (!exists()) mkdirs()
             }
             val jsonFile = File(jsonFileRoot, "${_uiState.value.chatName}.json").apply {

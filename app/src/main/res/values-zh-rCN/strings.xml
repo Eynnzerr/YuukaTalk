@@ -16,6 +16,8 @@
     <string name="desc_guidance_character">加载并浏览自带角色，或创建你的自定义角色。</string>
     <string name="desc_guidance_settings">应用设置，包括编辑器行为、应用外观、应用信息等。</string>
     <string name="desc_guidance_more">如果您正在使用安卓10及以下版本，请授予我们权限以正常使用导出功能。当您点击确定后，将自动导入自带角色，并不再显示本指引。</string>
+    <string name="confirm_update">前往下载</string>
+    <string name="cancel_update">不再提示</string>
 
     <!--  TalkPage  -->
     <string name="btn_narration">旁白</string>
@@ -97,10 +99,13 @@
     <string name="format_option_png">PNG</string>
     <string name="format_option_webp_lossy">有损WEBP (需Android 11)</string>
     <string name="format_option_webp_lossless">无损WEBP (需Android 11)</string>
+    <string name="image_export_path">图片导出路径</string>
+    <string name="file_export_path">文件导出路径</string>
 
     <!--  AboutPage  -->
     <string name="version">版本</string>
     <string name="toast_already_newest">已是最新版本。</string>
+    <string name="toast_check_failed">检查版本更新失败，请确保网络连接。</string>
     <string name="author">作者</string>
     <string name="github">Github</string>
     <string name="libraries">第三方库</string>

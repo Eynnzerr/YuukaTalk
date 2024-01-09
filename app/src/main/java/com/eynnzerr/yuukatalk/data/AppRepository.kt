@@ -1,14 +1,16 @@
-package com.eynnzerr.yuukatalk.data.database
+package com.eynnzerr.yuukatalk.data
 
 import com.eynnzerr.yuukatalk.data.database.source.CharacterDao
 import com.eynnzerr.yuukatalk.data.database.source.TalkProjectDao
 import com.eynnzerr.yuukatalk.data.model.Character
 import com.eynnzerr.yuukatalk.data.model.TalkProject
+import com.eynnzerr.yuukatalk.data.remote.ReleaseDataSource
 import javax.inject.Inject
 
 class AppRepository @Inject constructor(
     private val talkProjectDao: TalkProjectDao,
     private val characterDao: CharacterDao,
+    private val releaseDataSource: ReleaseDataSource,
 ) {
     fun fetchAllProjects() = talkProjectDao.fetchAllProjects()
 
@@ -31,4 +33,6 @@ class AppRepository @Inject constructor(
     fun removeAllCharacters() = characterDao.removeAllCharacters()
 
     fun removeCharacter(character: Character) = characterDao.removeCharacter(character)
+
+    suspend fun getLatestRelease() = releaseDataSource.getLatestRelease()
 }
