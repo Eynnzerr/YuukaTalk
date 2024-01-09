@@ -33,6 +33,7 @@ import com.eynnzerr.yuukatalk.ui.page.home.HomePage
 import com.eynnzerr.yuukatalk.ui.page.home.HomeViewModel
 import com.eynnzerr.yuukatalk.ui.page.settings.SettingsPage
 import com.eynnzerr.yuukatalk.ui.page.settings.about.AboutPage
+import com.eynnzerr.yuukatalk.ui.page.settings.about.AboutViewModel
 import com.eynnzerr.yuukatalk.ui.page.settings.appearance.AppearancePage
 import com.eynnzerr.yuukatalk.ui.page.settings.appearance.AppearanceViewModel
 import com.eynnzerr.yuukatalk.ui.page.settings.editor_options.EditorOptionsPage
@@ -115,7 +116,8 @@ private fun AppNavGraph() {
 
         }
         animatedComposable(Destinations.ABOUT_ROUTE) {
-            AboutPage(appNavController)
+            val aboutViewModel = hiltViewModel<AboutViewModel>()
+            AboutPage(aboutViewModel, appNavController)
         }
         animatedComposable(Destinations.PREVIEW_ROUTE) {
             val previewViewModel = hiltViewModel<PreviewViewModel>()

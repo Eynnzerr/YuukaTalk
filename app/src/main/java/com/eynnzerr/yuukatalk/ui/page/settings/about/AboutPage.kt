@@ -3,7 +3,6 @@ package com.eynnzerr.yuukatalk.ui.page.settings.about
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -20,6 +19,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -29,24 +30,28 @@ import androidx.navigation.NavHostController
 import com.eynnzerr.yuukatalk.R
 import com.eynnzerr.yuukatalk.data.model.SettingsItem
 import com.eynnzerr.yuukatalk.ui.component.SettingGroupItem
+import com.eynnzerr.yuukatalk.ui.component.dialog.UpdateDialog
 import com.eynnzerr.yuukatalk.ui.ext.appBarScroll
 import com.eynnzerr.yuukatalk.ui.ext.surfaceColorAtElevation
+import com.eynnzerr.yuukatalk.utils.VersionUtils
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AboutPage(
+    viewModel: AboutViewModel,
     navHostController: NavHostController,
 ) {
+    val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
 
-    val versionName = context.packageManager.getPackageInfo(context.packageName, 0).versionName
+    val versionName = VersionUtils.getLocalVersion()
     val settingsItems = listOf(
         SettingsItem(
             title = stringResource(id = R.string.version),
             desc = versionName,
             painter = painterResource(id = R.drawable.ic_info),
             onClick = {
-                Toast.makeText(context, context.getText(R.string.toast_already_newest), Toast.LENGTH_SHORT).show()
+                viewModel.checkVersion()
             }
         ),
         SettingsItem(
@@ -76,6 +81,25 @@ fun AboutPage(
     )
 
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+
+    if (uiState.showUpdate) {
+        UpdateDialog(
+            onDismissRequest = {
+                viewModel.disableShowingUpdate()
+            },
+            onConfirm = {
+                viewModel.disableShowingUpdate()
+                startBrowser(uiState.newVersionUrl, context)
+            },
+            onDismiss = {
+                viewModel.disableShowingUpdate()
+                viewModel.addLatestVersionToIgnore()
+            },
+            title = uiState.newVersion,
+            content = uiState.updateContent,
+        )
+    }
+
     Scaffold(
         modifier = Modifier
             .appBarScroll(true, scrollBehavior)

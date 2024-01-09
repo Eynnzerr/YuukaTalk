@@ -1,6 +1,14 @@
 package com.eynnzerr.yuukatalk.ui.page.settings.editor_options
 
+import android.Manifest
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import android.os.Build
+import android.util.Log
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
@@ -25,6 +33,8 @@ import androidx.compose.material.icons.filled.TextFields
 import androidx.compose.material.icons.filled.Undo
 import androidx.compose.material.icons.outlined.HelpOutline
 import androidx.compose.material.icons.outlined.HighQuality
+import androidx.compose.material.icons.outlined.Photo
+import androidx.compose.material.icons.outlined.UploadFile
 import androidx.compose.material.icons.outlined.WaterDrop
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -60,8 +70,11 @@ import com.eynnzerr.yuukatalk.ui.ext.pushTo
 import com.eynnzerr.yuukatalk.ui.ext.surfaceColorAtElevation
 import com.eynnzerr.yuukatalk.ui.ext.toHexLong
 import com.eynnzerr.yuukatalk.ui.ext.toHexString
+import com.eynnzerr.yuukatalk.utils.PathUtils
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.rememberMultiplePermissionsState
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
 @Composable
 fun EditorOptionsPage(
     navHostController: NavHostController,
@@ -76,6 +89,26 @@ fun EditorOptionsPage(
     var showBackgroundOption by remember { mutableStateOf(false) }
     var showImageQualitySlider by remember { mutableStateOf(false) }
     var showCompressFormatOption by remember { mutableStateOf(false) }
+
+    val requestPermissions = rememberMultiplePermissionsState(permissions = listOf(
+        Manifest.permission.READ_EXTERNAL_STORAGE,
+        Manifest.permission.WRITE_EXTERNAL_STORAGE,
+    ))
+
+    var chooseForImagePath by remember { mutableStateOf(false) }
+    val chooseExportPath = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocumentTree()
+    ) {
+        it?.let { uri ->
+            val contentResolver = context.contentResolver
+            val takeFlags = Intent.FLAG_GRANT_READ_URI_PERMISSION or
+                    Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+            contentResolver.takePersistableUriPermission(uri, takeFlags)
+            val realPath = PathUtils.getRealPathForPrimary(uri)
+            if (chooseForImagePath) viewModel.updateImageExportPath(realPath)
+            else viewModel.updateFileExportPath(realPath)
+        }
+    }
 
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     Scaffold(
@@ -174,7 +207,9 @@ fun EditorOptionsPage(
                         modifier = Modifier.padding(horizontal = 24.dp)
                     ) {
                         Row(
-                            modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 8.dp),
                             horizontalArrangement = Arrangement.SpaceBetween,
                         ) {
                             Text(text = "0")
@@ -296,6 +331,36 @@ fun EditorOptionsPage(
                         )
                     }
                 }
+            }
+            item {
+                SettingGroupItem(
+                    title = stringResource(id = R.string.image_export_path),
+                    desc = uiState.imageExportPath,
+                    icon = Icons.Outlined.Photo,
+                    onClick = {
+                        chooseForImagePath = true
+                        if (requestPermissions.allPermissionsGranted || Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
+                            chooseExportPath.launch(null)
+                        } else {
+                            requestPermissions.launchMultiplePermissionRequest()
+                        }
+                    }
+                )
+            }
+            item {
+                SettingGroupItem(
+                    title = stringResource(id = R.string.file_export_path),
+                    desc = uiState.fileExportPath,
+                    icon = Icons.Outlined.UploadFile,
+                    onClick = {
+                        chooseForImagePath = false
+                        if (requestPermissions.allPermissionsGranted || Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
+                            chooseExportPath.launch(null)
+                        } else {
+                            requestPermissions.launchMultiplePermissionRequest()
+                        }
+                    }
+                )
             }
         }
     }

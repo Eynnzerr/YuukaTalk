@@ -16,8 +16,8 @@ android {
         applicationId = "com.eynnzerr.yuukatalk"
         minSdk = 24
         targetSdk = 34
-        versionCode = 7
-        versionName = "1.0.6"
+        versionCode = 8
+        versionName = "1.0.7"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -75,6 +75,9 @@ dependencies {
     implementation(libs.mmkv)
     implementation(libs.m3color)
     implementation(libs.coil.kt.compose)
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson)
+    implementation(libs.compose.markdown)
 
     implementation(libs.kotlinx.serialization.json)
 

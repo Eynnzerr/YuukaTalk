@@ -16,6 +16,8 @@
     <string name="desc_guidance_character">Load bundled characters, and create your own characters.</string>
     <string name="desc_guidance_settings">Settings about app, where you can configure editor behaviour, app appearance, etc.</string>
     <string name="desc_guidance_more">If you are using Android 10 or below, please grant us permissions to enable exporting pictures. And by clicking confirm button, we will help you automatically load bundled characters, and won\'t show this dialog again.</string>
+    <string name="confirm_update">Download</string>
+    <string name="cancel_update">Never</string>
 
     <!--  TalkPage  -->
     <string name="btn_narration">Narration</string>
@@ -97,10 +99,13 @@
     <string name="format_option_png">PNG</string>
     <string name="format_option_webp_lossy">WEBP_LOSSY (Android>10)</string>
     <string name="format_option_webp_lossless">WEBP_LOSSLESS (Android>10)</string>
+    <string name="image_export_path">Image Export Path</string>
+    <string name="file_export_path">File Export Path</string>
 
     <!--  AboutPage  -->
     <string name="version">Version</string>
     <string name="toast_already_newest">Already the newest version.</string>
+    <string name="toast_check_failed">Failed to check version.</string>
     <string name="author">Author</string>
     <string name="github">Github</string>
     <string name="libraries">Libraries</string>

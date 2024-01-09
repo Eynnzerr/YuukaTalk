@@ -2,7 +2,7 @@ package com.eynnzerr.yuukatalk.ui.page.history
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.eynnzerr.yuukatalk.data.database.AppRepository
+import com.eynnzerr.yuukatalk.data.AppRepository
 import com.eynnzerr.yuukatalk.data.model.TalkProject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
