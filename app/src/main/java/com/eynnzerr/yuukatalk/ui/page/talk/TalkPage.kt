@@ -59,7 +59,6 @@ import androidx.compose.material.icons.outlined.Photo
 import androidx.compose.material.icons.outlined.PhotoLibrary
 import androidx.compose.material.icons.outlined.SaveAs
 import androidx.compose.material.icons.outlined.TextFields
-import androidx.compose.material.icons.outlined.VerticalSplit
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.BottomAppBarDefaults
@@ -117,7 +116,6 @@ import coil.transform.RoundedCornersTransformation
 import com.eynnzerr.yuukatalk.R
 import com.eynnzerr.yuukatalk.data.model.SpecialPieceEntryItem
 import com.eynnzerr.yuukatalk.data.model.Talk
-import com.eynnzerr.yuukatalk.ui.common.Destinations
 import com.eynnzerr.yuukatalk.ui.component.DenseTextField
 import com.eynnzerr.yuukatalk.ui.component.PlainButton
 import com.eynnzerr.yuukatalk.ui.component.SpecialPieceEntryButton
@@ -127,11 +125,8 @@ import com.eynnzerr.yuukatalk.ui.component.StudentSearchBar
 import com.eynnzerr.yuukatalk.ui.component.dialog.BranchDialog
 import com.eynnzerr.yuukatalk.ui.component.dialog.EmojiPickerDialog
 import com.eynnzerr.yuukatalk.ui.component.dialog.NarrationDialog
-import com.eynnzerr.yuukatalk.ui.ext.popupTo
-import com.eynnzerr.yuukatalk.ui.ext.pushTo
 import com.eynnzerr.yuukatalk.ui.view.TalkAdapter
 import com.eynnzerr.yuukatalk.utils.ImageUtils
-import com.eynnzerr.yuukatalk.utils.SplitRelay
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -184,6 +179,7 @@ fun TalkPage(
             val takeFlags = Intent.FLAG_GRANT_READ_URI_PERMISSION or
                     Intent.FLAG_GRANT_WRITE_URI_PERMISSION
             contentResolver.takePersistableUriPermission(it, takeFlags)
+
             viewModel.sendPhoto(it.toString())
         }
     }
@@ -218,7 +214,6 @@ fun TalkPage(
 
     LaunchedEffect(uiState.talkListStateChange) {
         for (state in uiState.talkListStateChange) {
-            Log.d(TAG, "TalkPage: detect list state changed to ${state.type}")
             when (state) {
                 is TalkListState.Initialized -> {
                     // do nothing
@@ -255,7 +250,6 @@ fun TalkPage(
             openRemindSaveDialog = true
         } else {
             navHostController.popBackStack()
-            // SplitRelay.talkList = emptyList()
         }
     }
 
@@ -355,20 +349,6 @@ fun TalkPage(
                                     expanded = expandDropDown,
                                     onDismissRequest = { expandDropDown = false },
                                 ) {
-                                    DropdownMenuItem(
-                                        leadingIcon = {
-                                            Icon(
-                                                imageVector = Icons.Outlined.VerticalSplit,
-                                                contentDescription = "as split picture"
-                                            )
-                                        },
-                                        text = { Text(text = stringResource(id = R.string.split_pic)) },
-                                        onClick = {
-                                            SplitRelay.talkList = listOf(*uiState.talkList.toTypedArray())
-                                            viewModel.resetListStateChange()
-                                            navHostController.pushTo(Destinations.SPLIT_ROUTE)
-                                        }
-                                    )
                                     DropdownMenuItem(
                                         leadingIcon = {
                                             Icon(
@@ -517,20 +497,7 @@ fun TalkPage(
                                 ViewGroup.LayoutParams.WRAP_CONTENT
                             )
 
-                            layoutManager = object : LinearLayoutManager(context) {
-                                override fun onLayoutChildren(
-                                    recycler: RecyclerView.Recycler?,
-                                    state: RecyclerView.State?
-                                ) {
-                                    try {
-                                        super.onLayoutChildren(recycler, state)
-                                    } catch (e: IndexOutOfBoundsException) {
-                                        // viewModel.updateText(e.toString() + "\n" + e.stackTraceToString())
-                                        // viewModel.sendPureText()
-                                        e.printStackTrace()
-                                    }
-                                }
-                            }
+                            layoutManager = LinearLayoutManager(context)
                             adapter = talkAdapter
                             // bind adapter and layoutManager
                             talkAdapter.layoutManager = layoutManager

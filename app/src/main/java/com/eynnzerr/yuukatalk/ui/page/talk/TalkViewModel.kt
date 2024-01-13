@@ -38,7 +38,7 @@ data class TalkUiState(
     val isEdited: Boolean,
 )
 
-sealed class TalkListState(val type: Int) {
+sealed class TalkListState(type: Int) {
     class Initialized: TalkListState(type = 0)
     class Refresh: TalkListState(type = 1)
     class Push: TalkListState(type = 2)
@@ -504,10 +504,6 @@ class TalkViewModel @Inject constructor(
             isEdited = true,
             talkListStateChange = listOf(TalkListState.Refresh())
         ) }
-    }
-
-    fun resetListStateChange() {
-        _uiState.update { it.copy(talkListStateChange = listOf(TalkListState.Initialized())) }
     }
 
     fun updateSearchText(newText: String) {

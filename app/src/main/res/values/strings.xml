@@ -42,7 +42,6 @@
     <string name="toast_export_project">picture saved to</string>
     <string name="export_as_pic">export as photo</string>
     <string name="export_as_file">export as file</string>
-    <string name="split_pic">split photo</string>
     <string name="search_bar_hint">Search.</string>
     <string name="textfield_hint">Enjoy!</string>
 
@@ -125,10 +124,5 @@
     <string name="current_font">Current Font</string>
     <string name="preview">Preview</string>
     <string name="title_font_picker_dialog">Choose one font.</string>
-
-    <!--  SplitPage  -->
-    <string name="set_as_start">Set as start</string>
-    <string name="set_as_end">Set as end</string>
-    <string name="set_dialog_title">Set start and end.</string>
 
 </resources>

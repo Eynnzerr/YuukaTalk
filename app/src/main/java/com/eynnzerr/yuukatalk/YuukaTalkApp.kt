@@ -40,7 +40,6 @@ import com.eynnzerr.yuukatalk.ui.page.settings.editor_options.EditorOptionsPage
 import com.eynnzerr.yuukatalk.ui.page.settings.editor_options.EditorOptionsViewModel
 import com.eynnzerr.yuukatalk.ui.page.settings.preview.PreviewPage
 import com.eynnzerr.yuukatalk.ui.page.settings.preview.PreviewViewModel
-import com.eynnzerr.yuukatalk.ui.page.split.SplitPage
 import com.eynnzerr.yuukatalk.ui.page.talk.TalkPage
 import com.eynnzerr.yuukatalk.ui.page.talk.TalkViewModel
 import com.eynnzerr.yuukatalk.ui.theme.YuukaTalkTheme
@@ -126,11 +125,6 @@ private fun AppNavGraph() {
                 viewModel = previewViewModel,
                 onBack = { appNavController.popBackStack() }
             )
-        }
-        animatedComposable(
-            route = Destinations.SPLIT_ROUTE,
-        ) {
-            SplitPage(navHostController = appNavController)
         }
     }
 }

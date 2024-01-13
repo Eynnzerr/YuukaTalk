@@ -42,7 +42,6 @@
     <string name="toast_export_project">图片已导出，路径:</string>
     <string name="export_as_pic">导出为图片</string>
     <string name="export_as_file">导出为文件</string>
-    <string name="split_pic">分部导出为图片</string>
     <string name="emojis">表情包(仅自定义有效):</string>
     <string name="search_bar_hint">搜索角色。</string>
     <string name="textfield_hint">输入文字。</string>
@@ -125,10 +124,4 @@
     <string name="current_font">当前字体</string>
     <string name="preview">预览</string>
     <string name="title_font_picker_dialog">选择一款字体。</string>
-
-    <!--  SplitPage  -->
-    <string name="set_as_start">设为起点</string>
-    <string name="set_as_end">设为终点</string>
-    <string name="set_dialog_title">为对话节选设置首尾。</string>
-
 </resources>
