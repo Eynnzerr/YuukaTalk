@@ -11,4 +11,5 @@ object Destinations {
     const val LANGUAGE_ROUTE = "/language"
     const val EDITOR_OPTIONS_ROUTE = "/editor_options"
     const val PREVIEW_ROUTE = "/preview"
+    const val SPLIT_ROUTE = "/split"
 }

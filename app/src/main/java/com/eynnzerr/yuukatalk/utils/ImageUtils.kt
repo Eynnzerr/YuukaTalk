@@ -27,79 +27,9 @@ object ImageUtils {
 
     fun generateBitmap(view: View): Bitmap {
         if (view is RecyclerView) {
-            return view.adapter?.let { adapter ->
-                var iHeight = 0f
-                var totalHeight = 0f
-
-                val paint = Paint()
-                val cacheSize = (Runtime.getRuntime().maxMemory() / 1024 / 4).toInt()
-                val bitmapCache = LruCache<Int, Bitmap>(cacheSize)
-
-                for (i in 0 until adapter.itemCount) {
-                    val holder = adapter.createViewHolder(view, adapter.getItemViewType(i))
-                    adapter.onBindViewHolder(holder, i)
-                    holder.itemView.apply {
-                        view.addView(this)
-                        measure(
-                            View.MeasureSpec.makeMeasureSpec(view.width, View.MeasureSpec.EXACTLY),
-                            View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
-                        )
-                        layout(0, 0, holder.itemView.measuredWidth, holder.itemView.measuredHeight)
-                        view.removeView(this)
-
-                        val itemBitmap = Bitmap.createBitmap(
-                            width,
-                            height,
-                            Bitmap.Config.ARGB_8888
-                        )
-                        val itemCanvas = Canvas(itemBitmap)
-                        draw(itemCanvas)
-                        bitmapCache.put(i, itemBitmap)
-                        totalHeight += height
-                        Log.d(TAG, "generateBitmap: talk piece $i height: $height")
-                    }
-                }
-
-                val padding = 16
-                val screenshot = Bitmap.createBitmap(view.width + 2 * padding, totalHeight.toInt() + 2 * padding, Bitmap.Config.ARGB_8888)
-                val canvas = Canvas(screenshot).apply {
-                    val bgColor = mmkv.decodeString(PreferenceKeys.BACKGROUND_COLOR) ?: "#fff7e3"
-                    drawColor(Color.parseColor(bgColor))
-                }
-
-                for (i in 0 until adapter.itemCount) {
-                    val bitmap = bitmapCache[i]
-                    canvas.drawBitmap(bitmap!!, 0F + padding, iHeight + padding, paint)
-                    iHeight += bitmap.height
-                    bitmap.recycle()
-                }
-
-                // draw watermark
-                val mmkv = MMKV.defaultMMKV()
-                if (mmkv.decodeBool(PreferenceKeys.USE_WATERMARK, false)) {
-                    val author = mmkv.decodeString(PreferenceKeys.AUTHOR_NAME, "")
-                    paint.textSize = 20f
-                    paint.color = Color.DKGRAY
-                    canvas.drawText(
-                        "Author:$author",
-                        0f,
-                        (canvas.height - 25).toFloat(),
-                        paint
-                    )
-                    canvas.drawText(
-                        "Made by YuukaTalk",
-                        0f,
-                        (canvas.height - 5).toFloat(),
-                        paint
-                    )
-                }
-
-                screenshot
-            } ?: Bitmap.createBitmap(
-                view.width,
-                view.height,
-                Bitmap.Config.ARGB_8888
-            )
+            return view.adapter?.let {
+                generateBitMapInRange(view, 0..<it.itemCount)
+            } ?: Bitmap.createBitmap(view.width, view.height, Bitmap.Config.ARGB_8888)
         }
 
         // never used.
@@ -112,6 +42,86 @@ object ImageUtils {
         canvas.drawColor(Color.WHITE)
         view.draw(canvas)
         return bitmap
+    }
+
+    fun generateBitMapInRange(view: RecyclerView, range: IntRange): Bitmap {
+        return view.adapter?.let { adapter ->
+            assert(adapter.itemCount > range.last && range.first >= 0) {
+                "Range outbounds adapter count."
+            }
+
+            var iHeight = 0f
+            var totalHeight = 0f
+
+            val paint = Paint()
+            val cacheSize = (Runtime.getRuntime().maxMemory() / 1024 / 4).toInt()
+            val bitmapCache = LruCache<Int, Bitmap>(cacheSize)
+
+            for (i in range) {
+                val holder = adapter.createViewHolder(view, adapter.getItemViewType(i))
+                adapter.onBindViewHolder(holder, i)
+                holder.itemView.apply {
+                    view.addView(this)
+                    measure(
+                        View.MeasureSpec.makeMeasureSpec(view.width, View.MeasureSpec.EXACTLY),
+                        View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+                    )
+                    layout(0, 0, holder.itemView.measuredWidth, holder.itemView.measuredHeight)
+                    view.removeView(this)
+
+                    val itemBitmap = Bitmap.createBitmap(
+                        width,
+                        height,
+                        Bitmap.Config.ARGB_8888
+                    )
+                    val itemCanvas = Canvas(itemBitmap)
+                    draw(itemCanvas)
+                    bitmapCache.put(i, itemBitmap)
+                    totalHeight += height
+                    Log.d(TAG, "generateBitmap: talk piece $i height: $height")
+                }
+            }
+
+            val padding = 16
+            val screenshot = Bitmap.createBitmap(view.width + 2 * padding, totalHeight.toInt() + 2 * padding, Bitmap.Config.ARGB_8888)
+            val canvas = Canvas(screenshot).apply {
+                val bgColor = mmkv.decodeString(PreferenceKeys.BACKGROUND_COLOR) ?: "#fff7e3"
+                drawColor(Color.parseColor(bgColor))
+            }
+
+            for (i in range) {
+                val bitmap = bitmapCache[i]
+                canvas.drawBitmap(bitmap!!, 0F + padding, iHeight + padding, paint)
+                iHeight += bitmap.height
+                bitmap.recycle()
+            }
+
+            // draw watermark
+            val mmkv = MMKV.defaultMMKV()
+            if (mmkv.decodeBool(PreferenceKeys.USE_WATERMARK, false)) {
+                val author = mmkv.decodeString(PreferenceKeys.AUTHOR_NAME, "")
+                paint.textSize = 20f
+                paint.color = Color.DKGRAY
+                canvas.drawText(
+                    "Author:$author",
+                    0f,
+                    (canvas.height - 25).toFloat(),
+                    paint
+                )
+                canvas.drawText(
+                    "Made by YuukaTalk",
+                    0f,
+                    (canvas.height - 5).toFloat(),
+                    paint
+                )
+            }
+
+            screenshot
+        } ?: Bitmap.createBitmap(
+            view.width,
+            view.height,
+            Bitmap.Config.ARGB_8888
+        )
     }
 
     suspend fun saveBitMapToDisk(bitmap: Bitmap, context: Context): Uri {

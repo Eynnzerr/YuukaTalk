@@ -12,8 +12,13 @@ import kotlinx.coroutines.flow.update
 data class TalkPieceEditState(
     val position: Int,
     val talkData: Talk,
-    val openEditDialog: Boolean
+    val openEditDialog: Boolean,
 )
+
+enum class AdapterWorkingState {
+    InEditing,
+    InSplit,
+}
 
 class TalkAdapter(
     private val talkList: List<Talk>
@@ -23,12 +28,13 @@ class TalkAdapter(
     }
 
     var layoutManager: RecyclerView.LayoutManager? = null
+    var workingState = AdapterWorkingState.InEditing
 
     private val _talkPieceState = MutableStateFlow(
         TalkPieceEditState(
             position = 0,
             talkData = Talk.Narration(""),
-            openEditDialog = false
+            openEditDialog = false,
         )
     )
     val talkPieceState = _talkPieceState.asStateFlow()
@@ -47,19 +53,38 @@ class TalkAdapter(
         val talkPieceView = holder.itemView as TalkPieceView
         val talkData = talkList[position]
         talkPieceView.talkData = talkData
-        talkPieceView.onLongClick = {
-            Log.d(TAG, "long pressed. position: ${holder.bindingAdapterPosition}")
-            _talkPieceState.update {
-                it.copy(
-                    position = holder.bindingAdapterPosition,
-                    talkData = talkData,
-                    openEditDialog = true
-                )
+
+        when (workingState) {
+            AdapterWorkingState.InEditing -> {
+                talkPieceView.onLongClick = {
+                    Log.d(TAG, "long pressed. position: ${holder.bindingAdapterPosition}")
+                    _talkPieceState.update {
+                        it.copy(
+                            position = holder.bindingAdapterPosition,
+                            talkData = talkData,
+                            openEditDialog = true
+                        )
+                    }
+                }
+            }
+            AdapterWorkingState.InSplit -> {
+                Log.d(TAG, "onBindViewHolder: is in split mode.")
+                talkPieceView.onClick = {
+                    Log.d(TAG, "pressed. Position: ${holder.bindingAdapterPosition}")
+                    _talkPieceState.update {
+                        it.copy(
+                            position = holder.bindingAdapterPosition,
+                            talkData = talkData,
+                            openEditDialog = true
+                        )
+                    }
+                }
             }
         }
     }
 
     fun notifyAppendItem() {
+        Log.d(TAG, "notifyAppendItem: talklist size: ${talkList.size}")
         notifyItemInserted(talkList.lastIndex)
         notifyScrollToLast()
     }
