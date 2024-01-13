@@ -525,8 +525,8 @@ fun TalkPage(
                                     try {
                                         super.onLayoutChildren(recycler, state)
                                     } catch (e: IndexOutOfBoundsException) {
-                                        // viewModel.updateText(e.toString() + "\n" + e.stackTraceToString())
-                                        // viewModel.sendPureText()
+                                        // 防闪退。
+                                        // TODO 为什么会偶现发送一条纯文本后再发送本地图片会闪退的问题？
                                         e.printStackTrace()
                                     }
                                 }
