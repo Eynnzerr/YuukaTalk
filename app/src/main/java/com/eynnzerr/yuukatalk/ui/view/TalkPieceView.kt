@@ -22,6 +22,7 @@ class TalkPieceView @JvmOverloads constructor(
 
     var talkData: Talk by mutableStateOf(Talk.Narration(""))
     var onLongClick by mutableStateOf({})
+    var onClick by mutableStateOf({})
 
     @OptIn(ExperimentalFoundationApi::class)
     @Composable
@@ -29,7 +30,7 @@ class TalkPieceView @JvmOverloads constructor(
         Row(
             modifier = Modifier.combinedClickable(
                 enabled = true,
-                onClick = {},
+                onClick = { onClick() },
                 onLongClick = { onLongClick() }
             )
         ) {
