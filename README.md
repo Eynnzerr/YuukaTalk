@@ -45,9 +45,9 @@ Go to [release page](https://github.com/Eynnzerr/YuukaTalk/releases) and downloa
 - [x] Support insert message.
 - [x] Find an app logo.
 - [ ] Multi-language.(Only support Chinese currently)
-- [ ] More settings.
+- [x] More settings.
 - [ ] Support large-scale screens.
-- [ ] Add first-time guidance.
+- [x] Add first-time guidance.
 - [ ] Move images from bundled asset to remote to cut off package size.
 - [ ] multi-platform(iOS and desktop).
 
