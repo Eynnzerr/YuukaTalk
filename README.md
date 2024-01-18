@@ -4,11 +4,11 @@
 
 # Introduction
 
-YuukaTalk is a brand-new momotalk editor app for Android aiming to provide more comfortable experience for re-creation authors.
+Momotalk is a virtual app in mobile game *Blue Archive*, which lets players talk with characters in the game, bringing and representing interesting stories. And it has become a popular format for fan arts, especially in CN communities.
+
+YuukaTalk is a brand-new momotalk editor app for Android aiming to provide more comfortable experience for fan-fiction authors.
 
 We already have amazing works such as **YuzuTalk**, **ClosureTalk**, **MolluTalk**, and **MoeTalk**. However, each of above-mentioned editors either has been taken down or not supports mobile phone well, which is the inspiration this app is given.
-
-Why named YuukaTalk? I love Yuuka.
 
 # Previews
 
