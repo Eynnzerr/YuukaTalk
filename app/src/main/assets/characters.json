@@ -371,6 +371,13 @@
     "emojiPath": "gehenna/pandemonium_society/Satsuki/emoji"
   },
   {
+    "name": "千秋",
+    "nameRoma": "Chiaki",
+    "school": "Gehenna",
+    "avatarPath": "gehenna/pandemonium_society/Chiaki/avatar",
+    "emojiPath": "gehenna/pandemonium_society/Chiaki/emoji"
+  },
+  {
     "name": "万魔殿成员",
     "nameRoma": "PandemoniumSocietyMember",
     "school": "Gehenna",
@@ -651,7 +658,7 @@
     "emojiPath": "Arius/AriusSquad/Atsuko/emoji"
   },
   {
-    "name": "日向",
+    "name": "日和",
     "nameRoma": "Hiyori",
     "school": "Arius",
     "avatarPath": "Arius/AriusSquad/Hiyori/avatar",

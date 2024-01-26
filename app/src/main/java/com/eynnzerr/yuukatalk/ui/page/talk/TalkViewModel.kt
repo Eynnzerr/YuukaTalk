@@ -55,7 +55,7 @@ class TalkViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val talkList = mutableListOf<Talk>()
-    private val studentList = mutableListOf<Character>(Sensei)
+    private var studentList = mutableListOf<Character>(Sensei)
     private val branchArray
         get() = _uiState.value.textBranches.toTypedArray()
     private lateinit var allStudents: List<Character>
@@ -495,7 +495,23 @@ class TalkViewModel @Inject constructor(
 
     fun addStudent(student: Character) = studentList.add(student)
 
-    fun removeStudent(student: Character) = studentList.remove(student)
+    fun removeStudent(student: Character) {
+        val index = studentList.indexOf(student)
+        if (index != -1) {
+            studentList.removeAt(index)
+            if (_uiState.value.currentStudent == student) {
+                _uiState.update { it.copy(currentStudent = studentList[index - 1]) }
+            }
+        }
+    }
+
+    fun updateStudent(student: Character) {
+        // 由于Character的equals被重写为名字相同则视为相同，无法感知头像变化，需要手动刷新
+        val index = studentList.indexOf(student)
+        if (index != -1) {
+            studentList[index] = student
+        }
+    }
 
     fun clearTalk() {
         talkList.clear()

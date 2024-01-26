@@ -45,6 +45,9 @@
     <string name="split_pic">split photo</string>
     <string name="search_bar_hint">Search.</string>
     <string name="textfield_hint">Enjoy!</string>
+    <string name="toast_remove_student">Remove character from talk.</string>
+    <string name="toast_add_student">Successfully add character.</string>
+    <string name="toast_change_student">Change character avatar.</string>
 
     <!--  HistoryPage  -->
     <string name="history">History</string>

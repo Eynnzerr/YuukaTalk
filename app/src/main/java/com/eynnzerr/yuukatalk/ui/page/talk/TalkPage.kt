@@ -107,6 +107,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastAny
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavHostController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -115,10 +116,12 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import coil.transform.RoundedCornersTransformation
 import com.eynnzerr.yuukatalk.R
+import com.eynnzerr.yuukatalk.data.model.Sensei
 import com.eynnzerr.yuukatalk.data.model.SpecialPieceEntryItem
 import com.eynnzerr.yuukatalk.data.model.Talk
 import com.eynnzerr.yuukatalk.ui.common.Destinations
 import com.eynnzerr.yuukatalk.ui.component.DenseTextField
+import com.eynnzerr.yuukatalk.ui.component.DraggableStudentAvatar
 import com.eynnzerr.yuukatalk.ui.component.PlainButton
 import com.eynnzerr.yuukatalk.ui.component.SpecialPieceEntryButton
 import com.eynnzerr.yuukatalk.ui.component.StudentAvatar
@@ -279,7 +282,18 @@ fun TalkPage(
                             onPickAvatar = {
                                 if (student !in uiState.studentList) {
                                     viewModel.addStudent(student = student)
-                                    Toast.makeText(context, "成功添加角色。", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(
+                                        context,
+                                        context.getText(R.string.toast_add_student),
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                } else {
+                                    viewModel.updateStudent(student)
+                                    Toast.makeText(
+                                        context,
+                                        context.getText(R.string.toast_change_student),
+                                        Toast.LENGTH_SHORT
+                                    ).show()
                                 }
                             }
                         )
@@ -1236,15 +1250,35 @@ fun TalkPage(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 uiState.studentList.forEach {
-                    StudentAvatar(
-                        url = it.currentAvatar,
-                        withBorder = uiState.currentStudent == it,
-                        isSelected = uiState.currentStudent == it,
-                        size = 48.dp,
-                        onClick = {
-                            viewModel.selectStudent(it)
-                        }
-                    )
+                    if (it == Sensei) {
+                        StudentAvatar(
+                            url = it.currentAvatar,
+                            withBorder = uiState.currentStudent == it,
+                            isSelected = uiState.currentStudent == it,
+                            size = 48.dp,
+                            onClick = {
+                                viewModel.selectStudent(it)
+                            },
+                        )
+                    } else {
+                        DraggableStudentAvatar(
+                            url = it.currentAvatar,
+                            withBorder = uiState.currentStudent == it,
+                            isSelected = uiState.currentStudent == it,
+                            size = 48.dp,
+                            onClick = {
+                                viewModel.selectStudent(it)
+                            },
+                            onRemove = {
+                                viewModel.removeStudent(it)
+                                Toast.makeText(
+                                    context,
+                                    context.getText(R.string.toast_remove_student),
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        )
+                    }
                 }
             }
         }
