@@ -60,13 +60,8 @@ open class Character(
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
 
-        other as Character
-
-        if (name != other.name) return false
-        if (school != other.school) return false
-        if (avatarPath != other.avatarPath) return false
-
-        return true
+        // 我们的app限制不允许存在同名的情况
+        return name == (other as Character).name
     }
 
     override fun hashCode(): Int {

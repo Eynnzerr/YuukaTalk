@@ -46,6 +46,9 @@
     <string name="emojis">表情包(仅自定义有效):</string>
     <string name="search_bar_hint">搜索角色。</string>
     <string name="textfield_hint">输入文字。</string>
+    <string name="toast_remove_student">成功移除角色。</string>
+    <string name="toast_add_student">成功添加角色。</string>
+    <string name="toast_change_student">成功更改角色头像。</string>
 
     <!--  HistoryPage  -->
     <string name="history">历史对话</string>
