@@ -1,5 +1,11 @@
 <resources>
     <string name="app_name">YuukaTalk</string>
+
+    <!--  CrashReportPage  -->
+    <string name="crash_title">YuukaTalk崩溃了！</string>
+    <string name="copy_exit">复制并退出</string>
+    <string name="crash_hint">看起来app出现了bug！请复制如下错误信息并联系作者以寻求帮助！</string>
+
     <!--  HomePage  -->
     <string name="new_entry_title">新建对话</string>
     <string name="new_entry_desc">创建新的桃信对话</string>
@@ -66,6 +72,10 @@
     <string name="delete">删除</string>
     <string name="english_name">外文名</string>
     <string name="school">学院名</string>
+    <string name="title_update_dialog">检测到角色更新。</string>
+    <string name="content_update_dialog">是否更新app自带角色资源？</string>
+    <string name="chip_bundled">自带角色</string>
+    <string name="chip_diy">DIY角色</string>
 
     <!--  SettingsPage  -->
     <string name="settings">设置</string>
@@ -105,6 +115,8 @@
     <string name="format_option_webp_lossless">无损WEBP (需Android 11)</string>
     <string name="image_export_path">图片导出路径</string>
     <string name="file_export_path">文件导出路径</string>
+    <string name="auto_save">自动备份</string>
+    <string name="auto_save_desc">在保存项目时自动导出为文件</string>
 
     <!--  AboutPage  -->
     <string name="version">版本</string>

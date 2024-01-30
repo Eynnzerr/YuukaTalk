@@ -22,6 +22,7 @@ data class EditorOptionsState(
     val imageQuality: Int,
     val imageExportPath: String,
     val fileExportPath: String,
+    val enableAutoSave: Boolean,
 )
 
 @HiltViewModel
@@ -36,7 +37,8 @@ class EditorOptionsViewModel @Inject constructor(
         compressFormatIndex = mmkv.decodeInt(PreferenceKeys.COMPRESS_FORMAT, 1),
         imageQuality = mmkv.decodeInt(PreferenceKeys.IMAGE_QUALITY, 100),
         imageExportPath = mmkv.decodeString(PreferenceKeys.IMAGE_EXPORT_PATH) ?: ImageUtils.defaultExportPath,
-        fileExportPath = mmkv.decodeString(PreferenceKeys.FILE_EXPORT_PATH) ?: PathUtils.getDefaultExportDir().absolutePath
+        fileExportPath = mmkv.decodeString(PreferenceKeys.FILE_EXPORT_PATH) ?: PathUtils.getDefaultExportDir().absolutePath,
+        enableAutoSave = mmkv.decodeBool(PreferenceKeys.USE_AUTO_SAVE, false),
     ))
     private val stateValue
         get() = _uiState.value
@@ -46,6 +48,11 @@ class EditorOptionsViewModel @Inject constructor(
     fun switchWatermark() {
         _uiState.update { it.copy(enableWatermark = !stateValue.enableWatermark) }
         mmkv.encode(PreferenceKeys.USE_WATERMARK, stateValue.enableWatermark)
+    }
+
+    fun switchAutoSave() {
+        _uiState.update { it.copy(enableAutoSave = !stateValue.enableAutoSave) }
+        mmkv.encode(PreferenceKeys.USE_AUTO_SAVE, stateValue.enableAutoSave)
     }
 
     fun updateAuthorName(name: String) {

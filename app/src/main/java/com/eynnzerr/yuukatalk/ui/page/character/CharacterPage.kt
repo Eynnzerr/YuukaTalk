@@ -5,10 +5,12 @@ import android.os.Environment
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -19,6 +21,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.AddCircleOutline
@@ -31,8 +34,10 @@ import androidx.compose.material.icons.filled.Grade
 import androidx.compose.material.icons.outlined.RemoveCircleOutline
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
+import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeTopAppBar
@@ -43,6 +48,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -61,13 +67,15 @@ import coil.request.ImageRequest
 import coil.transform.RoundedCornersTransformation
 import com.eynnzerr.yuukatalk.R
 import com.eynnzerr.yuukatalk.data.model.Character
+import com.eynnzerr.yuukatalk.ui.component.InteractiveFilterChip
 import com.eynnzerr.yuukatalk.ui.component.PlainButton
 import com.eynnzerr.yuukatalk.ui.component.StudentAvatar
 import com.eynnzerr.yuukatalk.ui.component.StudentInfo
+import com.eynnzerr.yuukatalk.ui.component.dialog.UpdateCharacterDialog
 import com.eynnzerr.yuukatalk.ui.ext.appBarScroll
 import com.eynnzerr.yuukatalk.ui.ext.surfaceColorAtElevation
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun CharacterPage(
     viewModel: CharacterViewModel,
@@ -88,6 +96,8 @@ fun CharacterPage(
     var avatarUris by remember { mutableStateOf(emptyList<String>()) }
     var emojiUris by remember { mutableStateOf(emptyList<String>()) }
     var isAsset by remember { mutableStateOf(false) }
+
+    val listState = rememberLazyListState()
 
     fun clearDIYState() {
         name = ""
@@ -121,6 +131,10 @@ fun CharacterPage(
             }
     }
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+
+    LaunchedEffect(Unit) {
+        viewModel.checkCharacterUpdate()
+    }
 
     Scaffold(
         modifier = Modifier
@@ -192,10 +206,41 @@ fun CharacterPage(
                 }
             )
         }
-        ) {
+    ) {
         LazyColumn(
-            modifier = Modifier.padding(it)
+            modifier = Modifier.padding(it),
+            state = listState,
         ) {
+            stickyHeader {
+                Column {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp)
+                            .background(MaterialTheme.colorScheme.surface),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        InteractiveFilterChip(
+                            selected = uiState.showBundled,
+                            onClick = {
+                                viewModel.switchShowBundled()
+                            },
+                            text = stringResource(id = R.string.chip_bundled)
+                        )
+                        InteractiveFilterChip(
+                            selected = uiState.showDIY,
+                            onClick = {
+                                viewModel.switchShowDIY()
+                            },
+                            text = stringResource(id = R.string.chip_diy)
+                        )
+                    }
+
+//                    if (!listState.isScrollInProgress) {
+//                        Divider()
+//                    }
+                }
+            }
             itemsIndexed(uiState.charactersList) { index, student ->
                 StudentInfo(
                     student = student,
@@ -418,6 +463,22 @@ fun CharacterPage(
                         }
                     }
                 }
+            }
+        )
+    }
+
+    if (uiState.needUpdate) {
+        UpdateCharacterDialog(
+            onDismissRequest = {
+                viewModel.closeUpdateDialog()
+            },
+            onConfirm = {
+                viewModel.importCharactersFromFile()
+                viewModel.closeUpdateDialog()
+                Toast.makeText(context, "成功更新角色资源。", Toast.LENGTH_SHORT).show()
+            },
+            onDismiss = {
+                viewModel.closeUpdateDialog()
             }
         )
     }

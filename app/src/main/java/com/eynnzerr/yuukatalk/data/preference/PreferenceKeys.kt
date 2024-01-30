@@ -14,4 +14,6 @@ object PreferenceKeys {
     const val IMAGE_EXPORT_PATH = "img_export_path"
     const val FILE_EXPORT_PATH = "file_export_path"
     const val VERSIONS_IGNORE = "versions_ignore"
+    const val CHARACTER_VERSION = "character_version"
+    const val USE_AUTO_SAVE = "use_auto_save"
 }
