@@ -34,6 +34,7 @@ import androidx.compose.material.icons.filled.Undo
 import androidx.compose.material.icons.outlined.HelpOutline
 import androidx.compose.material.icons.outlined.HighQuality
 import androidx.compose.material.icons.outlined.Photo
+import androidx.compose.material.icons.outlined.Save
 import androidx.compose.material.icons.outlined.UploadFile
 import androidx.compose.material.icons.outlined.WaterDrop
 import androidx.compose.material3.AlertDialog
@@ -360,6 +361,15 @@ fun EditorOptionsPage(
                             requestPermissions.launchMultiplePermissionRequest()
                         }
                     }
+                )
+            }
+            item {
+                SettingGroupSwitch(
+                    title = stringResource(id = R.string.auto_save),
+                    icon = Icons.Outlined.Save,
+                    desc = stringResource(id = R.string.auto_save_desc),
+                    checked = uiState.enableAutoSave,
+                    onSwitch = { viewModel.switchAutoSave() }
                 )
             }
         }

@@ -94,7 +94,7 @@ fun HomePage(
             icon = Icons.Filled.History,
             color = MaterialTheme.colorScheme.surface,
             onClick = {
-                navController.pushTo(Destinations.HISTORY_ROUTE)
+                 navController.pushTo(Destinations.HISTORY_ROUTE)
             }
         ),
         PageEntryItem(

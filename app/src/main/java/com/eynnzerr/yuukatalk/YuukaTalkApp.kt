@@ -27,6 +27,7 @@ import com.eynnzerr.yuukatalk.ui.common.Destinations
 import com.eynnzerr.yuukatalk.ui.ext.toHexString
 import com.eynnzerr.yuukatalk.ui.page.character.CharacterPage
 import com.eynnzerr.yuukatalk.ui.page.character.CharacterViewModel
+import com.eynnzerr.yuukatalk.ui.page.crash.CrashReportPage
 import com.eynnzerr.yuukatalk.ui.page.history.HistoryPage
 import com.eynnzerr.yuukatalk.ui.page.history.HistoryViewModel
 import com.eynnzerr.yuukatalk.ui.page.home.HomePage

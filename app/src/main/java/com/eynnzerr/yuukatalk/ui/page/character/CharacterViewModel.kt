@@ -8,6 +8,9 @@ import androidx.lifecycle.viewModelScope
 import com.eynnzerr.yuukatalk.base.YuukaTalkApplication
 import com.eynnzerr.yuukatalk.data.AppRepository
 import com.eynnzerr.yuukatalk.data.model.Character
+import com.eynnzerr.yuukatalk.data.model.CharacterAsset
+import com.eynnzerr.yuukatalk.data.preference.PreferenceKeys
+import com.tencent.mmkv.MMKV
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,20 +24,29 @@ import javax.inject.Inject
 data class CharacterUiState(
     val charactersList: List<Character>,
     val isImporting: Boolean,
+    val needUpdate: Boolean,
+    val showBundled: Boolean,
+    val showDIY: Boolean,
 )
 
 @HiltViewModel
 class CharacterViewModel @Inject constructor(
-    private val repository: AppRepository
+    private val repository: AppRepository,
+    private val mmkv: MMKV
 ): ViewModel() {
 
     private val _uiState = MutableStateFlow(
         CharacterUiState(
             charactersList = emptyList(),
             isImporting = false,
+            needUpdate = false,
+            showBundled = true,
+            showDIY = true,
         )
     )
     val uiState = _uiState.asStateFlow()
+
+    private var allCharacters = emptyList<Character>()
 
     init {
         fetchCharacters()
@@ -43,9 +55,47 @@ class CharacterViewModel @Inject constructor(
     private fun fetchCharacters() {
         viewModelScope.launch(Dispatchers.IO) {
             repository.fetchAllCharacters().collect { characters ->
+                allCharacters = characters
                 _uiState.update { it.copy(charactersList = characters) }
             }
         }
+    }
+
+    fun switchShowBundled() {
+        val newList = if (!_uiState.value.showBundled) {
+            val assetCharacters = allCharacters.filter { character -> character.isAsset }
+            _uiState.value.charactersList.toMutableList().apply { addAll(assetCharacters) }
+        } else {
+            _uiState.value.charactersList.filter { !it.isAsset }
+        }
+        _uiState.update { it.copy(charactersList = newList, showBundled = !_uiState.value.showBundled) }
+    }
+
+    fun switchShowDIY() {
+        val newList = if (!_uiState.value.showDIY) {
+            val diyCharacters = allCharacters.filter { character -> !character.isAsset }
+            _uiState.value.charactersList.toMutableList().apply { addAll(diyCharacters) }
+        } else {
+            _uiState.value.charactersList.filter { it.isAsset }
+        }
+        _uiState.update { it.copy(charactersList = newList, showDIY = !_uiState.value.showDIY) }
+    }
+
+    fun checkCharacterUpdate() {
+        val assetManager = YuukaTalkApplication.context.assets
+        viewModelScope.launch(Dispatchers.IO) {
+            val json = assetManager.open("characters.json").bufferedReader().readText()
+            val characterAsset = Json.decodeFromString<CharacterAsset>(json)
+            val currentVersion = mmkv.decodeInt(PreferenceKeys.CHARACTER_VERSION, 0)
+            if (currentVersion < characterAsset.version) {
+                // need update
+                _uiState.update { it.copy(needUpdate = true) }
+            }
+        }
+    }
+
+    fun closeUpdateDialog() {
+        _uiState.update { it.copy(needUpdate = false) }
     }
 
     fun importCharactersFromFile() {
@@ -53,8 +103,9 @@ class CharacterViewModel @Inject constructor(
         val assetManager = YuukaTalkApplication.context.assets
         viewModelScope.launch(Dispatchers.IO) {
             val json = assetManager.open("characters.json").bufferedReader().readText()
-            val characters = Json.decodeFromString<Array<Character>>(json)
-            repository.importCharacters(*characters)
+            val characterAsset = Json.decodeFromString<CharacterAsset>(json)
+            repository.importCharacters(*characterAsset.characters)
+            mmkv.encode(PreferenceKeys.CHARACTER_VERSION, characterAsset.version)
             _uiState.update { it.copy(isImporting = false) }
         }
     }
