@@ -282,7 +282,7 @@ fun EditorOptionsPage(
                     desc = stringResource(id = R.string.font_desc),
                     icon = Icons.Filled.TextFields,
                     onClick = {
-                        navHostController.pushTo(Destinations.PREVIEW_ROUTE)
+                        Toast.makeText(context, "本版本不支持切换字体。", Toast.LENGTH_SHORT).show()
                     }
                 )
             }

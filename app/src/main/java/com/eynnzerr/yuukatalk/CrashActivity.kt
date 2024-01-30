@@ -28,7 +28,6 @@ class CrashActivity : ComponentActivity() {
             YuukaTalkTheme(
                 paletteOption = appearanceState.paletteOption,
                 seedColor = Color(appearanceState.assignedSeedColor),
-                typography = getTypography(appearanceState.fontResource)
             ) {
                 CrashReportPage(
                     message = message,

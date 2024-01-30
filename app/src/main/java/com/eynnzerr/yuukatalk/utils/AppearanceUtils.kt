@@ -11,7 +11,6 @@ import kotlinx.coroutines.flow.update
 data class AppearanceSettings(
     val paletteOption: Int,
     val assignedSeedColor: Long,
-    val fontResource: Int,
 )
 
 object AppearanceUtils {
@@ -20,7 +19,6 @@ object AppearanceUtils {
         AppearanceSettings(
             paletteOption = mmkv.decodeInt(PreferenceKeys.APPEARANCE_OPTION, PaletteOption.SELF_ASSIGNED),
             assignedSeedColor = mmkv.decodeLong(PreferenceKeys.SEED_COLOR, 0xFF148AFD),
-            fontResource = mmkv.decodeInt(PreferenceKeys.FONT_RESOURCE, 0)
         )
     )
     val appearanceState = _appearanceState.asStateFlow()
@@ -45,8 +43,8 @@ object AppearanceUtils {
     }
 
     fun updateFont(fontResource: Int) {
-        _appearanceState.update { it.copy(fontResource = fontResource) }
-        mmkv.encode(PreferenceKeys.FONT_RESOURCE, fontResource)
+        //_appearanceState.update { it.copy(fontResource = fontResource) }
+        //mmkv.encode(PreferenceKeys.FONT_RESOURCE, fontResource)
     }
 
     private const val TAG = "AppearanceUtils"
