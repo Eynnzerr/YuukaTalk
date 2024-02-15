@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.eynnzerr.yuukatalk.base.YuukaTalkApplication
 import com.eynnzerr.yuukatalk.data.AppRepository
 import com.eynnzerr.yuukatalk.data.model.Character
+import com.eynnzerr.yuukatalk.data.model.CharacterAsset
 import com.eynnzerr.yuukatalk.data.preference.PreferenceKeys
 import com.eynnzerr.yuukatalk.utils.VersionUtils
 import com.tencent.mmkv.MMKV
@@ -45,8 +46,9 @@ class HomeViewModel @Inject constructor(
         val assetManager = YuukaTalkApplication.context.assets
         viewModelScope.launch(Dispatchers.IO) {
             val json = assetManager.open("characters.json").bufferedReader().readText()
-            val characters = Json.decodeFromString<Array<Character>>(json)
-            repository.importCharacters(*characters)
+            val characterAsset = Json.decodeFromString<CharacterAsset>(json)
+            repository.importCharacters(*characterAsset.characters)
+            mmkv.encode(PreferenceKeys.CHARACTER_VERSION, characterAsset.version)
         }
     }
 

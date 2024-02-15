@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "characters": [
     {
       "name": "白子",
@@ -42,6 +42,13 @@
       "school": "Abydos",
       "avatarPath": "abydos/shiroko_alter/avatar",
       "emojiPath": "abydos/shiroko_alter/emoji"
+    },
+    {
+      "name": "梦",
+      "nameRoma": "Yume",
+      "school": "Abydos",
+      "avatarPath": "abydos/yume/avatar",
+      "emojiPath": "abydos/yume/emoji"
     },
     {
       "name": "优香",
