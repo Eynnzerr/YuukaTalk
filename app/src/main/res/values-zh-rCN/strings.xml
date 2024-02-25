@@ -111,12 +111,16 @@
     <string name="compress_format_desc">选择输出图片压缩格式</string>
     <string name="format_option_jpeg">JPEG</string>
     <string name="format_option_png">PNG</string>
-    <string name="format_option_webp_lossy">有损WEBP (需Android 11)</string>
-    <string name="format_option_webp_lossless">无损WEBP (需Android 11)</string>
+    <string name="format_option_webp_lossy">有损 WEBP (需 Android 11)</string>
+    <string name="format_option_webp_lossless">无损 WEBP (需 Android 11)</string>
     <string name="image_export_path">图片导出路径</string>
     <string name="file_export_path">文件导出路径</string>
     <string name="auto_save">自动备份</string>
     <string name="auto_save_desc">在保存项目时自动导出为文件</string>
+    <string name="drawer_gesture">右滑弹窗</string>
+    <string name="drawer_gesture_desc">启用右滑手势打开学生选择</string>
+    <string name="markdown_parsing">Markdown 渲染</string>
+    <string name="markdown_parsing_desc">为文本启用 Markdown 渲染</string>
 
     <!--  AboutPage  -->
     <string name="version">版本</string>

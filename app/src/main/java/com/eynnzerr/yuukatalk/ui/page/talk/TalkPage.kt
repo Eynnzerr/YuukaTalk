@@ -12,7 +12,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,7 +19,6 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
@@ -42,7 +40,6 @@ import androidx.compose.material.icons.filled.FormatListBulleted
 import androidx.compose.material.icons.filled.GraphicEq
 import androidx.compose.material.icons.filled.InsertEmoticon
 import androidx.compose.material.icons.filled.MenuOpen
-import androidx.compose.material.icons.filled.Photo
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.filled.Undo
@@ -107,7 +104,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.util.fastAny
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavHostController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -130,7 +126,6 @@ import com.eynnzerr.yuukatalk.ui.component.StudentSearchBar
 import com.eynnzerr.yuukatalk.ui.component.dialog.BranchDialog
 import com.eynnzerr.yuukatalk.ui.component.dialog.EmojiPickerDialog
 import com.eynnzerr.yuukatalk.ui.component.dialog.NarrationDialog
-import com.eynnzerr.yuukatalk.ui.ext.popupTo
 import com.eynnzerr.yuukatalk.ui.ext.pushTo
 import com.eynnzerr.yuukatalk.ui.view.TalkAdapter
 import com.eynnzerr.yuukatalk.utils.ImageUtils
@@ -254,6 +249,10 @@ fun TalkPage(
     }
 
     BackHandler {
+        if (drawerState.isOpen) {
+            scope.launch { drawerState.close() }
+            return@BackHandler
+        }
         if (uiState.isEdited) {
             openRemindSaveDialog = true
         } else {
@@ -301,7 +300,7 @@ fun TalkPage(
                 }
             }
         },
-        gesturesEnabled = true
+        gesturesEnabled = uiState.gestureEnabled
     ) {
         Scaffold(
             snackbarHost = { SnackbarHost(snackbarHostState) },

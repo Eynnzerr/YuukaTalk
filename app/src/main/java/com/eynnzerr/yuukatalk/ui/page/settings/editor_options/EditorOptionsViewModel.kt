@@ -23,6 +23,8 @@ data class EditorOptionsState(
     val imageExportPath: String,
     val fileExportPath: String,
     val enableAutoSave: Boolean,
+    val enableGesture: Boolean,
+    val enableMarkdown: Boolean,
 )
 
 @HiltViewModel
@@ -39,6 +41,8 @@ class EditorOptionsViewModel @Inject constructor(
         imageExportPath = mmkv.decodeString(PreferenceKeys.IMAGE_EXPORT_PATH) ?: ImageUtils.defaultExportPath,
         fileExportPath = mmkv.decodeString(PreferenceKeys.FILE_EXPORT_PATH) ?: PathUtils.getDefaultExportDir().absolutePath,
         enableAutoSave = mmkv.decodeBool(PreferenceKeys.USE_AUTO_SAVE, false),
+        enableGesture = mmkv.decodeBool(PreferenceKeys.USE_SWIPE_GESTURE, true),
+        enableMarkdown = mmkv.decodeBool(PreferenceKeys.USE_MARKDOWN, false),
     ))
     private val stateValue
         get() = _uiState.value
@@ -53,6 +57,16 @@ class EditorOptionsViewModel @Inject constructor(
     fun switchAutoSave() {
         _uiState.update { it.copy(enableAutoSave = !stateValue.enableAutoSave) }
         mmkv.encode(PreferenceKeys.USE_AUTO_SAVE, stateValue.enableAutoSave)
+    }
+
+    fun switchSwipeGesture() {
+        _uiState.update { it.copy(enableGesture = !stateValue.enableGesture) }
+        mmkv.encode(PreferenceKeys.USE_SWIPE_GESTURE, stateValue.enableGesture)
+    }
+
+    fun switchUseMarkdown() {
+        _uiState.update { it.copy(enableMarkdown = !stateValue.enableMarkdown) }
+        mmkv.encode(PreferenceKeys.USE_MARKDOWN, stateValue.enableMarkdown)
     }
 
     fun updateAuthorName(name: String) {

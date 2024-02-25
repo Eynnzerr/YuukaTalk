@@ -36,6 +36,7 @@ data class TalkUiState(
     val talkListStateChange: List<TalkListState>, // operate with recyclerView change
     val filteredStudents: List<Character>,
     val isEdited: Boolean,
+    val gestureEnabled: Boolean,
 )
 
 sealed class TalkListState(val type: Int) {
@@ -74,7 +75,8 @@ class TalkViewModel @Inject constructor(
             textBranches = listOf(""),
             talkListStateChange = listOf(TalkListState.Initialized()),
             filteredStudents = emptyList(),
-            isEdited = false
+            isEdited = false,
+            gestureEnabled = mmkv.decodeBool(PreferenceKeys.USE_SWIPE_GESTURE, true)
         )
     )
     val uiState = _uiState.asStateFlow()
@@ -172,23 +174,38 @@ class TalkViewModel @Inject constructor(
 
         val talkListChanges = mutableListOf<TalkListState>(TalkListState.Inserted(index))
         // 处理上下文。插入只影响本次和之后
-
         // 如果插入后，插入处有上文，且说话人和本次相同，则设isFirst=false
         if (index > 0) {
-            val lastTalk = talkList[index - 1]
-            val lastTalker = if (lastTalk is Talk.PureText) lastTalk.talker else if (lastTalk is Talk.Photo) lastTalk.talker else null
-            lastTalker?.let {
+            talkList[index - 1].getTalker()?.let {
                 newPureText.isFirst = newPureText.talker != it
             }
         }
-        // 插入必有下文，如果下文说话人和本次相同，则设下文isFirst=false
+
+        // 插入必有下文，下文和插入不是一个说话人，且下文isFirstTalking=false。则需要下文isFirstTalking变为true;
+        // 下文和插入是一个说话人，且下文isFirstTalking=true。则下文isFirstTalking需要变为false。
         val nextTalk = talkList[index + 1]
         if (nextTalk is Talk.PureText) {
-            nextTalk.isFirst = nextTalk.talker != newPureText.talker
-            talkListChanges.add(TalkListState.Modified(index + 1))
+            if ((nextTalk.talker == newPureText.talker) == nextTalk.isFirst) {
+                // 直接改原引用的isFirst也能重组，符合预期效果，但不符合重组原理（引用没变却触发了重组）
+                val newNextTalk = Talk.PureText(
+                    nextTalk.talker,
+                    nextTalk.text,
+                    !nextTalk.isFirst
+                )
+                talkList[index + 1] = newNextTalk
+                talkListChanges.add(TalkListState.Modified(index + 1))
+            }
         } else if (nextTalk is Talk.Photo) {
-            nextTalk.isFirst = nextTalk.talker != newPureText.talker
-            talkListChanges.add(TalkListState.Modified(index + 1))
+            if ((nextTalk.talker == newPureText.talker) == nextTalk.isFirst) {
+                // 这里必须做一个新的Talk.Photo出来，否则notifyItemChanged不会触发子项ComposeView重组
+                val newNextTalk = Talk.Photo(
+                    nextTalk.talker,
+                    nextTalk.uri,
+                    !nextTalk.isFirst
+                )
+                talkList[index + 1] = newNextTalk
+                talkListChanges.add(TalkListState.Modified(index + 1))
+            }
         }
 
         _uiState.update {
@@ -235,13 +252,30 @@ class TalkViewModel @Inject constructor(
             }
         }
         // 插入必有下文，如果下文说话人和本次相同，则设下文isFirst=false
+        // TODO 这里理论上要和SendPureText作相同修改，但是实测没出现问题，不过还是改了
         val nextTalk = talkList[index + 1]
         if (nextTalk is Talk.PureText) {
-            nextTalk.isFirst = nextTalk.talker != newPhoto.talker
-            talkListChanges.add(TalkListState.Modified(index + 1))
+            if ((nextTalk.talker == newPhoto.talker) == nextTalk.isFirst) {
+                // 直接改原引用的isFirst也能重组，符合预期效果，但不符合重组原理（引用没变却触发了重组）
+                val newNextTalk = Talk.PureText(
+                    nextTalk.talker,
+                    nextTalk.text,
+                    !nextTalk.isFirst
+                )
+                talkList[index + 1] = newNextTalk
+                talkListChanges.add(TalkListState.Modified(index + 1))
+            }
         } else if (nextTalk is Talk.Photo) {
-            nextTalk.isFirst = nextTalk.talker != newPhoto.talker
-            talkListChanges.add(TalkListState.Modified(index + 1))
+            if ((nextTalk.talker == newPhoto.talker) == nextTalk.isFirst) {
+                // 这里必须做一个新的Talk.Photo出来，否则notifyItemChanged不会触发子项ComposeView重组
+                val newNextTalk = Talk.Photo(
+                    nextTalk.talker,
+                    nextTalk.uri,
+                    !nextTalk.isFirst
+                )
+                talkList[index + 1] = newNextTalk
+                talkListChanges.add(TalkListState.Modified(index + 1))
+            }
         }
 
         _uiState.update {
@@ -274,12 +308,7 @@ class TalkViewModel @Inject constructor(
         talkList.add(index, newLoveScene)
 
         // 特殊题材插入：对上文无影响，而一定使下文图文变为firstTalking
-        val nextTalk = talkList[index + 1]
-        if (nextTalk is Talk.PureText) {
-            nextTalk.isFirst = true
-        } else if (nextTalk is Talk.Photo) {
-            nextTalk.isFirst = true
-        }
+        copyAndSetFirst(index + 1, true)
 
         _uiState.update {
             it.copy(
@@ -312,12 +341,7 @@ class TalkViewModel @Inject constructor(
         talkList.add(index, newNarration)
 
         // 特殊题材插入：对上文无影响，而一定使下文图文变为firstTalking
-        val nextTalk = talkList[index + 1]
-        if (nextTalk is Talk.PureText) {
-            nextTalk.isFirst = true
-        } else if (nextTalk is Talk.Photo) {
-            nextTalk.isFirst = true
-        }
+        copyAndSetFirst(index + 1, true)
 
         _uiState.update {
             it.copy(
@@ -351,12 +375,7 @@ class TalkViewModel @Inject constructor(
         talkList.add(index, newBranches)
 
         // 特殊题材插入：对上文无影响，而一定使下文图文变为firstTalking
-        val nextTalk = talkList[index + 1]
-        if (nextTalk is Talk.PureText) {
-            nextTalk.isFirst = true
-        } else if (nextTalk is Talk.Photo) {
-            nextTalk.isFirst = true
-        }
+        copyAndSetFirst(index + 1, true)
 
         _uiState.update {
             it.copy(
@@ -376,33 +395,16 @@ class TalkViewModel @Inject constructor(
         // 如果删除位置在中间，检查若删除后上下文说话人相同，设置下文说话人isFirst=false,否则设为true，更新下文
         // 如果删除的是唯一一条消息，设置isFirstTalking=true
         if (index == 0) {
-            val firstTalk = talkList.firstOrNull()
-            if (firstTalk is Talk.PureText) {
-                firstTalk.isFirst = true
-            } else if (firstTalk is Talk.Photo) {
-                firstTalk.isFirst = true
-            }
-            if (firstTalk == null) {
+            if (talkList.isEmpty()) {
                 _uiState.update { it.copy(isFirstTalking = true) }
+            } else {
+                copyAndSetFirst(0, true)
             }
         } else if (index < talkList.size) {
             val nextTalk = talkList[index]
             if (nextTalk.hasTalker()) {
                 val lastTalk = talkList[index - 1]
-                if (lastTalk.getTalker() == nextTalk.getTalker()) {
-                    if (nextTalk is Talk.PureText) {
-                        nextTalk.isFirst = false
-                    } else if (nextTalk is Talk.Photo) {
-                        nextTalk.isFirst = false
-                    }
-                } else {
-                    // 上文为特殊题材，下文无论如何都设为true
-                    if (nextTalk is Talk.PureText) {
-                        nextTalk.isFirst = true
-                    } else if (nextTalk is Talk.Photo) {
-                        nextTalk.isFirst = true
-                    }
-                }
+                copyAndSetFirst(index, lastTalk.getTalker() != nextTalk.getTalker())
             }
         }
 
@@ -425,8 +427,7 @@ class TalkViewModel @Inject constructor(
         if (talk is Talk.PureText) {
             // 如有上文，当前isFirstTalking为!= lastCharacter
             if (index > 0) {
-                val lastTalk = talkList[index - 1]
-                val lastTalker = if (lastTalk is Talk.PureText) lastTalk.talker else if (lastTalk is Talk.Photo) lastTalk.talker else null
+                val lastTalker = talkList[index - 1].getTalker()
                 lastTalker?.let {
                     talk.isFirst = talk.talker != it
                     talkListChanges.add(TalkListState.Modified(index - 1))
@@ -434,14 +435,8 @@ class TalkViewModel @Inject constructor(
             }
             // 如有下文，顺便修改下文isFirstTalking为!= currentCharacter
             if (index < talkList.lastIndex) {
-                val nextTalk = talkList[index + 1]
-                if (nextTalk is Talk.PureText) {
-                    nextTalk.isFirst = nextTalk.talker != talk.talker
-                    talkListChanges.add(TalkListState.Modified(index + 1))
-                } else if (nextTalk is Talk.Photo) {
-                    nextTalk.isFirst = nextTalk.talker != talk.talker
-                    talkListChanges.add(TalkListState.Modified(index + 1))
-                }
+                copyAndSetFirst(index + 1, talkList[index + 1].getTalker() != talk.talker)
+                talkListChanges.add(TalkListState.Modified(index + 1))
             }  else {
                 // 若为修改末尾消息，判断下一条消息是否为学生首次
                 _uiState.update {
@@ -451,8 +446,7 @@ class TalkViewModel @Inject constructor(
         } else if (talk is Talk.Photo) {
             // 如有上文，当前isFirstTalking为!= lastCharacter
             if (index > 0) {
-                val lastTalk = talkList[index - 1]
-                val lastTalker = if (lastTalk is Talk.PureText) lastTalk.talker else if (lastTalk is Talk.Photo) lastTalk.talker else null
+                val lastTalker = talkList[index - 1].getTalker()
                 lastTalker?.let {
                     talk.isFirst = talk.talker != it
                     talkListChanges.add(TalkListState.Modified(index - 1))
@@ -460,14 +454,8 @@ class TalkViewModel @Inject constructor(
             }
             // 如有下文，顺便修改下文isFirstTalking为!= currentCharacter
             if (index < talkList.lastIndex) {
-                val nextTalk = talkList[index + 1]
-                if (nextTalk is Talk.PureText) {
-                    nextTalk.isFirst = nextTalk.talker != talk.talker
-                    talkListChanges.add(TalkListState.Modified(index + 1))
-                } else if (nextTalk is Talk.Photo) {
-                    nextTalk.isFirst = nextTalk.talker != talk.talker
-                    talkListChanges.add(TalkListState.Modified(index + 1))
-                }
+                copyAndSetFirst(index + 1, talkList[index + 1].getTalker() != talk.talker)
+                talkListChanges.add(TalkListState.Modified(index + 1))
             }  else {
                 // 若为修改末尾消息，判断下一条消息是否为学生首次
                 _uiState.update {
@@ -595,6 +583,29 @@ class TalkViewModel @Inject constructor(
 
     private fun Talk.hasTalker() = this is Talk.PureText || this is Talk.Photo
     private fun Talk.getTalker() = if (this is Talk.PureText) this.talker else if (this is Talk.Photo) this.talker else null
+
+    // 深拷贝置换talkList中某项并设置其isFirst属性（如果为text、photo）。
+    private fun copyAndSetFirst(index: Int, isFirst: Boolean): Boolean {
+        if (index !in talkList.indices) return false
+
+        val talkPiece = talkList[index]
+        if (talkPiece is Talk.PureText) {
+            talkList[index] = Talk.PureText(
+                talker = talkPiece.talker,
+                text = talkPiece.text,
+                isFirst = isFirst
+            )
+            return isFirst != talkPiece.isFirst
+        } else if (talkPiece is Talk.Photo) {
+            talkList[index] = Talk.Photo(
+                talker = talkPiece.talker,
+                uri = talkPiece.uri,
+                isFirst = isFirst
+            )
+            return isFirst != talkPiece.isFirst
+        }
+        return false
+    }
 }
 
 private const val TAG = "TalkViewModel"

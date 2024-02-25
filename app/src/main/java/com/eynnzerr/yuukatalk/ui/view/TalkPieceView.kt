@@ -2,6 +2,7 @@ package com.eynnzerr.yuukatalk.ui.view
 
 import android.content.Context
 import android.util.AttributeSet
+import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Row
@@ -36,5 +37,9 @@ class TalkPieceView @JvmOverloads constructor(
         ) {
             TalkPiece(talkData = talkData)
         }
+
+        Log.d(TAG, "TalkPieceView recomposed! talkData is $talkData")
     }
 }
+
+private const val TAG = "TalkPieceView"

@@ -136,7 +136,7 @@ object ImageUtils {
 
         val file = File(
             // Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
-            mmkv.decodeString(PreferenceKeys.IMAGE_EXPORT_PATH) ?: PathUtils.getDefaultExportDir().absolutePath,
+            mmkv.decodeString(PreferenceKeys.IMAGE_EXPORT_PATH) ?: defaultExportPath,
             "screenshot-${System.currentTimeMillis()}.$suffix"
         )
         val quality = mmkv.decodeInt(PreferenceKeys.IMAGE_QUALITY, 100)

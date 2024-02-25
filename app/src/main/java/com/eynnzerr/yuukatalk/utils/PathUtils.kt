@@ -26,8 +26,8 @@ object PathUtils {
     }
 
     fun getDefaultExportDir() = File(
-        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
-        "YuukaTalk"
+        YuukaTalkApplication.context.getExternalFilesDir(null),
+        "json"
     ).also {
         if (!it.exists()) it.mkdir()
     }

@@ -1,5 +1,5 @@
 {
-  "version": 2,
+  "version": 3,
   "characters": [
     {
       "name": "白子",
@@ -1248,6 +1248,13 @@
       "emojiPath": "ETC/Gematria/Beatrice/emoji"
     },
     {
+      "name": "地下生活者",
+      "nameRoma": "Underman",
+      "school": "Gematria",
+      "avatarPath": "ETC/Gematria/Underman/avatar",
+      "emojiPath": "ETC/Gematria/Underman/emoji"
+    },
+    {
       "name": "光",
       "nameRoma": "Hikari",
       "school": "Decagrammation",
@@ -1330,6 +1337,20 @@
       "school": "Empty",
       "avatarPath": "ETC/Kaiser/Soldier/avatar",
       "emojiPath": "ETC/Kaiser/Soldier/emoji"
+    },
+    {
+      "name": "黑帮机器人",
+      "nameRoma": "GangRobot",
+      "school": "Empty",
+      "avatarPath": "ETC/Gang/Robot/avatar",
+      "emojiPath": "ETC/Gang/Robot/emoji"
+    },
+    {
+      "name": "黑帮学生",
+      "nameRoma": "GangStudent",
+      "school": "Empty",
+      "avatarPath": "ETC/Gang/Student/avatar",
+      "emojiPath": "ETC/Gang/Student/emoji"
     }
   ]
 }
