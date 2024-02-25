@@ -117,6 +117,10 @@
     <string name="file_export_path">File Export Path</string>
     <string name="auto_save">Auto backup</string>
     <string name="auto_save_desc">enable export talks as file automatically on saving.</string>
+    <string name="drawer_gesture">Enable gesture</string>
+    <string name="drawer_gesture_desc">enable swipe gesture for selecting characters.</string>
+    <string name="markdown_parsing">Render markdown</string>
+    <string name="markdown_parsing_desc">enable markdown grammar for texts.</string>
 
     <!--  AboutPage  -->
     <string name="version">Version</string>

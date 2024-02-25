@@ -16,4 +16,6 @@ object PreferenceKeys {
     const val VERSIONS_IGNORE = "versions_ignore"
     const val CHARACTER_VERSION = "character_version"
     const val USE_AUTO_SAVE = "use_auto_save"
+    const val USE_SWIPE_GESTURE = "use_swipe_gesture"
+    const val USE_MARKDOWN = "use_markdown"
 }

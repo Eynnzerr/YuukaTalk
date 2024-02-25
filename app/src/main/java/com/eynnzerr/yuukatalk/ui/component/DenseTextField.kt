@@ -3,11 +3,13 @@ package com.eynnzerr.yuukatalk.ui.component
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 
@@ -30,6 +32,7 @@ fun DenseTextField(
         onValueChange = onValueChange,
         modifier = modifier,
         singleLine = false,
+        textStyle = TextStyle(color = MaterialTheme.colorScheme.onSurface)
     ) { innerTextField ->
         OutlinedTextFieldDefaults.DecorationBox(
             value = value,

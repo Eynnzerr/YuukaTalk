@@ -18,7 +18,10 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.eynnzerr.yuukatalk.data.preference.PreferenceKeys
 import com.eynnzerr.yuukatalk.ui.theme.YuukaTalkTheme
+import com.tencent.mmkv.MMKV
+import dev.jeziellago.compose.markdowntext.MarkdownText
 
 @Composable
 fun ChatBubble(
@@ -26,6 +29,7 @@ fun ChatBubble(
     isMyMessage: Boolean,
     showArrow: Boolean,
     modifier: Modifier = Modifier,
+    enableMarkdown: Boolean = MMKV.defaultMMKV().decodeBool(PreferenceKeys.USE_MARKDOWN, false),
 ) {
     val bubbleColor = if (isMyMessage) {
         MaterialTheme.colorScheme.primary
@@ -70,12 +74,21 @@ fun ChatBubble(
                 .clip(RoundedCornerShape(16.dp))
                 .padding(4.dp)
         ) {
-            Text(
-                text = text,
-                color = Color.White,
-                fontSize = 16.sp,
-                modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
-            )
+            if (enableMarkdown) {
+                MarkdownText(
+                    markdown = text,
+                    color = Color.White,
+                    fontSize = 16.sp,
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
+                )
+            } else {
+                Text(
+                    text = text,
+                    color = Color.White,
+                    fontSize = 16.sp,
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
+                )
+            }
         }
     }
 }
