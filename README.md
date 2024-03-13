@@ -44,11 +44,9 @@ Go to [release page](https://github.com/Eynnzerr/YuukaTalk/releases) and downloa
 - [x] Student information browse.
 - [x] Support insert message.
 - [x] Find an app logo.
-- [ ] Multi-language.(Only support Chinese currently)
 - [x] More settings.
 - [ ] Support large-scale screens.
 - [x] Add first-time guidance.
-- [ ] Move images from bundled asset to remote to cut off package size.
 - [ ] multi-platform(iOS and desktop).
 
 # Credits
