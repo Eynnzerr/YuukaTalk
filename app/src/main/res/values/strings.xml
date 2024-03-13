@@ -76,6 +76,7 @@
     <string name="content_update_dialog">Do you want to update bundled characters?</string>
     <string name="chip_bundled">bundled</string>
     <string name="chip_diy">DIY</string>
+    <string name="diy_note">Note that student name cannot be the same as of any existing student or else it will overwrite original data.</string>
 
     <!--  SettingsPage  -->
     <string name="settings">Settings</string>

@@ -5,6 +5,9 @@ import android.os.Environment
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -16,6 +19,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -26,16 +31,27 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.AddCircleOutline
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.ArrowLeft
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material.icons.filled.DesignServices
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Grade
+import androidx.compose.material.icons.filled.RemoveRedEye
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.UploadFile
+import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material.icons.outlined.FileDownload
+import androidx.compose.material.icons.outlined.Photo
 import androidx.compose.material.icons.outlined.RemoveCircleOutline
+import androidx.compose.material.icons.outlined.VerticalSplit
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Card
 import androidx.compose.material3.Divider
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FilterChip
@@ -68,13 +84,20 @@ import coil.request.ImageRequest
 import coil.transform.RoundedCornersTransformation
 import com.eynnzerr.yuukatalk.R
 import com.eynnzerr.yuukatalk.data.model.Character
+import com.eynnzerr.yuukatalk.ui.common.Destinations
 import com.eynnzerr.yuukatalk.ui.component.InteractiveFilterChip
 import com.eynnzerr.yuukatalk.ui.component.PlainButton
+import com.eynnzerr.yuukatalk.ui.component.School
+import com.eynnzerr.yuukatalk.ui.component.SchoolLogo
 import com.eynnzerr.yuukatalk.ui.component.StudentAvatar
 import com.eynnzerr.yuukatalk.ui.component.StudentInfo
+import com.eynnzerr.yuukatalk.ui.component.StudentSearchBar
 import com.eynnzerr.yuukatalk.ui.component.dialog.UpdateCharacterDialog
 import com.eynnzerr.yuukatalk.ui.ext.appBarScroll
+import com.eynnzerr.yuukatalk.ui.ext.pushTo
 import com.eynnzerr.yuukatalk.ui.ext.surfaceColorAtElevation
+import com.eynnzerr.yuukatalk.utils.SplitRelay
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
@@ -89,6 +112,8 @@ fun CharacterPage(
     var openCharacterDialog by remember { mutableStateOf(false) }
 
     var selectedIndex by remember { mutableIntStateOf(-1) }
+    var showChips by remember { mutableStateOf(false) }
+    var showSchoolMenu by remember { mutableStateOf(false) }
 
     // states of DIY students
     var name by remember { mutableStateOf("") }
@@ -189,16 +214,6 @@ fun CharacterPage(
                             contentDescription = "help"
                         )
                     }
-                    IconButton(
-                        onClick = {
-                            // TODO open search page
-                        }
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.Search,
-                            contentDescription = "search"
-                        )
-                    }
                 },
                 scrollBehavior = scrollBehavior
             )
@@ -223,33 +238,110 @@ fun CharacterPage(
             state = listState,
         ) {
             stickyHeader {
-                Column {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp)
-                            .background(MaterialTheme.colorScheme.surface),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                Column(
+                    modifier = Modifier.background(MaterialTheme.colorScheme.surface)
+                ) {
+                    StudentSearchBar(
+                        textValue = uiState.searchText,
+                        onTextChanged = { query -> viewModel.updateSearchText(query) },
+                        trailingIcon = {
+                            IconButton(
+                                onClick = { showChips = !showChips }
+                            ) {
+                                Icon(
+                                    imageVector = if (showChips) Icons.Filled.RemoveRedEye else Icons.Filled.VisibilityOff,
+                                    contentDescription = "show chips."
+                                )
+                            }
+                        },
+                        modifier = Modifier.padding(vertical = 8.dp)
+                    )
+                    AnimatedVisibility(
+                        visible = showChips,
+                        enter = expandVertically(),
+                        exit = shrinkVertically()
                     ) {
-                        InteractiveFilterChip(
-                            selected = uiState.showBundled,
-                            onClick = {
-                                viewModel.switchShowBundled()
-                            },
-                            text = stringResource(id = R.string.chip_bundled)
-                        )
-                        InteractiveFilterChip(
-                            selected = uiState.showDIY,
-                            onClick = {
-                                viewModel.switchShowDIY()
-                            },
-                            text = stringResource(id = R.string.chip_diy)
-                        )
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 24.dp),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            InteractiveFilterChip(
+                                selected = uiState.showBundled,
+                                onClick = {
+                                    viewModel.switchShowBundled()
+                                },
+                                text = stringResource(id = R.string.chip_bundled)
+                            )
+                            InteractiveFilterChip(
+                                selected = uiState.showDIY,
+                                onClick = {
+                                    viewModel.switchShowDIY()
+                                },
+                                text = stringResource(id = R.string.chip_diy)
+                            )
+                            Box(
+                                modifier = Modifier
+                                    .wrapContentSize(Alignment.TopStart)
+                            ) {
+                                AssistChip(
+                                    onClick = { showSchoolMenu = !showSchoolMenu },
+                                    label = { Text(text = uiState.filterSchoolName) },
+                                    leadingIcon = {
+                                        SchoolLogo(
+                                            school = uiState.filterSchoolName,
+                                            size = 24.dp
+                                        )
+                                    },
+                                    trailingIcon = {
+                                        Icon(
+                                            imageVector = if (showSchoolMenu) {
+                                                Icons.Filled.ArrowDropDown
+                                            } else {
+                                                Icons.Filled.ArrowLeft
+                                            },
+                                            contentDescription = null
+                                        )
+                                    },
+                                    modifier = Modifier.widthIn(min = 48.dp)
+                                )
+                                DropdownMenu(
+                                    expanded = showSchoolMenu,
+                                    onDismissRequest = { showSchoolMenu = false },
+                                ) {
+                                    DropdownMenuItem(
+                                        leadingIcon = {
+                                            SchoolLogo(
+                                                school = "All",
+                                                size = 24.dp
+                                            )
+                                        },
+                                        text = { Text("All") },
+                                        onClick = {
+                                            viewModel.updateFilterSchool("All")
+                                            showSchoolMenu = false
+                                        }
+                                    )
+                                    School.schoolLists.forEach { schoolName ->
+                                        DropdownMenuItem(
+                                            leadingIcon = {
+                                                SchoolLogo(
+                                                    school = schoolName,
+                                                    size = 24.dp
+                                                )
+                                            },
+                                            text = { Text(schoolName) },
+                                            onClick = {
+                                                viewModel.updateFilterSchool(schoolName)
+                                                showSchoolMenu = false
+                                            }
+                                        )
+                                    }
+                                }
+                            }
+                        }
                     }
-
-//                    if (!listState.isScrollInProgress) {
-//                        Divider()
-//                    }
                 }
             }
             itemsIndexed(uiState.charactersList) { index, student ->
@@ -342,7 +434,9 @@ fun CharacterPage(
                         )
 
                         viewModel.addCustomCharacter(newCharacter, avatarUris, emojiUris)
+                        clearDIYState()
                     },
+                    enabled = !viewModel.isNameExisting(name)
                 ) {
                     Text(stringResource(id = R.string.btn_confirm))
                 }
@@ -351,6 +445,7 @@ fun CharacterPage(
                 TextButton(
                     onClick = {
                         openDIYDialog = false
+                        clearDIYState()
                     },
                 ) {
                     Text(stringResource(id = R.string.btn_cancel))
@@ -393,7 +488,8 @@ fun CharacterPage(
                         value = name,
                         onValueChange = { name = it },
                         label = { Text(text = stringResource(id = R.string.name)) },
-                        modifier = Modifier.padding(vertical = 16.dp)
+                        modifier = Modifier.padding(vertical = 16.dp),
+                        isError = viewModel.isNameExisting(name)
                     )
 
                     OutlinedTextField(

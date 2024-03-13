@@ -76,6 +76,7 @@
     <string name="content_update_dialog">是否更新app自带角色资源？</string>
     <string name="chip_bundled">自带角色</string>
     <string name="chip_diy">DIY角色</string>
+    <string name="diy_note">注意学生名称不能与已有角色重复，否则将覆盖原角色！外文名和学院名可随意填写。</string>
 
     <!--  SettingsPage  -->
     <string name="settings">设置</string>

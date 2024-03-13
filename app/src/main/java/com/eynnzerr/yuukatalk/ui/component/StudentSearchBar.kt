@@ -6,7 +6,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.Edit
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -26,7 +25,9 @@ import com.eynnzerr.yuukatalk.R
 fun StudentSearchBar(
     textValue: String,
     onTextChanged: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    leadingIcon: @Composable (() -> Unit)? = null,
+    trailingIcon: @Composable (() -> Unit)? = null,
 ) {
     Surface(
         modifier = modifier
@@ -39,8 +40,8 @@ fun StudentSearchBar(
             value = textValue,
             onValueChange = onTextChanged,
             placeholder = { Text(stringResource(id = R.string.search_bar_hint)) },
-            leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-            trailingIcon = { Icon(Icons.Outlined.Edit, contentDescription = null) },
+            leadingIcon = leadingIcon ?: { Icon(Icons.Default.Search, contentDescription = null) },
+            trailingIcon = trailingIcon ?: { Icon(Icons.Outlined.Edit, contentDescription = null) },
         )
     }
 }
