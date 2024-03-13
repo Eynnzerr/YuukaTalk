@@ -38,6 +38,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
@@ -134,7 +135,10 @@ fun StudentInfo(
 }
 
 @Composable
-fun SchoolLogo(school: String) {
+fun SchoolLogo(
+    school: String,
+    size: Dp = 56.dp
+) {
     val painter = when (school) {
         School.ABYDOS -> painterResource(id = R.drawable.school_logo_abydos)
         School.GEHENNA -> painterResource(id = R.drawable.school_logo_gehenna)
@@ -154,7 +158,7 @@ fun SchoolLogo(school: String) {
         painter = painter,
         contentDescription = "school logo",
         contentScale = ContentScale.Crop,
-        modifier = Modifier.size(56.dp)
+        modifier = Modifier.size(size)
     )
 }
 
@@ -190,6 +194,21 @@ object School {
     const val VALKYRIE = "Valkyrie"
     const val ARIUS = "Arius"
     const val Kronos = "Kronos"
+
+    val schoolLists = listOf(
+        ABYDOS,
+        GEHENNA,
+        MILLENNIUM,
+        TRINITY,
+        HYAKKIYAKO,
+        RED_WINTER,
+        SHAN_HAI_JING,
+        SRT,
+        VALKYRIE,
+        ARIUS,
+        Kronos,
+        FEDERAL
+    )
 }
 
 private const val TAG = "StudentInfo"

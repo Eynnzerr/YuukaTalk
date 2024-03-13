@@ -3,6 +3,7 @@ package com.eynnzerr.yuukatalk.ui.page.character
 import android.net.Uri
 import android.provider.OpenableColumns
 import android.util.Log
+import androidx.compose.ui.util.fastAny
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eynnzerr.yuukatalk.base.YuukaTalkApplication
@@ -27,7 +28,11 @@ data class CharacterUiState(
     val needUpdate: Boolean,
     val showBundled: Boolean,
     val showDIY: Boolean,
+    val searchText: String,
+    val filterSchoolName: String,
 )
+
+typealias CharacterFilter = (List<Character>) -> List<Character>
 
 @HiltViewModel
 class CharacterViewModel @Inject constructor(
@@ -42,9 +47,13 @@ class CharacterViewModel @Inject constructor(
             needUpdate = false,
             showBundled = true,
             showDIY = true,
+            searchText = "",
+            filterSchoolName = "All",
         )
     )
     val uiState = _uiState.asStateFlow()
+    private val stateValue
+        get() = _uiState.value
 
     private var allCharacters = emptyList<Character>()
 
@@ -61,24 +70,75 @@ class CharacterViewModel @Inject constructor(
         }
     }
 
-    fun switchShowBundled() {
-        val newList = if (!_uiState.value.showBundled) {
-            val assetCharacters = allCharacters.filter { character -> character.isAsset }
-            _uiState.value.charactersList.toMutableList().apply { addAll(assetCharacters) }
-        } else {
-            _uiState.value.charactersList.filter { !it.isAsset }
+    private fun filterCharacters() {
+        var result = listOf(*allCharacters.toTypedArray()) // deep copy
+        if (stateValue.searchText != "") {
+            result = result.filter { student ->
+                student.name.contains(stateValue.searchText, ignoreCase = true) ||
+                student.nameRoma.contains(stateValue.searchText, ignoreCase = true) ||
+                student.school.contains(stateValue.searchText, ignoreCase = true)
+            }
         }
-        _uiState.update { it.copy(charactersList = newList, showBundled = !_uiState.value.showBundled) }
+        if (stateValue.filterSchoolName != "All") {
+            result = result.filter { student ->
+                student.school == stateValue.filterSchoolName
+            }
+        }
+        if (!stateValue.showBundled) {
+            result = result.filter { !it.isAsset }
+        }
+        if (!stateValue.showDIY) {
+            result = result.filter { it.isAsset }
+        }
+        _uiState.update { it.copy(charactersList = result) }
+    }
+
+    fun isNameExisting(name: String) = allCharacters.fastAny { it.name == name }
+
+    fun updateSearchText(query: String) {
+//        val newList = allCharacters.filter { student ->
+//            student.name.contains(query, ignoreCase = true) ||
+//            student.nameRoma.contains(query, ignoreCase = true) ||
+//            student.school.contains(query, ignoreCase = true)
+//        }
+        _uiState.update {
+            it.copy(
+                searchText = query,
+            )
+        }
+        filterCharacters()
+    }
+
+    fun updateFilterSchool(school: String) {
+        _uiState.update {
+            it.copy(filterSchoolName = school)
+        }
+        filterCharacters()
+    }
+
+    fun switchShowBundled() {
+//        val newList = if (!_uiState.value.showBundled) {
+//            val assetCharacters = allCharacters.filter { character -> character.isAsset }
+//            _uiState.value.charactersList.toMutableList().apply { addAll(assetCharacters) }
+//        } else {
+//            _uiState.value.charactersList.filter { !it.isAsset }
+//        }
+//        _uiState.update { it.copy(charactersList = newList, showBundled = !_uiState.value.showBundled) }
+        _uiState.update {
+            it.copy(showBundled = !stateValue.showBundled)
+        }
+        filterCharacters()
     }
 
     fun switchShowDIY() {
-        val newList = if (!_uiState.value.showDIY) {
-            val diyCharacters = allCharacters.filter { character -> !character.isAsset }
-            _uiState.value.charactersList.toMutableList().apply { addAll(diyCharacters) }
-        } else {
-            _uiState.value.charactersList.filter { it.isAsset }
-        }
-        _uiState.update { it.copy(charactersList = newList, showDIY = !_uiState.value.showDIY) }
+//        val newList = if (!_uiState.value.showDIY) {
+//            val diyCharacters = allCharacters.filter { character -> !character.isAsset }
+//            _uiState.value.charactersList.toMutableList().apply { addAll(diyCharacters) }
+//        } else {
+//            _uiState.value.charactersList.filter { it.isAsset }
+//        }
+        _uiState.update { it.copy(showDIY = !stateValue.showDIY) }
+        filterCharacters()
     }
 
     fun checkCharacterUpdate() {

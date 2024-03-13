@@ -1,6 +1,6 @@
 [versions]
 accompanist = "0.30.1"
-agp = "8.2.2"
+agp = "8.3.0"
 kotlin = "1.9.10"
 coreKtx = "1.12.0"
 junit = "4.13.2"

@@ -527,6 +527,18 @@ class TalkViewModel @Inject constructor(
         }
     }
 
+    fun updateProjectTitle(title: String) {
+        // 更新当前项目标题
+        if (title != _uiState.value.chatName) {
+            _uiState.update {
+                it.copy(
+                    chatName = title,
+                    isEdited = true,
+                )
+            }
+        }
+    }
+
     fun saveProject() {
         // 如果当前项目已存在则更新，没有则新建
         viewModelScope.launch(Dispatchers.IO) {

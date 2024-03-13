@@ -46,7 +46,10 @@ import androidx.compose.material.icons.filled.Undo
 import androidx.compose.material.icons.filled.UploadFile
 import androidx.compose.material.icons.outlined.AddCircleOutline
 import androidx.compose.material.icons.outlined.Cancel
+import androidx.compose.material.icons.outlined.Check
+import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.EmojiEmotions
 import androidx.compose.material.icons.outlined.FileDownload
 import androidx.compose.material.icons.outlined.FormatListBulleted
@@ -97,12 +100,15 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavHostController
@@ -119,6 +125,7 @@ import com.eynnzerr.yuukatalk.ui.common.Destinations
 import com.eynnzerr.yuukatalk.ui.component.DenseTextField
 import com.eynnzerr.yuukatalk.ui.component.DraggableStudentAvatar
 import com.eynnzerr.yuukatalk.ui.component.PlainButton
+import com.eynnzerr.yuukatalk.ui.component.PlainTextField
 import com.eynnzerr.yuukatalk.ui.component.SpecialPieceEntryButton
 import com.eynnzerr.yuukatalk.ui.component.StudentAvatar
 import com.eynnzerr.yuukatalk.ui.component.StudentInfo
@@ -146,11 +153,14 @@ fun TalkPage(
     val uiState by viewModel.uiState.collectAsState()
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
+    val focusRequester = remember { FocusRequester() }
 
     // interaction signal with AndroidView
     var screenshotTalk by remember { mutableStateOf(false) }
 
     // component states
+    var isEditingTitle by remember { mutableStateOf(false) }
+    var temporaryTitle by remember { mutableStateOf(uiState.chatName) }
     var isTextFieldFocused by remember { mutableStateOf(false) }
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     var openBottomSheet by rememberSaveable { mutableStateOf(false) }
@@ -308,7 +318,36 @@ fun TalkPage(
                 Surface {
                     TopAppBar(
                         title = {
-                            Text(text = uiState.chatName)
+                            if (isEditingTitle) {
+                                LaunchedEffect(Unit) {
+                                    focusRequester.requestFocus()
+                                }
+                                PlainTextField(
+                                    value = temporaryTitle,
+                                    onValueChange = { temporaryTitle = it },
+                                    modifier = Modifier
+                                        .focusRequester(focusRequester)
+                                )
+                            } else {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = uiState.chatName,
+                                    )
+                                    IconButton(
+                                        onClick = {
+                                            temporaryTitle = uiState.chatName
+                                            isEditingTitle = true
+                                        }
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Outlined.Edit,
+                                            contentDescription = "edit project title."
+                                        )
+                                    }
+                                }
+                            }
                         },
                         navigationIcon = {
                             IconButton(
@@ -327,90 +366,115 @@ fun TalkPage(
                             }
                         },
                         actions = {
-                            IconButton(
-                                onClick = {
-                                    openClearDialog = true
-                                }
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Outlined.Delete,
-                                    contentDescription = "clear all message"
-                                )
-                            }
-                            IconButton(
-                                onClick = {
-                                    if (viewModel.isHistoryTalk()) {
-                                        viewModel.saveProject()
-                                        Toast.makeText(context, "project saved as ${uiState.chatName}", Toast.LENGTH_SHORT).show()
-                                    } else {
-                                        openSaveDialog = true
-                                    }
-                                }
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Outlined.SaveAs,
-                                    contentDescription = "save as project"
-                                )
-                            }
-                            Box(
-                                modifier = Modifier
-                                    .wrapContentSize(Alignment.TopStart)
-                            ) {
+                            if (isEditingTitle) {
                                 IconButton(
-                                    onClick = { expandDropDown = true }
+                                    onClick = {
+                                        isEditingTitle = false
+                                        temporaryTitle = uiState.chatName
+                                    }
                                 ) {
                                     Icon(
-                                        imageVector = Icons.Outlined.FileDownload,
-                                        contentDescription = "export"
+                                        imageVector = Icons.Outlined.Close,
+                                        contentDescription = "cancel editing title."
                                     )
                                 }
-                                DropdownMenu(
-                                    expanded = expandDropDown,
-                                    onDismissRequest = { expandDropDown = false },
+                                IconButton(
+                                    onClick = {
+                                        isEditingTitle = false
+                                        viewModel.updateProjectTitle(temporaryTitle)
+                                    }
                                 ) {
-                                    DropdownMenuItem(
-                                        leadingIcon = {
-                                            Icon(
-                                                imageVector = Icons.Outlined.VerticalSplit,
-                                                contentDescription = "as split picture"
-                                            )
-                                        },
-                                        text = { Text(text = stringResource(id = R.string.split_pic)) },
-                                        onClick = {
-                                            SplitRelay.talkList = listOf(*uiState.talkList.toTypedArray())
-                                            viewModel.resetListStateChange()
-                                            navHostController.pushTo(Destinations.SPLIT_ROUTE)
-                                        }
+                                    Icon(
+                                        imageVector = Icons.Outlined.Check,
+                                        contentDescription = "cancel editing title."
                                     )
-                                    DropdownMenuItem(
-                                        leadingIcon = {
-                                            Icon(
-                                                imageVector = Icons.Outlined.Photo,
-                                                contentDescription = "as picture"
-                                            )
-                                        },
-                                        text = { Text(text = stringResource(id = R.string.export_as_pic)) },
-                                        onClick = {
-                                            expandDropDown = false
-                                            screenshotTalk = true
-                                        }
+                                }
+                            } else {
+                                IconButton(
+                                    onClick = {
+                                        openClearDialog = true
+                                    }
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Outlined.Delete,
+                                        contentDescription = "clear all message"
                                     )
-                                    DropdownMenuItem(
-                                        leadingIcon = {
-                                            Icon(
-                                                imageVector = Icons.Filled.UploadFile,
-                                                contentDescription = "as json"
-                                            )
-                                        },
-                                        text = { Text(text = stringResource(id = R.string.export_as_file)) },
-                                        onClick = {
-                                            expandDropDown = false
-                                            viewModel.saveTalkAsJson()
-                                            scope.launch {
-                                                snackbarHostState.showSnackbar("Successfully export talk as json file.")
+                                }
+                                IconButton(
+                                    onClick = {
+                                        if (viewModel.isHistoryTalk()) {
+                                            viewModel.saveProject()
+                                            Toast.makeText(context, "project saved as ${uiState.chatName}", Toast.LENGTH_SHORT).show()
+                                        } else {
+                                            openSaveDialog = true
+                                        }
+                                    }
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Outlined.SaveAs,
+                                        contentDescription = "save as project"
+                                    )
+                                }
+                                Box(
+                                    modifier = Modifier
+                                        .wrapContentSize(Alignment.TopStart)
+                                ) {
+                                    IconButton(
+                                        onClick = { expandDropDown = true }
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Outlined.FileDownload,
+                                            contentDescription = "export"
+                                        )
+                                    }
+                                    DropdownMenu(
+                                        expanded = expandDropDown,
+                                        onDismissRequest = { expandDropDown = false },
+                                    ) {
+                                        DropdownMenuItem(
+                                            leadingIcon = {
+                                                Icon(
+                                                    imageVector = Icons.Outlined.VerticalSplit,
+                                                    contentDescription = "as split picture"
+                                                )
+                                            },
+                                            text = { Text(text = stringResource(id = R.string.split_pic)) },
+                                            onClick = {
+                                                SplitRelay.talkList = listOf(*uiState.talkList.toTypedArray())
+                                                viewModel.resetListStateChange()
+                                                navHostController.pushTo(Destinations.SPLIT_ROUTE)
                                             }
-                                        }
-                                    )
+                                        )
+                                        DropdownMenuItem(
+                                            leadingIcon = {
+                                                Icon(
+                                                    imageVector = Icons.Outlined.Photo,
+                                                    contentDescription = "as picture"
+                                                )
+                                            },
+                                            text = { Text(text = stringResource(id = R.string.export_as_pic)) },
+                                            onClick = {
+                                                expandDropDown = false
+                                                screenshotTalk = true
+                                            }
+                                        )
+                                        DropdownMenuItem(
+                                            leadingIcon = {
+                                                Icon(
+                                                    imageVector = Icons.Filled.UploadFile,
+                                                    contentDescription = "as json"
+                                                )
+                                            },
+                                            text = { Text(text = stringResource(id = R.string.export_as_file)) },
+                                            onClick = {
+                                                expandDropDown = false
+                                                viewModel.saveTalkAsJson()
+                                                scope.launch {
+                                                    snackbarHostState.showSnackbar("Successfully export talk as json file.")
+                                                }
+                                            }
+                                        )
+                                    }
                                 }
                             }
                         },
@@ -520,56 +584,56 @@ fun TalkPage(
                 }
             }
         ) { scaffoldPadding ->
-                AndroidView(
-                    factory = { context ->
-                        // LazyColumn转bitmap时，不可见部分无法正确绘制出来，必须使用RecyclerView
-                        // TODO 如果未来官方给出了解决方案，还是希望能够使用LazyColumn.
-                        RecyclerView(context).apply {
-                            layoutParams = LinearLayout.LayoutParams(
-                                ViewGroup.LayoutParams.MATCH_PARENT,
-                                ViewGroup.LayoutParams.WRAP_CONTENT
-                            )
+            AndroidView(
+                factory = { context ->
+                    // LazyColumn转bitmap时，不可见部分无法正确绘制出来，必须使用RecyclerView
+                    // TODO 如果未来官方给出了解决方案，还是希望能够使用LazyColumn.
+                    RecyclerView(context).apply {
+                        layoutParams = LinearLayout.LayoutParams(
+                            ViewGroup.LayoutParams.MATCH_PARENT,
+                            ViewGroup.LayoutParams.WRAP_CONTENT
+                        )
 
-                            layoutManager = object : LinearLayoutManager(context) {
-                                override fun onLayoutChildren(
-                                    recycler: RecyclerView.Recycler?,
-                                    state: RecyclerView.State?
-                                ) {
-                                    try {
-                                        super.onLayoutChildren(recycler, state)
-                                    } catch (e: IndexOutOfBoundsException) {
-                                        // 防闪退。
-                                        // TODO 为什么会偶现发送一条纯文本后再发送本地图片会闪退的问题？
-                                        e.printStackTrace()
-                                    }
+                        layoutManager = object : LinearLayoutManager(context) {
+                            override fun onLayoutChildren(
+                                recycler: RecyclerView.Recycler?,
+                                state: RecyclerView.State?
+                            ) {
+                                try {
+                                    super.onLayoutChildren(recycler, state)
+                                } catch (e: IndexOutOfBoundsException) {
+                                    // 防闪退。
+                                    // TODO 为什么会偶现发送一条纯文本后再发送本地图片会闪退的问题？
+                                    e.printStackTrace()
                                 }
                             }
-                            adapter = talkAdapter
-                            // bind adapter and layoutManager
-                            talkAdapter.layoutManager = layoutManager
                         }
-                    },
-                    modifier = Modifier
-                        .padding(scaffoldPadding)
-                        .padding(16.dp),
-                    update = { view ->
-                        if (screenshotTalk) {
-                            scope.launch(Dispatchers.Main) {
-                                try {
-                                    screenshotTalk = false
-                                    val bitmap = ImageUtils.generateBitmap(view)
-                                    val imageUri = withContext(Dispatchers.IO) {
-                                        ImageUtils.saveBitMapToDisk(bitmap, context)
-                                    }
-                                    snackbarHostState.showSnackbar(context.getText(R.string.toast_export_project).toString() + " ${imageUri.path}")
-                                } catch (e: Exception) {
-                                    viewModel.updateText(e.toString() + "\n" + e.stackTraceToString())
-                                    viewModel.sendPureText()
+                        adapter = talkAdapter
+                        // bind adapter and layoutManager
+                        talkAdapter.layoutManager = layoutManager
+                    }
+                },
+                modifier = Modifier
+                    .padding(scaffoldPadding)
+                    .padding(16.dp),
+                update = { view ->
+                    if (screenshotTalk) {
+                        scope.launch(Dispatchers.Main) {
+                            try {
+                                screenshotTalk = false
+                                val bitmap = ImageUtils.generateBitmap(view)
+                                val imageUri = withContext(Dispatchers.IO) {
+                                    ImageUtils.saveBitMapToDisk(bitmap, context)
                                 }
+                                snackbarHostState.showSnackbar(context.getText(R.string.toast_export_project).toString() + " ${imageUri.path}")
+                            } catch (e: Exception) {
+                                viewModel.updateText(e.toString() + "\n" + e.stackTraceToString())
+                                viewModel.sendPureText()
                             }
                         }
                     }
-                )
+                }
+            )
         }
     }
 
