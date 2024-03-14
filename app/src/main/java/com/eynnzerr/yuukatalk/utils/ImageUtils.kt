@@ -1,5 +1,7 @@
 package com.eynnzerr.yuukatalk.utils
 
+import android.content.ContentResolver
+import android.content.ContentValues
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
@@ -9,9 +11,11 @@ import android.media.MediaScannerConnection
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
+import android.provider.MediaStore
 import android.util.Log
 import android.view.View
 import androidx.collection.LruCache
+import androidx.core.net.toUri
 import androidx.recyclerview.widget.RecyclerView
 import com.eynnzerr.yuukatalk.data.preference.PreferenceKeys
 import com.tencent.mmkv.MMKV
@@ -124,6 +128,7 @@ object ImageUtils {
         )
     }
 
+    // 用户一定已经授予了读写权限。首先尝试直接写入设置的指定输出目录。如果失败，写入到私有目录中，并通过MediaStore拷贝到图库以提供访问
     suspend fun saveBitMapToDisk(bitmap: Bitmap, context: Context): Uri {
         val formatIndex = mmkv.decodeInt(PreferenceKeys.COMPRESS_FORMAT, 1)
         val format = getCompressFormat(formatIndex)
@@ -134,15 +139,59 @@ object ImageUtils {
         }
         Log.d(TAG, "saveBitMapToDisk: format: ${format.name}")
 
+        val savePath = mmkv.decodeString(PreferenceKeys.IMAGE_EXPORT_PATH) ?: defaultExportPath
         val file = File(
             // Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
-            mmkv.decodeString(PreferenceKeys.IMAGE_EXPORT_PATH) ?: defaultExportPath,
+            savePath,
             "screenshot-${System.currentTimeMillis()}.$suffix"
         )
         val quality = mmkv.decodeInt(PreferenceKeys.IMAGE_QUALITY, 100)
-        file.writeBitmap(bitmap, format, quality)
+        runCatching {
+            file.writeBitmap(bitmap, format, quality)
+        }.onSuccess {
+            Log.d(TAG, "saveBitMapToDisk: Successfully write picture.")
+        }.onFailure {
+            it.printStackTrace()
+            Log.d(TAG, "saveBitMapToDisk: target directory(even gallery) is not supported. Fallback to use app private folder instead.")
+            val privateFile = File(
+                PathUtils.getImageFallbackExportDir(),
+                "screenshot-${System.currentTimeMillis()}.$suffix"
+            ).apply { writeBitmap(bitmap, format, quality) }
+            copyImageToGallery(context, privateFile, suffix)
+            return privateFile.toUri()
+        }
 
-        return scanFilePath(context, file.path) ?: throw Exception("File could not be saved")
+        return scanFilePath(context, file.path) ?: throw Exception("File could not be saved to MediaStore.")
+    }
+
+    private fun copyImageToGallery(context: Context, imageFile: File, mimeType: String = "png") {
+        val values = ContentValues().apply {
+            put(MediaStore.Images.Media.DISPLAY_NAME, imageFile.name)
+            put(MediaStore.Images.Media.MIME_TYPE, "image/$mimeType")
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                put(MediaStore.Images.Media.IS_PENDING, 1)
+            }
+        }
+
+        val resolver: ContentResolver = context.contentResolver
+        val collectionUri: Uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+        val itemUri: Uri? = resolver.insert(collectionUri, values)
+
+        itemUri?.let { uri ->
+            resolver.openOutputStream(uri).use { outputStream ->
+                imageFile.inputStream().use { inputStream ->
+                    inputStream.copyTo(outputStream!!)
+                    inputStream.close()
+                }
+                outputStream?.close()
+            }
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                values.clear()
+                values.put(MediaStore.Images.Media.IS_PENDING, 0)
+                resolver.update(uri, values, null, null)
+            }
+        }
     }
 
     private fun File.writeBitmap(bitmap: Bitmap, format: Bitmap.CompressFormat, quality: Int) {

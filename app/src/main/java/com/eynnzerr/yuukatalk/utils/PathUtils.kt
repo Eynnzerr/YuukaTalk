@@ -2,7 +2,6 @@ package com.eynnzerr.yuukatalk.utils
 
 import android.content.Context
 import android.net.Uri
-import android.os.Environment
 import android.widget.Toast
 import com.eynnzerr.yuukatalk.base.YuukaTalkApplication
 import java.io.File
@@ -21,14 +20,21 @@ object PathUtils {
             "/storage/emulated/0/${path.split("primary:").last()}"
         } else {
             Toast.makeText(YuukaTalkApplication.context, "Sorry, this directory is not supported!", Toast.LENGTH_SHORT).show()
-            getDefaultExportDir().absolutePath
+            getFileFallbackExportDir().absolutePath
         }
     }
 
-    fun getDefaultExportDir() = File(
+    fun getFileFallbackExportDir() = File(
         YuukaTalkApplication.context.getExternalFilesDir(null),
         "json"
     ).also {
         if (!it.exists()) it.mkdir()
+    }
+
+    fun getImageFallbackExportDir() = File(
+        YuukaTalkApplication.context.getExternalFilesDir(null),
+        "images"
+    ).also {
+        if (!it.exists()) it.mkdirs()
     }
 }

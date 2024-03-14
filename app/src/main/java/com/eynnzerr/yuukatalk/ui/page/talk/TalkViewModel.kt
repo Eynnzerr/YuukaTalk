@@ -582,7 +582,7 @@ class TalkViewModel @Inject constructor(
             )
             val jsonString = Json.encodeToString(currentProject)
             val jsonFileRoot = File(
-                mmkv.decodeString(PreferenceKeys.FILE_EXPORT_PATH) ?: PathUtils.getDefaultExportDir().absolutePath
+                mmkv.decodeString(PreferenceKeys.FILE_EXPORT_PATH) ?: PathUtils.getFileFallbackExportDir().absolutePath
             ).apply {
                 if (!exists()) mkdirs()
             }

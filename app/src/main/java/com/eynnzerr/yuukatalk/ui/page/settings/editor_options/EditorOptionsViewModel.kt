@@ -1,8 +1,6 @@
 package com.eynnzerr.yuukatalk.ui.page.settings.editor_options
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
-import com.eynnzerr.yuukatalk.base.YuukaTalkApplication
 import com.eynnzerr.yuukatalk.data.preference.PreferenceKeys
 import com.eynnzerr.yuukatalk.utils.ImageUtils
 import com.eynnzerr.yuukatalk.utils.PathUtils
@@ -39,7 +37,7 @@ class EditorOptionsViewModel @Inject constructor(
         compressFormatIndex = mmkv.decodeInt(PreferenceKeys.COMPRESS_FORMAT, 1),
         imageQuality = mmkv.decodeInt(PreferenceKeys.IMAGE_QUALITY, 100),
         imageExportPath = mmkv.decodeString(PreferenceKeys.IMAGE_EXPORT_PATH) ?: ImageUtils.defaultExportPath,
-        fileExportPath = mmkv.decodeString(PreferenceKeys.FILE_EXPORT_PATH) ?: PathUtils.getDefaultExportDir().absolutePath,
+        fileExportPath = mmkv.decodeString(PreferenceKeys.FILE_EXPORT_PATH) ?: PathUtils.getFileFallbackExportDir().absolutePath,
         enableAutoSave = mmkv.decodeBool(PreferenceKeys.USE_AUTO_SAVE, false),
         enableGesture = mmkv.decodeBool(PreferenceKeys.USE_SWIPE_GESTURE, true),
         enableMarkdown = mmkv.decodeBool(PreferenceKeys.USE_MARKDOWN, false),
