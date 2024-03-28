@@ -317,7 +317,7 @@ fun CharacterPage(
                                                 size = 24.dp
                                             )
                                         },
-                                        text = { Text("All") },
+                                        text = { Text("全部") },
                                         onClick = {
                                             viewModel.updateFilterSchool("All")
                                             showSchoolMenu = false
@@ -331,7 +331,7 @@ fun CharacterPage(
                                                     size = 24.dp
                                                 )
                                             },
-                                            text = { Text(schoolName) },
+                                            text = { Text(School.schoolInChinese[schoolName] ?: "") },
                                             onClick = {
                                                 viewModel.updateFilterSchool(schoolName)
                                                 showSchoolMenu = false

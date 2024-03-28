@@ -15,9 +15,11 @@ import com.eynnzerr.yuukatalk.data.model.SpecialPieceEntryItem
 
 @Composable
 fun SpecialPieceEntryButton(
+    modifier: Modifier = Modifier,
     item: SpecialPieceEntryItem
 ) {
     ElevatedButton(
+        modifier = modifier,
         onClick = item.onClick,
         contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp)
     ) {

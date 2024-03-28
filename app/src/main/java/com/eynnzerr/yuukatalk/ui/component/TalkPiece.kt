@@ -1,5 +1,6 @@
 package com.eynnzerr.yuukatalk.ui.component
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -148,13 +149,14 @@ private fun NarrationPiece(talk: Talk.Narration) {
 
 @Composable
 private fun BranchPiece(talk: Talk.Branch) {
+    val isCompactScreen = RememberScreenInfo().widthType is ScreenInfo.ScreenType.Compact
     Card(
         colors = CardDefaults.cardColors(
             containerColor = BranchDefaultColors.containerBackgroundColor
         ),
         modifier = Modifier
             .fillMaxWidth()
-            .padding(start = 72.dp, bottom = 8.dp)
+            .padding(start = if (isCompactScreen) 72.dp else 288.dp, bottom = 8.dp)
     ) {
         Column(
             modifier = Modifier.padding(12.dp),
@@ -208,13 +210,14 @@ private fun BranchPiece(talk: Talk.Branch) {
 
 @Composable
 private fun LoveScenePiece(talk: Talk.LoveScene) {
+    val isCompactScreen = RememberScreenInfo().widthType is ScreenInfo.ScreenType.Compact
     Card(
         colors = CardDefaults.cardColors(
             containerColor = LoveSceneDefaultColors.containerBackgroundColor
         ),
         modifier = Modifier
             .fillMaxWidth()
-            .padding(start = 72.dp, bottom = 8.dp)
+            .padding(start = if (isCompactScreen) 72.dp else 288.dp, bottom = 8.dp)
     ) {
         Box(
             modifier = Modifier.fillMaxSize()

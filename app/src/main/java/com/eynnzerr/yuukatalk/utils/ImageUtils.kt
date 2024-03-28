@@ -13,13 +13,18 @@ import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
+import android.util.Base64
 import android.view.View
 import androidx.collection.LruCache
 import androidx.core.net.toUri
 import androidx.recyclerview.widget.RecyclerView
+import com.eynnzerr.yuukatalk.base.YuukaTalkApplication
 import com.eynnzerr.yuukatalk.data.preference.PreferenceKeys
 import com.tencent.mmkv.MMKV
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withContext
+import java.io.ByteArrayOutputStream
 import java.io.File
 import kotlin.coroutines.resume
 
@@ -162,6 +167,27 @@ object ImageUtils {
         }
 
         return scanFilePath(context, file.path) ?: throw Exception("File could not be saved to MediaStore.")
+    }
+
+    fun isImageBase64(imageUri: String) = !imageUri.startsWith("file://") && !imageUri.startsWith("content://") && !imageUri.startsWith("/storage")
+
+    suspend fun convertImageToBase64(imageUri: String): String? = withContext(Dispatchers.IO) {
+        try {
+            val contentResolver = YuukaTalkApplication.context.contentResolver
+            contentResolver.openInputStream(Uri.parse(imageUri))?.use { imageInputStream ->
+                val outputStream = ByteArrayOutputStream()
+                val buffer = ByteArray(1024)
+                var length: Int
+                while (imageInputStream.read(buffer).also { length = it } != -1) {
+                    outputStream.write(buffer, 0, length)
+                }
+                Base64.encodeToString(outputStream.toByteArray(), Base64.DEFAULT)
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Log.d(TAG, "convertImageToBase64: Failed to convert image to Base64. Fallback to use primary uri. This usually happens with bundled asset images.")
+            imageUri
+        }
     }
 
     private fun copyImageToGallery(context: Context, imageFile: File, mimeType: String = "png") {

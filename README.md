@@ -26,7 +26,7 @@ We already have amazing works such as **YuzuTalk**, **ClosureTalk**, **MolluTalk
 - Support edit history message.
 - Support saving talk projects.
 - Support DIY characters.
-- Much more to discover...
+- Many more to discover...
 
 # Installation
 
@@ -44,11 +44,10 @@ Go to [release page](https://github.com/Eynnzerr/YuukaTalk/releases) and downloa
 - [x] Student information browse.
 - [x] Support insert message.
 - [x] Find an app logo.
-- [ ] Multi-language.(Only support Chinese currently)
 - [x] More settings.
-- [ ] Support large-scale screens.
+- [x] Support large-scale screens.
 - [x] Add first-time guidance.
-- [ ] Move images from bundled asset to remote to cut off package size.
+- [ ] Multi-language.(Only support Chinese/English currently)
 - [ ] multi-platform(iOS and desktop).
 
 # Credits

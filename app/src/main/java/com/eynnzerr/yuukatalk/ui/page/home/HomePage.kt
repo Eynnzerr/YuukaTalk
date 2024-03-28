@@ -47,8 +47,11 @@ import com.eynnzerr.yuukatalk.data.model.PageEntryItem
 import com.eynnzerr.yuukatalk.data.preference.PreferenceKeys
 import com.eynnzerr.yuukatalk.ui.common.Destinations
 import com.eynnzerr.yuukatalk.ui.component.Banner
+import com.eynnzerr.yuukatalk.ui.component.RememberScreenInfo
+import com.eynnzerr.yuukatalk.ui.component.ScreenInfo
 import com.eynnzerr.yuukatalk.ui.component.dialog.GuidanceDialog
 import com.eynnzerr.yuukatalk.ui.component.dialog.UpdateDialog
+import com.eynnzerr.yuukatalk.ui.ext.navigateTo
 import com.eynnzerr.yuukatalk.ui.ext.pushTo
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
@@ -61,6 +64,7 @@ fun HomePage(
     viewModel: HomeViewModel,
     navController: NavHostController
 ) {
+    val isCompactScreen = RememberScreenInfo().widthType is ScreenInfo.ScreenType.Compact
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
 
@@ -82,7 +86,7 @@ fun HomePage(
                 if (requestPermissions.allPermissionsGranted ||
                     Build.VERSION.SDK_INT > Build.VERSION_CODES.Q
                 ) {
-                    navController.pushTo(Destinations.TALK_ROUTE + "/-1")
+                    navController.navigateTo(Destinations.TALK_ROUTE + "/-1", !isCompactScreen)
                 } else {
                     openPermissionRequestDialog = true
                 }
@@ -94,7 +98,7 @@ fun HomePage(
             icon = Icons.Filled.History,
             color = MaterialTheme.colorScheme.surface,
             onClick = {
-                 navController.pushTo(Destinations.HISTORY_ROUTE)
+                 navController.navigateTo(Destinations.HISTORY_ROUTE, !isCompactScreen)
             }
         ),
         PageEntryItem(
@@ -103,7 +107,7 @@ fun HomePage(
             icon = Icons.Filled.PersonOutline,
             color = MaterialTheme.colorScheme.surface,
             onClick = {
-                navController.pushTo(Destinations.CHARACTER_ROUTE)
+                navController.navigateTo(Destinations.CHARACTER_ROUTE, !isCompactScreen)
             }
         ),
         PageEntryItem(
@@ -112,7 +116,7 @@ fun HomePage(
             icon = Icons.Outlined.Settings,
             color = MaterialTheme.colorScheme.surface,
             onClick = {
-                navController.pushTo(Destinations.SETTINGS_ROUTE)
+                navController.navigateTo(Destinations.SETTINGS_ROUTE, !isCompactScreen)
             }
         )
     )

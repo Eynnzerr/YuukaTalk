@@ -1,7 +1,9 @@
 package com.eynnzerr.yuukatalk.ui.page.talk
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.util.Log
 import android.view.ViewGroup
 import android.widget.LinearLayout
@@ -12,19 +14,25 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -33,6 +41,8 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.ArrowLeft
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Favorite
@@ -41,6 +51,7 @@ import androidx.compose.material.icons.filled.GraphicEq
 import androidx.compose.material.icons.filled.InsertEmoticon
 import androidx.compose.material.icons.filled.MenuOpen
 import androidx.compose.material.icons.filled.Save
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.filled.Undo
 import androidx.compose.material.icons.filled.UploadFile
@@ -51,6 +62,8 @@ import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.EmojiEmotions
+import androidx.compose.material.icons.outlined.Favorite
+import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.FileDownload
 import androidx.compose.material.icons.outlined.FormatListBulleted
 import androidx.compose.material.icons.outlined.GraphicEq
@@ -61,6 +74,7 @@ import androidx.compose.material.icons.outlined.SaveAs
 import androidx.compose.material.icons.outlined.TextFields
 import androidx.compose.material.icons.outlined.VerticalSplit
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.AssistChip
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.BottomAppBarDefaults
 import androidx.compose.material3.BottomSheetDefaults
@@ -106,6 +120,7 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
@@ -124,8 +139,13 @@ import com.eynnzerr.yuukatalk.data.model.Talk
 import com.eynnzerr.yuukatalk.ui.common.Destinations
 import com.eynnzerr.yuukatalk.ui.component.DenseTextField
 import com.eynnzerr.yuukatalk.ui.component.DraggableStudentAvatar
+import com.eynnzerr.yuukatalk.ui.component.InteractiveFilterChip
 import com.eynnzerr.yuukatalk.ui.component.PlainButton
 import com.eynnzerr.yuukatalk.ui.component.PlainTextField
+import com.eynnzerr.yuukatalk.ui.component.RememberScreenInfo
+import com.eynnzerr.yuukatalk.ui.component.School
+import com.eynnzerr.yuukatalk.ui.component.SchoolLogo
+import com.eynnzerr.yuukatalk.ui.component.ScreenInfo
 import com.eynnzerr.yuukatalk.ui.component.SpecialPieceEntryButton
 import com.eynnzerr.yuukatalk.ui.component.StudentAvatar
 import com.eynnzerr.yuukatalk.ui.component.StudentInfo
@@ -149,7 +169,7 @@ fun TalkPage(
     viewModel: TalkViewModel,
     navHostController: NavHostController,
 ) {
-
+    val screenInfo = RememberScreenInfo()
     val uiState by viewModel.uiState.collectAsState()
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
@@ -157,12 +177,15 @@ fun TalkPage(
 
     // interaction signal with AndroidView
     var screenshotTalk by remember { mutableStateOf(false) }
+    var shareScreenshot by remember { mutableStateOf(false) }
 
     // component states
+    var showSchoolMenu by remember { mutableStateOf(false) }
     var isEditingTitle by remember { mutableStateOf(false) }
     var temporaryTitle by remember { mutableStateOf(uiState.chatName) }
     var isTextFieldFocused by remember { mutableStateOf(false) }
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    var openSearchPage by remember { mutableStateOf(false) }
     var openBottomSheet by rememberSaveable { mutableStateOf(false) }
     val bottomSheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = false
@@ -197,8 +220,8 @@ fun TalkPage(
     }
 
     // static ui data
-    val screenWidth = LocalConfiguration.current.screenWidthDp.dp
-    val textFieldSize = screenWidth - 56.dp - 112.dp - 25.dp
+    // val screenWidth = if (screenInfo.widthType is ScreenInfo.ScreenType.Compact) screenInfo.widthDp else screenInfo.widthDp - 400.dp
+    // val textFieldSize = screenWidth - 56.dp - 112.dp - 25.dp
 
     val specialEntryItems = listOf(
         SpecialPieceEntryItem(
@@ -217,7 +240,7 @@ fun TalkPage(
         ),
         SpecialPieceEntryItem(
             title = stringResource(id = R.string.btn_love),
-            icon = Icons.Filled.Favorite,
+            icon = Icons.Outlined.FavoriteBorder,
             onClick = {
                 viewModel.sendLoveScene()
             }
@@ -271,47 +294,8 @@ fun TalkPage(
         }
     }
 
-    ModalNavigationDrawer(
-        drawerState = drawerState,
-        drawerContent = {
-            ModalDrawerSheet(
-                modifier = Modifier
-                    .width(screenWidth - 80.dp)
-                    .fillMaxHeight()
-            ) {
-                StudentSearchBar(
-                    textValue = uiState.searchText,
-                    onTextChanged = { viewModel.updateSearchText(it) },
-                    modifier = Modifier.padding(top = 12.dp)
-                )
-                LazyColumn {
-                    items(uiState.filteredStudents) { student ->
-                        StudentInfo(
-                            student = student,
-                            onPickAvatar = {
-                                if (student !in uiState.studentList) {
-                                    viewModel.addStudent(student = student)
-                                    Toast.makeText(
-                                        context,
-                                        context.getText(R.string.toast_add_student),
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                } else {
-                                    viewModel.updateStudent(student)
-                                    Toast.makeText(
-                                        context,
-                                        context.getText(R.string.toast_change_student),
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                }
-                            }
-                        )
-                    }
-                }
-            }
-        },
-        gesturesEnabled = uiState.gestureEnabled
-    ) {
+    @Composable
+    fun InternalTalkPage() {
         Scaffold(
             snackbarHost = { SnackbarHost(snackbarHostState) },
             topBar = {
@@ -474,6 +458,36 @@ fun TalkPage(
                                                 }
                                             }
                                         )
+                                        DropdownMenuItem(
+                                            leadingIcon = {
+                                                Icon(
+                                                    painter = painterResource(id = R.drawable.ic_share_image),
+                                                    contentDescription = "share image"
+                                                )
+                                            },
+                                            text = { Text(text = stringResource(id = R.string.export_as_pic_then_share)) },
+                                            onClick = {
+                                                expandDropDown = false
+                                                screenshotTalk = true
+                                                shareScreenshot = true
+                                            }
+                                        )
+                                        DropdownMenuItem(
+                                            leadingIcon = {
+                                                Icon(
+                                                    painter = painterResource(id = R.drawable.ic_share_file),
+                                                    contentDescription = "share json"
+                                                )
+                                            },
+                                            text = { Text(text = stringResource(id = R.string.export_as_file_then_share)) },
+                                            onClick = {
+                                                expandDropDown = false
+
+                                                val jsonUri = viewModel.shareTalkAsJson()
+                                                Log.d(TAG, "InternalTalkPage: share json file uri: $jsonUri")
+                                                shareFile(context, jsonUri, "text/*")
+                                            }
+                                        )
                                     }
                                 }
                             }
@@ -496,8 +510,11 @@ fun TalkPage(
                                 .padding(bottom = 4.dp),
                             horizontalArrangement = Arrangement.SpaceEvenly,
                         ) {
-                            specialEntryItems.forEach { 
-                                SpecialPieceEntryButton(item = it)
+                            specialEntryItems.forEach {
+                                SpecialPieceEntryButton(
+                                    // modifier = Modifier.fillMaxWidth(),
+                                    item = it
+                                )
                             }
                         }
                     }
@@ -511,17 +528,31 @@ fun TalkPage(
                                 onClick = { openBottomSheet = true },
                             )
 
-                            IconButton(
-                                onClick = {
-                                    viewModel.updateToolVision()
-                                },
-                                modifier = Modifier.size(32.dp)
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Outlined.AddCircleOutline,
-                                    contentDescription = "more options",
-                                    tint = if (uiState.isMoreToolsOpen) MaterialTheme.colorScheme.primary else LocalContentColor.current
-                                )
+                            if (screenInfo.widthType is ScreenInfo.ScreenType.Compact) {
+                                IconButton(
+                                    onClick = {
+                                        viewModel.updateToolVision()
+                                    },
+                                    modifier = Modifier.size(32.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Outlined.AddCircleOutline,
+                                        contentDescription = "more options",
+                                        tint = if (uiState.isMoreToolsOpen) MaterialTheme.colorScheme.primary else LocalContentColor.current
+                                    )
+                                }
+                            } else {
+                                specialEntryItems.forEach {
+                                    IconButton(
+                                        onClick = it.onClick,
+                                        modifier = Modifier.size(32.dp)
+                                    ) {
+                                        Icon(
+                                            imageVector = it.icon,
+                                            contentDescription = null,
+                                        )
+                                    }
+                                }
                             }
 
                             IconButton(
@@ -538,7 +569,8 @@ fun TalkPage(
 
                             DenseTextField(
                                 modifier = Modifier
-                                    .size(textFieldSize, 40.dp)
+                                    .weight(11f, true)
+                                    .height(40.dp)
                                     .onFocusChanged { focusState ->
                                         isTextFieldFocused = focusState.isFocused
                                     },
@@ -577,6 +609,7 @@ fun TalkPage(
             floatingActionButton = {
                 FloatingActionButton(
                     onClick = {
+                        openSearchPage = true
                         scope.launch { drawerState.open() }
                     }
                 ) {
@@ -625,6 +658,11 @@ fun TalkPage(
                                 val imageUri = withContext(Dispatchers.IO) {
                                     ImageUtils.saveBitMapToDisk(bitmap, context)
                                 }
+                                Log.d(TAG, "InternalTalkPage: screenshot uri: $imageUri")
+                                if (imageUri.toString().startsWith("content://") && shareScreenshot) {
+                                    shareScreenshot = false
+                                    shareFile(context, imageUri, "image/*")
+                                }
                                 snackbarHostState.showSnackbar(context.getText(R.string.toast_export_project).toString() + " ${imageUri.path}")
                             } catch (e: Exception) {
                                 viewModel.updateText(e.toString() + "\n" + e.stackTraceToString())
@@ -636,6 +674,180 @@ fun TalkPage(
             )
         }
     }
+
+    @Composable
+    fun InternalSearchPage() {
+        StudentSearchBar(
+            textValue = uiState.searchText,
+            onTextChanged = { viewModel.updateSearchText(it) },
+            modifier = Modifier.padding(top = 12.dp),
+            leadingIcon = {
+                IconButton(
+                    onClick = {
+                        openSearchPage = !openSearchPage
+                        scope.launch { drawerState.close() }
+                    }
+                ) {
+                    Icon(Icons.Default.ArrowBack, contentDescription = null)
+                }
+            },
+            trailingIcon = {
+                Icon(
+                    imageVector = Icons.Default.Search,
+                    contentDescription = null
+                )
+            }
+        )
+        LazyRow(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            item {
+                InteractiveFilterChip(
+                    selected = uiState.showBundled,
+                    onClick = {
+                        viewModel.switchShowBundled()
+                    },
+                    text = stringResource(id = R.string.chip_bundled)
+                )
+            }
+            item {
+                InteractiveFilterChip(
+                    selected = uiState.showDIY,
+                    onClick = {
+                        viewModel.switchShowDIY()
+                    },
+                    text = stringResource(id = R.string.chip_diy)
+                )
+            }
+            item {
+                Box(
+                    modifier = Modifier
+                        .wrapContentSize(Alignment.TopStart)
+                ) {
+                    AssistChip(
+                        onClick = { showSchoolMenu = !showSchoolMenu },
+                        label = { Text(text = uiState.filterSchoolName) },
+                        leadingIcon = {
+                            SchoolLogo(
+                                school = uiState.filterSchoolName,
+                                size = 24.dp
+                            )
+                        },
+                        trailingIcon = {
+                            Icon(
+                                imageVector = if (showSchoolMenu) {
+                                    Icons.Filled.ArrowDropDown
+                                } else {
+                                    Icons.Filled.ArrowLeft
+                                },
+                                contentDescription = null
+                            )
+                        },
+                        modifier = Modifier.widthIn(min = 48.dp)
+                    )
+                    DropdownMenu(
+                        expanded = showSchoolMenu,
+                        onDismissRequest = { showSchoolMenu = false },
+                    ) {
+                        DropdownMenuItem(
+                            leadingIcon = {
+                                SchoolLogo(
+                                    school = "All",
+                                    size = 24.dp
+                                )
+                            },
+                            text = { Text("全部") },
+                            onClick = {
+                                viewModel.updateFilterSchool("All")
+                                showSchoolMenu = false
+                            }
+                        )
+                        School.schoolLists.forEach { schoolName ->
+                            DropdownMenuItem(
+                                leadingIcon = {
+                                    SchoolLogo(
+                                        school = schoolName,
+                                        size = 24.dp
+                                    )
+                                },
+                                text = { Text(School.schoolInChinese[schoolName] ?: "") },
+                                onClick = {
+                                    viewModel.updateFilterSchool(schoolName)
+                                    showSchoolMenu = false
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+        }
+        LazyColumn {
+            items(uiState.filteredStudents) { student ->
+                StudentInfo(
+                    student = student,
+                    onPickAvatar = {
+                        if (student !in uiState.studentList) {
+                            viewModel.addStudent(student = student)
+                            Toast.makeText(
+                                context,
+                                context.getText(R.string.toast_add_student),
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        } else {
+                            viewModel.updateStudent(student)
+                            Toast.makeText(
+                                context,
+                                context.getText(R.string.toast_change_student),
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
+                )
+            }
+        }
+    }
+
+    if (screenInfo.widthType is ScreenInfo.ScreenType.Compact) {
+        ModalNavigationDrawer(
+            drawerState = drawerState,
+            drawerContent = {
+                ModalDrawerSheet(
+                    modifier = Modifier
+                        // .width(screenInfo.widthDp - 80.dp)
+                        .fillMaxHeight()
+                ) {
+                    InternalSearchPage()
+                }
+            },
+            gesturesEnabled = uiState.gestureEnabled
+        ) {
+            InternalTalkPage()
+        }
+    } else {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.TopCenter
+        ) {
+            InternalTalkPage()
+            AnimatedVisibility(
+                visible = openSearchPage,
+                enter = slideInVertically(),
+                exit = slideOutVertically(),
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.surface),
+                ) {
+                    InternalSearchPage()
+                }
+            }
+        }
+    }
+
 
     // dialog to edit single talk piece.
     if (talkPieceEditState.openEditDialog) {
@@ -1522,6 +1734,17 @@ fun TalkPage(
             }
         )
     }
+}
+
+fun shareFile(context: Context, uri: Uri, mimeType: String) {
+    Log.d(TAG, "WriteScreen: Shared Uri: $uri")
+    val shareIntent = Intent().apply {
+        action = Intent.ACTION_SEND
+        putExtra(Intent.EXTRA_STREAM, uri)
+        type = mimeType
+    }
+    shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION.or(Intent.FLAG_GRANT_WRITE_URI_PERMISSION))
+    context.startActivity(Intent.createChooser(shareIntent, "Share your MomoTalks!"))
 }
 
 private const val TAG = "TalkPage"

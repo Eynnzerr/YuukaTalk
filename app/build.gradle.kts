@@ -16,8 +16,8 @@ android {
         applicationId = "com.eynnzerr.yuukatalk"
         minSdk = 24
         targetSdk = 34
-        versionCode = 14
-        versionName = "1.0.13"
+        versionCode = 15
+        versionName = "1.0.14"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
