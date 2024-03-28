@@ -1,12 +1,11 @@
 package com.eynnzerr.yuukatalk.ui.component
 
+import android.util.Base64
 import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -21,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import coil.transform.RoundedCornersTransformation
+import com.eynnzerr.yuukatalk.utils.ImageUtils
 
 @Composable
 fun PhotoBubble(
@@ -30,6 +30,7 @@ fun PhotoBubble(
     size: Dp = 192.dp
 ) {
     Log.d(TAG, "PhotoBubble: uri: $uri")
+
     Column(
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -44,7 +45,7 @@ fun PhotoBubble(
             AsyncImage(
                 model = ImageRequest
                     .Builder(LocalContext.current)
-                    .data(uri)
+                    .data(if (ImageUtils.isImageBase64(uri)) Base64.decode(uri, Base64.DEFAULT) else uri)
                     .crossfade(true)
                     .transformations(RoundedCornersTransformation())
                     .build(),

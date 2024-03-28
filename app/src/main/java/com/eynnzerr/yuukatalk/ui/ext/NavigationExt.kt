@@ -19,3 +19,15 @@ fun NavController.pushTo(route: String) {
         restoreState = true
     }
 }
+
+fun NavController.navigateTo(route: String, isPopUp: Boolean) {
+    navigate(route) {
+        if (isPopUp) {
+            popUpTo(graph.findStartDestination().id) {
+                saveState = true
+            }
+        }
+        launchSingleTop = true
+        restoreState = true
+    }
+}

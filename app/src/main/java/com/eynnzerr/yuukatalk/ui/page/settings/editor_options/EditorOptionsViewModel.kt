@@ -1,8 +1,6 @@
 package com.eynnzerr.yuukatalk.ui.page.settings.editor_options
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
-import com.eynnzerr.yuukatalk.base.YuukaTalkApplication
 import com.eynnzerr.yuukatalk.data.preference.PreferenceKeys
 import com.eynnzerr.yuukatalk.utils.ImageUtils
 import com.eynnzerr.yuukatalk.utils.PathUtils
@@ -25,6 +23,7 @@ data class EditorOptionsState(
     val enableAutoSave: Boolean,
     val enableGesture: Boolean,
     val enableMarkdown: Boolean,
+    val enableBase64: Boolean,
 )
 
 @HiltViewModel
@@ -39,10 +38,11 @@ class EditorOptionsViewModel @Inject constructor(
         compressFormatIndex = mmkv.decodeInt(PreferenceKeys.COMPRESS_FORMAT, 1),
         imageQuality = mmkv.decodeInt(PreferenceKeys.IMAGE_QUALITY, 100),
         imageExportPath = mmkv.decodeString(PreferenceKeys.IMAGE_EXPORT_PATH) ?: ImageUtils.defaultExportPath,
-        fileExportPath = mmkv.decodeString(PreferenceKeys.FILE_EXPORT_PATH) ?: PathUtils.getDefaultExportDir().absolutePath,
+        fileExportPath = mmkv.decodeString(PreferenceKeys.FILE_EXPORT_PATH) ?: PathUtils.getFileFallbackExportDir().absolutePath,
         enableAutoSave = mmkv.decodeBool(PreferenceKeys.USE_AUTO_SAVE, false),
         enableGesture = mmkv.decodeBool(PreferenceKeys.USE_SWIPE_GESTURE, true),
         enableMarkdown = mmkv.decodeBool(PreferenceKeys.USE_MARKDOWN, false),
+        enableBase64 = mmkv.decodeBool(PreferenceKeys.USE_BASE64, false),
     ))
     private val stateValue
         get() = _uiState.value
@@ -67,6 +67,11 @@ class EditorOptionsViewModel @Inject constructor(
     fun switchUseMarkdown() {
         _uiState.update { it.copy(enableMarkdown = !stateValue.enableMarkdown) }
         mmkv.encode(PreferenceKeys.USE_MARKDOWN, stateValue.enableMarkdown)
+    }
+
+    fun switchUseBase64() {
+        _uiState.update { it.copy(enableBase64 = !stateValue.enableBase64) }
+        mmkv.encode(PreferenceKeys.USE_BASE64, stateValue.enableBase64)
     }
 
     fun updateAuthorName(name: String) {

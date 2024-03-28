@@ -1,13 +1,19 @@
 package com.eynnzerr.yuukatalk.ui.page.talk
 
+import android.net.Uri
+import android.util.Log
+import androidx.core.content.FileProvider
+import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.eynnzerr.yuukatalk.base.YuukaTalkApplication
 import com.eynnzerr.yuukatalk.data.AppRepository
 import com.eynnzerr.yuukatalk.data.model.Character
 import com.eynnzerr.yuukatalk.data.model.Sensei
 import com.eynnzerr.yuukatalk.data.model.Talk
 import com.eynnzerr.yuukatalk.data.model.TalkProject
 import com.eynnzerr.yuukatalk.data.preference.PreferenceKeys
+import com.eynnzerr.yuukatalk.utils.ImageUtils
 import com.eynnzerr.yuukatalk.utils.PathUtils
 import com.tencent.mmkv.MMKV
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -37,6 +43,9 @@ data class TalkUiState(
     val filteredStudents: List<Character>,
     val isEdited: Boolean,
     val gestureEnabled: Boolean,
+    val showBundled: Boolean,
+    val showDIY: Boolean,
+    val filterSchoolName: String,
 )
 
 sealed class TalkListState(val type: Int) {
@@ -76,9 +85,14 @@ class TalkViewModel @Inject constructor(
             talkListStateChange = listOf(TalkListState.Initialized()),
             filteredStudents = emptyList(),
             isEdited = false,
-            gestureEnabled = mmkv.decodeBool(PreferenceKeys.USE_SWIPE_GESTURE, true)
+            gestureEnabled = mmkv.decodeBool(PreferenceKeys.USE_SWIPE_GESTURE, true),
+            showBundled = true,
+            showDIY = true,
+            filterSchoolName = "All"
         )
     )
+    private val stateValue
+        get() = _uiState.value
     val uiState = _uiState.asStateFlow()
 
     private var projectId = -1
@@ -218,71 +232,76 @@ class TalkViewModel @Inject constructor(
     }
 
     fun sendPhoto(uri: String) {
-        val newPhoto = Talk.Photo(
-            talker = _uiState.value.currentStudent,
-            uri = uri,
-            isFirst = _uiState.value.isFirstTalking
-        )
-        talkList.add(newPhoto)
-
-        _uiState.update {
-            it.copy(
-                isFirstTalking = false,
-                talkListStateChange = listOf(TalkListState.Push()),
-                isEdited = true
+        viewModelScope.launch {
+            Log.d(TAG, "sendPhoto: current thread is ${Thread.currentThread().name}")
+            val newPhoto = Talk.Photo(
+                talker = _uiState.value.currentStudent,
+                uri = if (mmkv.decodeBool(PreferenceKeys.USE_BASE64, false)) ImageUtils.convertImageToBase64(uri)!! else uri,
+                isFirst = _uiState.value.isFirstTalking
             )
+            talkList.add(newPhoto)
+
+            _uiState.update {
+                it.copy(
+                    isFirstTalking = false,
+                    talkListStateChange = listOf(TalkListState.Push()),
+                    isEdited = true
+                )
+            }
         }
     }
 
     fun sendPhoto(uri: String, index: Int) {
-        val newPhoto = Talk.Photo(
-            talker = _uiState.value.currentStudent,
-            uri = uri,
-            isFirst = true
-        )
-        talkList.add(index, newPhoto)
-
-        val talkListChanges = mutableListOf<TalkListState>(TalkListState.Inserted(index))
-        // 处理上下文。插入只影响本次和之后
-        // 如果插入后，插入处有上文，且说话人和本次相同，则设isFirst=false
-        if (index > 0) {
-            val lastTalk = talkList[index - 1]
-            lastTalk.getTalker()?.let {
-                newPhoto.isFirst = newPhoto.talker != it
-            }
-        }
-        // 插入必有下文，如果下文说话人和本次相同，则设下文isFirst=false
-        // TODO 这里理论上要和SendPureText作相同修改，但是实测没出现问题，不过还是改了
-        val nextTalk = talkList[index + 1]
-        if (nextTalk is Talk.PureText) {
-            if ((nextTalk.talker == newPhoto.talker) == nextTalk.isFirst) {
-                // 直接改原引用的isFirst也能重组，符合预期效果，但不符合重组原理（引用没变却触发了重组）
-                val newNextTalk = Talk.PureText(
-                    nextTalk.talker,
-                    nextTalk.text,
-                    !nextTalk.isFirst
-                )
-                talkList[index + 1] = newNextTalk
-                talkListChanges.add(TalkListState.Modified(index + 1))
-            }
-        } else if (nextTalk is Talk.Photo) {
-            if ((nextTalk.talker == newPhoto.talker) == nextTalk.isFirst) {
-                // 这里必须做一个新的Talk.Photo出来，否则notifyItemChanged不会触发子项ComposeView重组
-                val newNextTalk = Talk.Photo(
-                    nextTalk.talker,
-                    nextTalk.uri,
-                    !nextTalk.isFirst
-                )
-                talkList[index + 1] = newNextTalk
-                talkListChanges.add(TalkListState.Modified(index + 1))
-            }
-        }
-
-        _uiState.update {
-            it.copy(
-                talkListStateChange = talkListChanges,
-                isEdited = true
+        viewModelScope.launch {
+            val newPhoto = Talk.Photo(
+                talker = _uiState.value.currentStudent,
+                uri = if (mmkv.decodeBool(PreferenceKeys.USE_BASE64, false)) ImageUtils.convertImageToBase64(uri)!! else uri,
+                isFirst = true
             )
+            talkList.add(index, newPhoto)
+
+            val talkListChanges = mutableListOf<TalkListState>(TalkListState.Inserted(index))
+            // 处理上下文。插入只影响本次和之后
+            // 如果插入后，插入处有上文，且说话人和本次相同，则设isFirst=false
+            if (index > 0) {
+                val lastTalk = talkList[index - 1]
+                lastTalk.getTalker()?.let {
+                    newPhoto.isFirst = newPhoto.talker != it
+                }
+            }
+            // 插入必有下文，如果下文说话人和本次相同，则设下文isFirst=false
+            // TODO 这里理论上要和SendPureText作相同修改，但是实测没出现问题，不过还是改了
+            val nextTalk = talkList[index + 1]
+            if (nextTalk is Talk.PureText) {
+                if ((nextTalk.talker == newPhoto.talker) == nextTalk.isFirst) {
+                    // 直接改原引用的isFirst也能重组，符合预期效果，但不符合重组原理（引用没变却触发了重组）
+                    val newNextTalk = Talk.PureText(
+                        nextTalk.talker,
+                        nextTalk.text,
+                        !nextTalk.isFirst
+                    )
+                    talkList[index + 1] = newNextTalk
+                    talkListChanges.add(TalkListState.Modified(index + 1))
+                }
+            } else if (nextTalk is Talk.Photo) {
+                if ((nextTalk.talker == newPhoto.talker) == nextTalk.isFirst) {
+                    // 这里必须做一个新的Talk.Photo出来，否则notifyItemChanged不会触发子项ComposeView重组
+                    val newNextTalk = Talk.Photo(
+                        nextTalk.talker,
+                        nextTalk.uri,
+                        !nextTalk.isFirst
+                    )
+                    talkList[index + 1] = newNextTalk
+                    talkListChanges.add(TalkListState.Modified(index + 1))
+                }
+            }
+
+            _uiState.update {
+                it.copy(
+                    talkListStateChange = talkListChanges,
+                    isEdited = true
+                )
+            }
         }
     }
 
@@ -421,54 +440,58 @@ class TalkViewModel @Inject constructor(
     }
 
     fun editTalkHistory(talk: Talk, index: Int) {
-        talkList[index] = talk
-        val talkListChanges = mutableListOf(TalkListState.Modified(index))
-        // 考虑上下文
-        if (talk is Talk.PureText) {
-            // 如有上文，当前isFirstTalking为!= lastCharacter
-            if (index > 0) {
-                val lastTalker = talkList[index - 1].getTalker()
-                lastTalker?.let {
-                    talk.isFirst = talk.talker != it
-                    talkListChanges.add(TalkListState.Modified(index - 1))
+        viewModelScope.launch {
+            talkList[index] = talk
+            val talkListChanges = mutableListOf(TalkListState.Modified(index))
+            // 考虑上下文
+            if (talk is Talk.PureText) {
+                // 如有上文，当前isFirstTalking为!= lastCharacter
+                if (index > 0) {
+                    val lastTalker = talkList[index - 1].getTalker()
+                    lastTalker?.let {
+                        talk.isFirst = talk.talker != it
+                        talkListChanges.add(TalkListState.Modified(index - 1))
+                    }
                 }
-            }
-            // 如有下文，顺便修改下文isFirstTalking为!= currentCharacter
-            if (index < talkList.lastIndex) {
-                copyAndSetFirst(index + 1, talkList[index + 1].getTalker() != talk.talker)
-                talkListChanges.add(TalkListState.Modified(index + 1))
-            }  else {
-                // 若为修改末尾消息，判断下一条消息是否为学生首次
-                _uiState.update {
-                    it.copy(isFirstTalking = talk.talker != _uiState.value.currentStudent)
+                // 如有下文，顺便修改下文isFirstTalking为!= currentCharacter
+                if (index < talkList.lastIndex) {
+                    copyAndSetFirst(index + 1, talkList[index + 1].getTalker() != talk.talker)
+                    talkListChanges.add(TalkListState.Modified(index + 1))
+                }  else {
+                    // 若为修改末尾消息，判断下一条消息是否为学生首次
+                    _uiState.update {
+                        it.copy(isFirstTalking = talk.talker != _uiState.value.currentStudent)
+                    }
                 }
-            }
-        } else if (talk is Talk.Photo) {
-            // 如有上文，当前isFirstTalking为!= lastCharacter
-            if (index > 0) {
-                val lastTalker = talkList[index - 1].getTalker()
-                lastTalker?.let {
-                    talk.isFirst = talk.talker != it
-                    talkListChanges.add(TalkListState.Modified(index - 1))
-                }
-            }
-            // 如有下文，顺便修改下文isFirstTalking为!= currentCharacter
-            if (index < talkList.lastIndex) {
-                copyAndSetFirst(index + 1, talkList[index + 1].getTalker() != talk.talker)
-                talkListChanges.add(TalkListState.Modified(index + 1))
-            }  else {
-                // 若为修改末尾消息，判断下一条消息是否为学生首次
-                _uiState.update {
-                    it.copy(isFirstTalking = talk.talker != _uiState.value.currentStudent)
-                }
-            }
-        }
+            } else if (talk is Talk.Photo) {
+                if (mmkv.decodeBool(PreferenceKeys.USE_BASE64)) talk.uri = ImageUtils.convertImageToBase64(talk.uri)!!
 
-        _uiState.update {
-            it.copy(
-                isEdited = true,
-                talkListStateChange = talkListChanges
-            )
+                // 如有上文，当前isFirstTalking为!= lastCharacter
+                if (index > 0) {
+                    val lastTalker = talkList[index - 1].getTalker()
+                    lastTalker?.let {
+                        talk.isFirst = talk.talker != it
+                        talkListChanges.add(TalkListState.Modified(index - 1))
+                    }
+                }
+                // 如有下文，顺便修改下文isFirstTalking为!= currentCharacter
+                if (index < talkList.lastIndex) {
+                    copyAndSetFirst(index + 1, talkList[index + 1].getTalker() != talk.talker)
+                    talkListChanges.add(TalkListState.Modified(index + 1))
+                }  else {
+                    // 若为修改末尾消息，判断下一条消息是否为学生首次
+                    _uiState.update {
+                        it.copy(isFirstTalking = talk.talker != _uiState.value.currentStudent)
+                    }
+                }
+            }
+
+            _uiState.update {
+                it.copy(
+                    isEdited = true,
+                    talkListStateChange = talkListChanges
+                )
+            }
         }
     }
 
@@ -481,7 +504,14 @@ class TalkViewModel @Inject constructor(
         _uiState.update { it.copy(currentStudent = student, isFirstTalking = student != lastTalker) }
     }
 
-    fun addStudent(student: Character) = studentList.add(student)
+    fun addStudent(student: Character) {
+        viewModelScope.launch {
+            if (mmkv.decodeBool(PreferenceKeys.USE_BASE64, false)) {
+                student.currentAvatar = ImageUtils.convertImageToBase64(student.currentAvatar)!!
+            }
+            studentList.add(student)
+        }
+    }
 
     fun removeStudent(student: Character) {
         val index = studentList.indexOf(student)
@@ -494,10 +524,15 @@ class TalkViewModel @Inject constructor(
     }
 
     fun updateStudent(student: Character) {
-        // 由于Character的equals被重写为名字相同则视为相同，无法感知头像变化，需要手动刷新
-        val index = studentList.indexOf(student)
-        if (index != -1) {
-            studentList[index] = student
+        viewModelScope.launch {
+            // 由于Character的equals被重写为名字相同则视为相同，无法感知头像变化，需要手动刷新
+            val index = studentList.indexOf(student)
+            if (index != -1) {
+                if (mmkv.decodeBool(PreferenceKeys.USE_BASE64, false)) {
+                    student.currentAvatar = ImageUtils.convertImageToBase64(student.currentAvatar)!!
+                }
+                studentList[index] = student
+            }
         }
     }
 
@@ -512,19 +547,6 @@ class TalkViewModel @Inject constructor(
 
     fun resetListStateChange() {
         _uiState.update { it.copy(talkListStateChange = listOf(TalkListState.Initialized())) }
-    }
-
-    fun updateSearchText(newText: String) {
-        _uiState.update {
-            it.copy(
-                searchText = newText,
-                filteredStudents = allStudents.filter { student ->
-                    student.name.contains(newText, ignoreCase = true) ||
-                    student.nameRoma.contains(newText, ignoreCase = true) ||
-                    student.school.contains(newText, ignoreCase = true)
-                }
-            )
-        }
     }
 
     fun updateProjectTitle(title: String) {
@@ -582,7 +604,7 @@ class TalkViewModel @Inject constructor(
             )
             val jsonString = Json.encodeToString(currentProject)
             val jsonFileRoot = File(
-                mmkv.decodeString(PreferenceKeys.FILE_EXPORT_PATH) ?: PathUtils.getDefaultExportDir().absolutePath
+                mmkv.decodeString(PreferenceKeys.FILE_EXPORT_PATH) ?: PathUtils.getFileFallbackExportDir().absolutePath
             ).apply {
                 if (!exists()) mkdirs()
             }
@@ -591,6 +613,31 @@ class TalkViewModel @Inject constructor(
             }
             jsonFile.writeText(jsonString)
         }
+    }
+
+    fun shareTalkAsJson(): Uri {
+        val currentProject = TalkProject(
+            name = _uiState.value.chatName,
+            talkHistory = talkList,
+            studentList = _uiState.value.studentList,
+            currentStudent = _uiState.value.currentStudent,
+            isFirstTalking = _uiState.value.isFirstTalking
+        )
+        val jsonString = Json.encodeToString(currentProject)
+        val jsonFileRoot = File(PathUtils.getFileFallbackExportDir().absolutePath).apply {
+            if (!exists()) mkdirs()
+        }
+        val jsonFile = File(jsonFileRoot, "${_uiState.value.chatName}.json").apply {
+            if (!exists()) createNewFile()
+        }
+        viewModelScope.launch(Dispatchers.IO) {
+            jsonFile.writeText(jsonString)
+        }
+        return FileProvider.getUriForFile(
+            YuukaTalkApplication.context,
+            "com.eynnzerr.yuukatalk.file_provider",
+            jsonFile
+        )
     }
 
     private fun Talk.hasTalker() = this is Talk.PureText || this is Talk.Photo
@@ -617,6 +664,58 @@ class TalkViewModel @Inject constructor(
             return isFirst != talkPiece.isFirst
         }
         return false
+    }
+
+    // search bar related
+    private fun filterCharacters() {
+        var result = listOf(*allStudents.toTypedArray()) // deep copy
+        if (stateValue.searchText != "") {
+            result = result.filter { student ->
+                student.name.contains(stateValue.searchText, ignoreCase = true) ||
+                        student.nameRoma.contains(stateValue.searchText, ignoreCase = true) ||
+                        student.school.contains(stateValue.searchText, ignoreCase = true)
+            }
+        }
+        if (stateValue.filterSchoolName != "All") {
+            result = result.filter { student ->
+                student.school == stateValue.filterSchoolName
+            }
+        }
+        if (!stateValue.showBundled) {
+            result = result.filter { !it.isAsset }
+        }
+        if (!stateValue.showDIY) {
+            result = result.filter { it.isAsset }
+        }
+        _uiState.update { it.copy(filteredStudents = result) }
+    }
+
+    fun updateSearchText(query: String) {
+        _uiState.update {
+            it.copy(
+                searchText = query,
+            )
+        }
+        filterCharacters()
+    }
+
+    fun updateFilterSchool(school: String) {
+        _uiState.update {
+            it.copy(filterSchoolName = school)
+        }
+        filterCharacters()
+    }
+
+    fun switchShowBundled() {
+        _uiState.update {
+            it.copy(showBundled = !stateValue.showBundled)
+        }
+        filterCharacters()
+    }
+
+    fun switchShowDIY() {
+        _uiState.update { it.copy(showDIY = !stateValue.showDIY) }
+        filterCharacters()
     }
 }
 

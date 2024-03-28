@@ -48,6 +48,8 @@
     <string name="toast_export_project">picture saved to</string>
     <string name="export_as_pic">export as photo</string>
     <string name="export_as_file">export as file</string>
+    <string name="export_as_pic_then_share">export photo and share</string>
+    <string name="export_as_file_then_share">export file and share</string>
     <string name="split_pic">split photo</string>
     <string name="search_bar_hint">Search.</string>
     <string name="textfield_hint">Enjoy!</string>
@@ -122,6 +124,8 @@
     <string name="drawer_gesture_desc">enable swipe gesture for selecting characters.</string>
     <string name="markdown_parsing">Render markdown</string>
     <string name="markdown_parsing_desc">enable markdown grammar for texts.</string>
+    <string name="use_base64">Base64 Encoder</string>
+    <string name="use_base64_desc">Convert images to Base64 on sending.</string>
 
     <!--  AboutPage  -->
     <string name="version">Version</string>

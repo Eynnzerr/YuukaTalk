@@ -18,4 +18,5 @@ object PreferenceKeys {
     const val USE_AUTO_SAVE = "use_auto_save"
     const val USE_SWIPE_GESTURE = "use_swipe_gesture"
     const val USE_MARKDOWN = "use_markdown"
+    const val USE_BASE64 = "use_base64"
 }

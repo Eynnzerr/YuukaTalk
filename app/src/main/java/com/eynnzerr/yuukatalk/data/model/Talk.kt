@@ -15,7 +15,7 @@ sealed class Talk {
     @Serializable
     data class Photo(
         val talker: Character,
-        val uri: String,
+        var uri: String,
         var isFirst: Boolean,
     ): Talk()
 

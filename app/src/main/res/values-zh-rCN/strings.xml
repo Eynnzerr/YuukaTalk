@@ -48,6 +48,8 @@
     <string name="toast_export_project">图片已导出，路径:</string>
     <string name="export_as_pic">导出为图片</string>
     <string name="export_as_file">导出为文件</string>
+    <string name="export_as_pic_then_share">导出图片并分享</string>
+    <string name="export_as_file_then_share">导出文件并分享</string>
     <string name="split_pic">分部导出为图片</string>
     <string name="emojis">表情包(仅自定义有效):</string>
     <string name="search_bar_hint">搜索角色。</string>
@@ -122,6 +124,8 @@
     <string name="drawer_gesture_desc">启用右滑手势打开学生选择</string>
     <string name="markdown_parsing">Markdown 渲染</string>
     <string name="markdown_parsing_desc">为文本启用 Markdown 渲染</string>
+    <string name="use_base64">Base64编码</string>
+    <string name="use_base64_desc">将图片对话编码为Base64</string>
 
     <!--  AboutPage  -->
     <string name="version">版本</string>

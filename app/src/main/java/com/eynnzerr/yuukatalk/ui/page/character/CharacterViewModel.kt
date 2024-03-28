@@ -32,8 +32,6 @@ data class CharacterUiState(
     val filterSchoolName: String,
 )
 
-typealias CharacterFilter = (List<Character>) -> List<Character>
-
 @HiltViewModel
 class CharacterViewModel @Inject constructor(
     private val repository: AppRepository,
@@ -96,11 +94,6 @@ class CharacterViewModel @Inject constructor(
     fun isNameExisting(name: String) = allCharacters.fastAny { it.name == name }
 
     fun updateSearchText(query: String) {
-//        val newList = allCharacters.filter { student ->
-//            student.name.contains(query, ignoreCase = true) ||
-//            student.nameRoma.contains(query, ignoreCase = true) ||
-//            student.school.contains(query, ignoreCase = true)
-//        }
         _uiState.update {
             it.copy(
                 searchText = query,
@@ -117,13 +110,6 @@ class CharacterViewModel @Inject constructor(
     }
 
     fun switchShowBundled() {
-//        val newList = if (!_uiState.value.showBundled) {
-//            val assetCharacters = allCharacters.filter { character -> character.isAsset }
-//            _uiState.value.charactersList.toMutableList().apply { addAll(assetCharacters) }
-//        } else {
-//            _uiState.value.charactersList.filter { !it.isAsset }
-//        }
-//        _uiState.update { it.copy(charactersList = newList, showBundled = !_uiState.value.showBundled) }
         _uiState.update {
             it.copy(showBundled = !stateValue.showBundled)
         }
@@ -131,12 +117,6 @@ class CharacterViewModel @Inject constructor(
     }
 
     fun switchShowDIY() {
-//        val newList = if (!_uiState.value.showDIY) {
-//            val diyCharacters = allCharacters.filter { character -> !character.isAsset }
-//            _uiState.value.charactersList.toMutableList().apply { addAll(diyCharacters) }
-//        } else {
-//            _uiState.value.charactersList.filter { it.isAsset }
-//        }
         _uiState.update { it.copy(showDIY = !stateValue.showDIY) }
         filterCharacters()
     }

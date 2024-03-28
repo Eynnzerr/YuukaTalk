@@ -390,6 +390,15 @@ fun EditorOptionsPage(
                     onSwitch = { viewModel.switchUseMarkdown() }
                 )
             }
+            item {
+                SettingGroupSwitch(
+                    title = stringResource(id = R.string.use_base64),
+                    icon = painterResource(id = R.drawable.ic_base64),
+                    desc = stringResource(id = R.string.use_base64_desc),
+                    checked = uiState.enableBase64,
+                    onSwitch = { viewModel.switchUseBase64() }
+                )
+            }
         }
     }
 

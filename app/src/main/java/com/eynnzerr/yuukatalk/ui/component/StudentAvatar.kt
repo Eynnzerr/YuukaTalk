@@ -1,5 +1,6 @@
 package com.eynnzerr.yuukatalk.ui.component
 
+import android.util.Base64
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -20,6 +21,7 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import coil.transform.CircleCropTransformation
 import com.eynnzerr.yuukatalk.ui.ext.conditional
+import com.eynnzerr.yuukatalk.utils.ImageUtils
 
 @Composable
 fun StudentAvatar(
@@ -36,7 +38,7 @@ fun StudentAvatar(
         AsyncImage(
             model = ImageRequest
                 .Builder(LocalContext.current)
-                .data(url)
+                .data(if (ImageUtils.isImageBase64(url)) Base64.decode(url, Base64.DEFAULT) else url)
                 .crossfade(true)
                 .transformations(CircleCropTransformation())
                 .build(),

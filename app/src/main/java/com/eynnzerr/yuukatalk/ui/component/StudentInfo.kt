@@ -6,10 +6,7 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -31,7 +28,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -150,7 +146,7 @@ fun SchoolLogo(
         School.TRINITY -> painterResource(id = R.drawable.school_logo_trinity)
         School.VALKYRIE -> painterResource(id = R.drawable.school_logo_valkyrie)
         School.ARIUS -> painterResource(id = R.drawable.student_logo_arius)
-        School.Kronos -> painterResource(id = R.drawable.school_logo_kronos)
+        School.KRONOS -> painterResource(id = R.drawable.school_logo_kronos)
         else -> painterResource(id = R.drawable.school_logo_federal) // TODO 搞个别的placeholder
     }
 
@@ -193,7 +189,7 @@ object School {
     const val TRINITY = "Trinity"
     const val VALKYRIE = "Valkyrie"
     const val ARIUS = "Arius"
-    const val Kronos = "Kronos"
+    const val KRONOS = "Kronos"
 
     val schoolLists = listOf(
         ABYDOS,
@@ -206,8 +202,23 @@ object School {
         SRT,
         VALKYRIE,
         ARIUS,
-        Kronos,
+        KRONOS,
         FEDERAL
+    )
+
+    val schoolInChinese = mapOf(
+        ABYDOS to "阿拜多斯",
+        GEHENNA to "格黑娜",
+        MILLENNIUM to "千年",
+        TRINITY to "圣三一",
+        HYAKKIYAKO to "百鬼夜行",
+        RED_WINTER to "红冬",
+        SHAN_HAI_JING to "山海经",
+        SRT to SRT,
+        VALKYRIE to "瓦尔基里",
+        ARIUS to "阿里乌斯",
+        KRONOS to "克罗诺斯",
+        FEDERAL to "联邦学生会"
     )
 }
 
