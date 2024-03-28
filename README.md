@@ -47,7 +47,6 @@ Go to [release page](https://github.com/Eynnzerr/YuukaTalk/releases) and downloa
 - [x] More settings.
 - [x] Support large-scale screens.
 - [x] Add first-time guidance.
-- [ ] Multi-language.(Only support Chinese/English currently)
 - [ ] multi-platform(iOS and desktop).
 
 # Credits
