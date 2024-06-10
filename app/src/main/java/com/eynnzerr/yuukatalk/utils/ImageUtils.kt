@@ -118,7 +118,7 @@ object ImageUtils {
                     paint
                 )
                 canvas.drawText(
-                    "Made by YuukaTalk",
+                    "Made by YuukaTalk ${VersionUtils.getLocalVersion()}",
                     0f,
                     (canvas.height - 5).toFloat(),
                     paint

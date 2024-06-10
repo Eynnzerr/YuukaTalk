@@ -62,6 +62,8 @@
     <string name="history">历史对话</string>
     <string name="title_remove_dialog">确定删除当前对话？</string>
     <string name="toast_invalid_file">非法存档文件，导入失败！</string>
+    <string name="import_yuuka_talk">导入YuukaTalk存档</string>
+    <string name="import_moe_talk">导入MoeTalk存档</string>
 
     <!--  CharacterPage  -->
     <string name="characters">角色</string>
@@ -101,6 +103,8 @@
     <string name="watermark_position_desc">决定水印在导出图片中的位置</string>
     <string name="font">字体</string>
     <string name="font_desc">选择编辑器字体</string>
+    <string name="size">消息尺寸</string>
+    <string name="size_desc">调整桃信消息样式尺寸</string>
     <string name="background">背景</string>
     <string name="background_desc">导出图片背景颜色</string>
     <string name="title_author_name_dialog">填写你的名字。</string>
@@ -124,7 +128,7 @@
     <string name="drawer_gesture_desc">启用右滑手势打开学生选择</string>
     <string name="markdown_parsing">Markdown 渲染</string>
     <string name="markdown_parsing_desc">为文本启用 Markdown 渲染</string>
-    <string name="use_base64">Base64编码</string>
+    <string name="use_base64">Base64编码(实验性)</string>
     <string name="use_base64_desc">将图片对话编码为Base64</string>
 
     <!--  AboutPage  -->
@@ -154,5 +158,12 @@
     <string name="set_as_start">设为起点</string>
     <string name="set_as_end">设为终点</string>
     <string name="set_dialog_title">为对话节选设置首尾。</string>
+
+    <!--  ReadPage  -->
+    <string name="title_play_dialog">自动播放设置</string>
+    <string name="start">起始</string>
+    <string name="end">结束</string>
+    <string name="play_interval">播放间隔(ms)</string>
+    <string name="manual_click">手动点击分支选项</string>
 
 </resources>

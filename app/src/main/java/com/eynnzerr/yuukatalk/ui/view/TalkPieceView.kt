@@ -38,7 +38,7 @@ class TalkPieceView @JvmOverloads constructor(
             TalkPiece(talkData = talkData)
         }
 
-        Log.d(TAG, "TalkPieceView recomposed! talkData is $talkData")
+        // Log.d(TAG, "TalkPieceView recomposed! talkData is $talkData")
     }
 }
 

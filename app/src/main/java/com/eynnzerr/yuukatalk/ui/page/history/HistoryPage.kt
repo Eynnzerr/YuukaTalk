@@ -1,11 +1,12 @@
 package com.eynnzerr.yuukatalk.ui.page.history
 
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
@@ -13,6 +14,8 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material.icons.outlined.DownloadForOffline
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -29,6 +32,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -52,8 +56,9 @@ fun HistoryPage(
 
     var openRemoveDialog by remember { mutableStateOf(false) }
     var selectedIndex by remember { mutableIntStateOf(-1) }
+    var expandDropdown by remember { mutableStateOf(false) }
 
-    val selectFile = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+    val selectYuukaTalkSaveFile = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         uri?.let {
             try {
                 val contentResolver = context.contentResolver
@@ -91,15 +96,32 @@ fun HistoryPage(
                     }
                 },
                 actions = {
-                    IconButton(
-                        onClick = {
-                            selectFile.launch(arrayOf("application/json"))
-                        }
+                    Box(
+                        modifier = Modifier.wrapContentSize(Alignment.TopStart)
                     ) {
-                        Icon(
-                            imageVector = Icons.Outlined.DownloadForOffline,
-                            contentDescription = "import file."
-                        )
+                        IconButton(
+                            onClick = {
+                                expandDropdown = true
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.DownloadForOffline,
+                                contentDescription = "import file."
+                            )
+                        }
+                        DropdownMenu(
+                            expanded = expandDropdown,
+                            onDismissRequest = { expandDropdown = false }
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text(text = stringResource(id = R.string.import_yuuka_talk)) },
+                                onClick = { selectYuukaTalkSaveFile.launch(arrayOf("application/json")) }
+                            )
+                            DropdownMenuItem(
+                                text = { Text(text = stringResource(id = R.string.import_moe_talk)) },
+                                onClick = { Toast.makeText(context, "将在下一版本支持", Toast.LENGTH_SHORT).show() }
+                            )
+                        }
                     }
                 },
                 scrollBehavior = scrollBehavior

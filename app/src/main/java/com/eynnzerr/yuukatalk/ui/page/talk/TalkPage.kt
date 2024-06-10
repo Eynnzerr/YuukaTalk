@@ -17,6 +17,7 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -56,6 +57,7 @@ import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.filled.Undo
 import androidx.compose.material.icons.filled.UploadFile
 import androidx.compose.material.icons.outlined.AddCircleOutline
+import androidx.compose.material.icons.outlined.AutoStories
 import androidx.compose.material.icons.outlined.Cancel
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.Close
@@ -124,6 +126,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavHostController
@@ -253,6 +256,7 @@ fun TalkPage(
             when (state) {
                 is TalkListState.Initialized -> {
                     // do nothing
+                    Log.d(TAG, "TalkPage: init talk list: ${uiState.talkList}")
                 }
                 is TalkListState.Push -> {
                     talkAdapter.notifyAppendItem()
@@ -263,6 +267,7 @@ fun TalkPage(
                 is TalkListState.Refresh -> {
                     talkAdapter.notifyDataSetChanged()
                     talkAdapter.notifyScrollToLast()
+                    Log.d(TAG, "TalkPage: refresh talk list: ${uiState.talkList}")
                 }
                 is TalkListState.Modified -> {
                     talkAdapter.notifyItemChanged(state.index)
@@ -318,18 +323,13 @@ fun TalkPage(
                                 ) {
                                     Text(
                                         text = uiState.chatName,
-                                    )
-                                    IconButton(
-                                        onClick = {
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
+                                        modifier = Modifier.clickable {
                                             temporaryTitle = uiState.chatName
                                             isEditingTitle = true
                                         }
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Outlined.Edit,
-                                            contentDescription = "edit project title."
-                                        )
-                                    }
+                                    )
                                 }
                             }
                         },
@@ -386,6 +386,19 @@ fun TalkPage(
                                 }
                                 IconButton(
                                     onClick = {
+                                        // enter read mode
+                                        viewModel.resetListStateChange()
+                                        SplitRelay.talkList = listOf(*talkAdapter.getData().toTypedArray())
+                                        navHostController.pushTo(Destinations.READ_ROUTE)
+                                    }
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Outlined.AutoStories,
+                                        contentDescription = "read mode"
+                                    )
+                                }
+                                IconButton(
+                                    onClick = {
                                         if (viewModel.isHistoryTalk()) {
                                             viewModel.saveProject()
                                             Toast.makeText(context, "project saved as ${uiState.chatName}", Toast.LENGTH_SHORT).show()
@@ -424,8 +437,8 @@ fun TalkPage(
                                             },
                                             text = { Text(text = stringResource(id = R.string.split_pic)) },
                                             onClick = {
-                                                SplitRelay.talkList = listOf(*uiState.talkList.toTypedArray())
                                                 viewModel.resetListStateChange()
+                                                SplitRelay.talkList = listOf(*talkAdapter.getData().toTypedArray())
                                                 navHostController.pushTo(Destinations.SPLIT_ROUTE)
                                             }
                                         )

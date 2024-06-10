@@ -22,10 +22,12 @@ We already have amazing works such as **YuzuTalk**, **ClosureTalk**, **MolluTalk
 
 - Complete offline.
 - Easy to operate.
+- Comfortable material3 design.
 - Support all kinds of message.
 - Support edit history message.
 - Support saving talk projects.
 - Support DIY characters.
+- Support playing talks like in game.
 - Many more to discover...
 
 # Installation
@@ -47,8 +49,10 @@ Go to [release page](https://github.com/Eynnzerr/YuukaTalk/releases) and downloa
 - [x] More settings.
 - [x] Support large-scale screens.
 - [x] Add first-time guidance.
-- [ ] Multi-language.(Only support Chinese/English currently)
-- [ ] multi-platform(iOS and desktop).
+- [x] Read and play mode.
+- [ ] Multi-platform(iOS and desktop). WIP
+- [ ] Adjust message dimension. WIP
+- [ ] Support import MoeTalk file. WIP
 
 # Credits
 

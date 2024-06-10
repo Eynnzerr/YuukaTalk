@@ -19,6 +19,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.eynnzerr.yuukatalk.data.preference.PreferenceKeys
+import com.eynnzerr.yuukatalk.ui.common.LocalTalkPieceProperty
 import com.eynnzerr.yuukatalk.ui.theme.YuukaTalkTheme
 import com.tencent.mmkv.MMKV
 import dev.jeziellago.compose.markdowntext.MarkdownText
@@ -36,6 +37,8 @@ fun ChatBubble(
     } else {
         MaterialTheme.colorScheme.secondary
     }
+
+    val textSize = LocalTalkPieceProperty.current.textFontSize
 
     Column(
         modifier = Modifier.fillMaxWidth()
@@ -78,14 +81,14 @@ fun ChatBubble(
                 MarkdownText(
                     markdown = text,
                     color = Color.White,
-                    fontSize = 16.sp,
+                    fontSize = textSize,
                     modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
                 )
             } else {
                 Text(
                     text = text,
                     color = Color.White,
-                    fontSize = 16.sp,
+                    fontSize = textSize,
                     modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
                 )
             }

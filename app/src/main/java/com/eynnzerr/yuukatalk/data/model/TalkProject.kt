@@ -9,7 +9,6 @@ import com.eynnzerr.yuukatalk.data.database.converter.CharacterListConverter
 import com.eynnzerr.yuukatalk.data.database.converter.TalkListConverter
 import com.eynnzerr.yuukatalk.utils.TimeUtils
 import kotlinx.serialization.Serializable
-import java.time.LocalDateTime
 
 @Serializable
 @Entity(tableName = "momotalk_project")
