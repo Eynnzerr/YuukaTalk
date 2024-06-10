@@ -1,11 +1,8 @@
 package com.eynnzerr.yuukatalk.ui.page.settings.editor_options
 
 import android.Manifest
-import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.os.Build
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -26,6 +23,7 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ArrowLeft
 import androidx.compose.material.icons.filled.Compress
+import androidx.compose.material.icons.filled.Fullscreen
 import androidx.compose.material.icons.filled.Gradient
 import androidx.compose.material.icons.filled.Radar
 import androidx.compose.material.icons.filled.TextFields
@@ -62,14 +60,12 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.eynnzerr.yuukatalk.R
 import com.eynnzerr.yuukatalk.ui.common.Destinations
-import com.eynnzerr.yuukatalk.ui.component.Banner
 import com.eynnzerr.yuukatalk.ui.component.SettingGroupItem
 import com.eynnzerr.yuukatalk.ui.component.SettingGroupSwitch
 import com.eynnzerr.yuukatalk.ui.component.SettingsRadioButton
 import com.eynnzerr.yuukatalk.ui.ext.appBarScroll
 import com.eynnzerr.yuukatalk.ui.ext.pushTo
 import com.eynnzerr.yuukatalk.ui.ext.surfaceColorAtElevation
-import com.eynnzerr.yuukatalk.ui.ext.toHexLong
 import com.eynnzerr.yuukatalk.ui.ext.toHexString
 import com.eynnzerr.yuukatalk.utils.PathUtils
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -282,7 +278,18 @@ fun EditorOptionsPage(
                     desc = stringResource(id = R.string.font_desc),
                     icon = Icons.Filled.TextFields,
                     onClick = {
-                        navHostController.pushTo(Destinations.PREVIEW_ROUTE)
+                        navHostController.pushTo(Destinations.FONT_ROUTE)
+                    }
+                )
+            }
+            item {
+                SettingGroupItem(
+                    title = stringResource(id = R.string.size),
+                    desc = stringResource(id = R.string.size_desc),
+                    icon = Icons.Filled.Fullscreen,
+                    onClick = {
+                        // 前往尺寸调整页面
+                        Toast.makeText(context, "将在下一版本推出", Toast.LENGTH_SHORT).show()
                     }
                 )
             }

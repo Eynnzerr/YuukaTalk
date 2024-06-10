@@ -146,7 +146,8 @@ fun SchoolLogo(
         School.TRINITY -> painterResource(id = R.drawable.school_logo_trinity)
         School.VALKYRIE -> painterResource(id = R.drawable.school_logo_valkyrie)
         School.ARIUS -> painterResource(id = R.drawable.student_logo_arius)
-        School.KRONOS -> painterResource(id = R.drawable.school_logo_kronos)
+        School.CRONOS -> painterResource(id = R.drawable.school_logo_kronos)
+        School.HIGHLANDER -> painterResource(id = R.drawable.school_logo_highlander)
         else -> painterResource(id = R.drawable.school_logo_federal) // TODO 搞个别的placeholder
     }
 
@@ -189,7 +190,9 @@ object School {
     const val TRINITY = "Trinity"
     const val VALKYRIE = "Valkyrie"
     const val ARIUS = "Arius"
-    const val KRONOS = "Kronos"
+    const val CRONOS = "Cronos"
+    const val HIGHLANDER = "Highlander"
+    const val WILDHUNT = "WildHunt"
 
     val schoolLists = listOf(
         ABYDOS,
@@ -202,8 +205,10 @@ object School {
         SRT,
         VALKYRIE,
         ARIUS,
-        KRONOS,
-        FEDERAL
+        CRONOS,
+        FEDERAL,
+        HIGHLANDER,
+        WILDHUNT,
     )
 
     val schoolInChinese = mapOf(
@@ -217,8 +222,10 @@ object School {
         SRT to SRT,
         VALKYRIE to "瓦尔基里",
         ARIUS to "阿里乌斯",
-        KRONOS to "克罗诺斯",
-        FEDERAL to "联邦学生会"
+        CRONOS to "克罗诺斯",
+        FEDERAL to "联邦学生会",
+        HIGHLANDER to "海兰德铁道学院",
+        WILDHUNT to "狂猎艺术学院",
     )
 }
 

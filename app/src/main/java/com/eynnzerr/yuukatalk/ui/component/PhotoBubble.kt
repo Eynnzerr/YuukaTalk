@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import coil.transform.RoundedCornersTransformation
+import com.eynnzerr.yuukatalk.ui.common.LocalTalkPieceProperty
 import com.eynnzerr.yuukatalk.utils.ImageUtils
 
 @Composable
@@ -27,9 +28,9 @@ fun PhotoBubble(
     uri: String,
     isMyMessage: Boolean,
     modifier: Modifier = Modifier,
-    size: Dp = 192.dp
+    size: Dp = LocalTalkPieceProperty.current.photoWidth
 ) {
-    Log.d(TAG, "PhotoBubble: uri: $uri")
+    // Log.d(TAG, "PhotoBubble: uri: $uri")
 
     Column(
         modifier = Modifier.fillMaxWidth()
@@ -37,7 +38,7 @@ fun PhotoBubble(
         Card(
             modifier = modifier
                 .align(if (isMyMessage) Alignment.End else Alignment.Start)
-                .padding(bottom = 8.dp)
+                .padding(bottom = LocalTalkPieceProperty.current.verticalMargin)
                 .width(size),
             colors = CardDefaults.cardColors(containerColor = Color.White)
         ) {

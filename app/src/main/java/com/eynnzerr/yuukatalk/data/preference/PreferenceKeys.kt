@@ -1,6 +1,7 @@
 package com.eynnzerr.yuukatalk.data.preference
 
 object PreferenceKeys {
+    // Settings
     const val SHOW_GUIDANCE = "show_guidance"
     const val USE_WATERMARK = "use_watermark"
     const val AUTHOR_NAME = "author_name"
@@ -19,4 +20,16 @@ object PreferenceKeys {
     const val USE_SWIPE_GESTURE = "use_swipe_gesture"
     const val USE_MARKDOWN = "use_markdown"
     const val USE_BASE64 = "use_base64"
+
+    // Message Dimensions
+    const val AVATAR_SIZE = "avatar_size"
+    const val NAME_FONT_SIZE = "name_font_size"
+    const val TEXT_START_PADDING = "text_start_padding"
+    const val TEXT_FONT_SIZE = "text_font_size"
+    const val VERTICAL_MARGIN = "vertical_margin"
+    const val PHOTO_WIDTH = "photo_width"
+    const val NARRATION_PADDING = "narration_padding"
+    const val NARRATION_FONT_SIZE = "narration_font_size"
+    const val BRANCH_START_PADDING = "branch_start_padding"
+    const val LOVE_SCENE_START_PADDING = "love_scene_start_padding"
 }

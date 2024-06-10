@@ -1,5 +1,5 @@
 {
-  "version": 4,
+  "version": 5,
   "characters": [
     {
       "name": "白子",
@@ -196,6 +196,13 @@
       "school": "Millennium",
       "avatarPath": "millennium/sumire/avatar",
       "emojiPath": "millennium/sumire/emoji"
+    },
+    {
+      "name": "莱依",
+      "nameRoma": "Rei",
+      "school": "Millennium",
+      "avatarPath": "millennium/rei/avatar",
+      "emojiPath": "millennium/rei/emoji"
     },
     {
       "name": "千寻",
@@ -1255,7 +1262,7 @@
       "emojiPath": "ETC/Gematria/Underman/emoji"
     },
     {
-      "name": "光",
+      "name": "光(神名文字)",
       "nameRoma": "Hikari",
       "school": "Decagrammation",
       "avatarPath": "ETC/Decagrammaton/Hikari/avatar",
@@ -1351,6 +1358,41 @@
       "school": "Empty",
       "avatarPath": "ETC/Gang/Student/avatar",
       "emojiPath": "ETC/Gang/Student/emoji"
+    },
+    {
+      "name": "纺",
+      "nameRoma": "Shimugi",
+      "school": "WildHunt",
+      "avatarPath": "WildHunt/Unknown/Shimugi/avatar",
+      "emojiPath": "WildHunt/Unknown/Shimugi/emoji"
+    },
+    {
+      "name": "周防",
+      "nameRoma": "Shimugi",
+      "school": "Highlander",
+      "avatarPath": "Highlander/Observe/Suou/avatar",
+      "emojiPath": "Highlander/Observe/Suou/emoji"
+    },
+    {
+      "name": "光",
+      "nameRoma": "Hikari",
+      "school": "Highlander",
+      "avatarPath": "Highlander/CCC/Hikari/avatar",
+      "emojiPath": "Highlander/CCC/Hikari/emoji"
+    },
+    {
+      "name": "望",
+      "nameRoma": "Nozomi",
+      "school": "Highlander",
+      "avatarPath": "Highlander/CCC/Nozomi/avatar",
+      "emojiPath": "Highlander/CCC/Nozomi/emoji"
+    },
+    {
+      "name": "铁道学园学生",
+      "nameRoma": "HighlanderStudent",
+      "school": "Highlander",
+      "avatarPath": "Highlander/Student/avatar",
+      "emojiPath": "Highlander/Student/emoji"
     }
   ]
 }

@@ -36,7 +36,7 @@ import com.eynnzerr.yuukatalk.ui.ext.surfaceColorAtElevation
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PreviewPage(
+fun FontPage(
     viewModel: PreviewViewModel,
     onBack: () -> Unit
 ) {

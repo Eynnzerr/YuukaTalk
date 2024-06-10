@@ -111,8 +111,9 @@ class TalkViewModel @Inject constructor(
     }
 
     fun loadHistory() {
-        if (isHistoryTalk()) {
-            // means we now enter into a history talk.
+        if (isHistoryTalk() && talkList.isEmpty()) {
+            // means we now enter into a history talk for the first time.
+            Log.d(TAG, "loadHistory: ")
             viewModelScope.launch {
                 val historyState = withContext(Dispatchers.IO) {
                     repository.fetchProjectById(projectId)
@@ -546,7 +547,10 @@ class TalkViewModel @Inject constructor(
     }
 
     fun resetListStateChange() {
-        _uiState.update { it.copy(talkListStateChange = listOf(TalkListState.Initialized())) }
+        _uiState.update { it.copy(
+            talkList = talkList,
+            talkListStateChange = listOf(TalkListState.Initialized()))
+        }
     }
 
     fun updateProjectTitle(title: String) {

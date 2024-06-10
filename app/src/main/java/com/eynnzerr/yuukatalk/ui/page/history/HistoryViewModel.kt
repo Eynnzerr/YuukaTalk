@@ -50,4 +50,8 @@ class HistoryViewModel @Inject constructor(
         }
     }
 
+    fun importFromMoeTalk(jsonString: String) {
+
+    }
+
 }

@@ -61,6 +61,8 @@
     <string name="history">History</string>
     <string name="title_remove_dialog">Are you sure you want to remove this momotalk project?</string>
     <string name="toast_invalid_file">Failed to import. Invalid file!</string>
+    <string name="import_yuuka_talk">import from save file</string>
+    <string name="import_moe_talk">import from MoeTalk</string>
 
     <!--  CharacterPage  -->
     <string name="characters">Characters</string>
@@ -101,6 +103,8 @@
     <string name="watermark_position_desc">decide where to display watermark</string>
     <string name="font">Font</string>
     <string name="font_desc">select editor font</string>
+    <string name="size">Size</string>
+    <string name="size_desc">adjust message sizes.</string>
     <string name="background">Background</string>
     <string name="background_desc">background color for exported picture</string>
     <string name="title_author_name_dialog">Fill in your name.</string>
@@ -154,5 +158,12 @@
     <string name="set_as_start">Set as start</string>
     <string name="set_as_end">Set as end</string>
     <string name="set_dialog_title">Set start and end.</string>
+
+    <!--  ReadPage  -->
+    <string name="title_play_dialog">Play Settings</string>
+    <string name="start">start</string>
+    <string name="end">end</string>
+    <string name="play_interval">play interval(ms)</string>
+    <string name="manual_click">Click branches manually</string>
 
 </resources>

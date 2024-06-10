@@ -93,6 +93,7 @@ class TalkAdapter(
 
     fun notifyScrollToLast() = layoutManager?.scrollToPosition(talkList.lastIndex)
 
+    fun getData() = talkList
 }
 
 private const val TAG = "TalkAdapter"

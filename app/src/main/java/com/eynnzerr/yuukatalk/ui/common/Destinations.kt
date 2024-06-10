@@ -10,7 +10,9 @@ object Destinations {
     const val APPEARANCE_ROUTE = "/appearance"
     const val LANGUAGE_ROUTE = "/language"
     const val EDITOR_OPTIONS_ROUTE = "/editor_options"
-    const val PREVIEW_ROUTE = "/preview"
+    const val FONT_ROUTE = "/font"
     const val SPLIT_ROUTE = "/split"
     const val EMPTY_ROUTE = "/empty"
+    const val READ_ROUTE = "/read"
+    const val DIMENSION_ROUTE = "/dimension"
 }

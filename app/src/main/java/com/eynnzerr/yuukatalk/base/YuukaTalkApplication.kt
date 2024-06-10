@@ -16,13 +16,13 @@ class YuukaTalkApplication: Application() {
 
         Thread.setDefaultUncaughtExceptionHandler { _, e ->
             e.printStackTrace()
-//            startActivity(
-//                Intent(this, CrashActivity::class.java)
-//                    .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-//                    .apply {
-//                        putExtra("msg", "version: ${VersionUtils.getLocalVersion()}\n" + e.stackTraceToString())
-//                    }
-//            )
+            startActivity(
+                Intent(this, CrashActivity::class.java)
+                    .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    .apply {
+                        putExtra("msg", "version: ${VersionUtils.getLocalVersion()}\n" + e.stackTraceToString())
+                    }
+            )
         }
     }
 
