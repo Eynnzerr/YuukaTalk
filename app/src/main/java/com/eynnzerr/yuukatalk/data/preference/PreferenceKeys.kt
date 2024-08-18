@@ -20,6 +20,7 @@ object PreferenceKeys {
     const val USE_SWIPE_GESTURE = "use_swipe_gesture"
     const val USE_MARKDOWN = "use_markdown"
     const val USE_BASE64 = "use_base64"
+    const val USE_SAVE_CONFIRM = "use_save_confirm"
 
     // Message Dimensions
     const val AVATAR_SIZE = "avatar_size"

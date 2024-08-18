@@ -11,6 +11,7 @@ import com.eynnzerr.yuukatalk.data.AppRepository
 import com.eynnzerr.yuukatalk.data.model.Character
 import com.eynnzerr.yuukatalk.data.model.Sensei
 import com.eynnzerr.yuukatalk.data.model.Talk
+import com.eynnzerr.yuukatalk.data.model.TalkFolder
 import com.eynnzerr.yuukatalk.data.model.TalkProject
 import com.eynnzerr.yuukatalk.data.preference.PreferenceKeys
 import com.eynnzerr.yuukatalk.utils.ImageUtils
@@ -46,6 +47,8 @@ data class TalkUiState(
     val showBundled: Boolean,
     val showDIY: Boolean,
     val filterSchoolName: String,
+    val inputFolderName: String,
+    val allFolders: List<TalkFolder>,
 )
 
 sealed class TalkListState(val type: Int) {
@@ -88,7 +91,9 @@ class TalkViewModel @Inject constructor(
             gestureEnabled = mmkv.decodeBool(PreferenceKeys.USE_SWIPE_GESTURE, true),
             showBundled = true,
             showDIY = true,
-            filterSchoolName = "All"
+            filterSchoolName = "All",
+            allFolders = emptyList(),
+            inputFolderName = "",
         )
     )
     private val stateValue
@@ -96,6 +101,7 @@ class TalkViewModel @Inject constructor(
     val uiState = _uiState.asStateFlow()
 
     private var projectId = -1
+    private var folderId: Int? = null
 
     fun setProjectId(id: Int) {
         projectId = id
@@ -108,12 +114,18 @@ class TalkViewModel @Inject constructor(
                 _uiState.update { it.copy(filteredStudents = characters) }
             }
         }
+
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.fetchAllFolders().collect { folders ->
+                _uiState.update { it.copy(allFolders = folders) }
+            }
+        }
     }
 
     fun loadHistory() {
         if (isHistoryTalk() && talkList.isEmpty()) {
             // means we now enter into a history talk for the first time.
-            Log.d(TAG, "loadHistory: ")
+            Log.d(TAG, "loadHistory...")
             viewModelScope.launch {
                 val historyState = withContext(Dispatchers.IO) {
                     repository.fetchProjectById(projectId)
@@ -123,14 +135,15 @@ class TalkViewModel @Inject constructor(
                     clear()
                     addAll(historyState.studentList)
                 }
+                folderId = historyState.folderId
                 _uiState.update {
                     it.copy(
                         chatName = historyState.name,
                         talkList = historyState.talkHistory,
-                        // studentList = historyState.studentList,
                         currentStudent = historyState.currentStudent,
                         isFirstTalking = historyState.isFirstTalking,
                         talkListStateChange = listOf(TalkListState.Refresh()),
+                        inputFolderName = _uiState.value.allFolders.firstOrNull { folder -> folder.id == historyState.folderId }?.name ?: ""
                     )
                 }
             }
@@ -568,13 +581,26 @@ class TalkViewModel @Inject constructor(
     fun saveProject() {
         // 如果当前项目已存在则更新，没有则新建
         viewModelScope.launch(Dispatchers.IO) {
+            // 如果当前输入分组不存在，则新建该名称分组，否则将当前项目加入目的分组
+            val targetFolderName =  _uiState.value.inputFolderName
+            if (targetFolderName != "") {
+                val targetFolder = _uiState.value.allFolders.firstOrNull { it.name == targetFolderName }
+                if (targetFolder == null) {
+                    val folder = TalkFolder(name = targetFolderName)
+                    folderId = repository.addFolder(folder).toInt()
+                } else {
+                    folderId = targetFolder.id
+                }
+            }
+
             if (projectId == -1) {
                 val currentProject = TalkProject(
                     name = _uiState.value.chatName,
                     talkHistory = _uiState.value.talkList,
                     studentList = _uiState.value.studentList,
                     currentStudent = _uiState.value.currentStudent,
-                    isFirstTalking = _uiState.value.isFirstTalking
+                    isFirstTalking = _uiState.value.isFirstTalking,
+                    folderId = folderId,
                 )
                 projectId = repository.addProject(currentProject).toInt()
             } else {
@@ -585,6 +611,7 @@ class TalkViewModel @Inject constructor(
                     studentList = _uiState.value.studentList,
                     currentStudent = _uiState.value.currentStudent,
                     isFirstTalking = _uiState.value.isFirstTalking,
+                    folderId = folderId,
                 )
                 repository.updateProject(currentProject)
             }
@@ -720,6 +747,14 @@ class TalkViewModel @Inject constructor(
     fun switchShowDIY() {
         _uiState.update { it.copy(showDIY = !stateValue.showDIY) }
         filterCharacters()
+    }
+
+    fun isSaveReminderEnabled() = mmkv.decodeBool(PreferenceKeys.USE_SAVE_CONFIRM, true)
+
+    fun updateFolderName(name: String) {
+        _uiState.update {
+            it.copy(inputFolderName = name)
+        }
     }
 }
 

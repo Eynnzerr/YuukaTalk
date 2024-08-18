@@ -30,8 +30,6 @@ fun PhotoBubble(
     modifier: Modifier = Modifier,
     size: Dp = LocalTalkPieceProperty.current.photoWidth
 ) {
-    // Log.d(TAG, "PhotoBubble: uri: $uri")
-
     Column(
         modifier = Modifier.fillMaxWidth()
     ) {

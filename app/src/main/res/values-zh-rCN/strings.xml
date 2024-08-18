@@ -35,8 +35,10 @@
     <string name="narration">旁白</string>
     <string name="title_branch_dialog">添加分支选项。</string>
     <string name="title_emoji_dialog">选择发送表情。</string>
-    <string name="title_save_dialog">命名当前工程。</string>
+    <string name="title_save_dialog">保存当前工程。</string>
     <string name="name">名称</string>
+    <string name="saved_project">项目已保存为：</string>
+    <string name="toast_export_json">成功导出为JSON存档文件。</string>
     <string name="title_save_reminder_dialog">你还未保存当前对话，确认要离开吗？</string>
     <string name="title_clear_dialog">你确定要清空当前对话吗？</string>
     <string name="edit_piece">编辑当前内容</string>
@@ -57,6 +59,8 @@
     <string name="toast_remove_student">成功移除角色。</string>
     <string name="toast_add_student">成功添加角色。</string>
     <string name="toast_change_student">成功更改角色头像。</string>
+    <string name="title_exporting_dialog">导出中…</string>
+    <string name="save_note">注：若输入分组不存在，则自动新建。</string>
 
     <!--  HistoryPage  -->
     <string name="history">历史对话</string>
@@ -64,6 +68,17 @@
     <string name="toast_invalid_file">非法存档文件，导入失败！</string>
     <string name="import_yuuka_talk">导入YuukaTalk存档</string>
     <string name="import_moe_talk">导入MoeTalk存档</string>
+    <string name="last_modified">上次编辑时间：</string>
+    <string name="last_created">创建时间：</string>
+    <string name="title_project_dialog">项目信息</string>
+    <string name="title_folder_dialog">分组信息</string>
+    <string name="title_new_folder_dialog">创建新分组</string>
+    <string name="folder_name">分组名称</string>
+    <string name="modify_folder_name">修改名称</string>
+    <string name="deleted_project">成功删除项目。</string>
+    <string name="deleted_folder">成功删除项目分组。</string>
+    <string name="undo">撤销</string>
+    <string name="loading">加载中…</string>
 
     <!--  CharacterPage  -->
     <string name="characters">角色</string>
@@ -130,6 +145,8 @@
     <string name="markdown_parsing_desc">为文本启用 Markdown 渲染</string>
     <string name="use_base64">Base64编码(实验性)</string>
     <string name="use_base64_desc">将图片对话编码为Base64</string>
+    <string name="save_reminder">保存提醒</string>
+    <string name="save_reminder_desc">每次保存项目时都弹出确认提醒</string>
 
     <!--  AboutPage  -->
     <string name="version">版本</string>
@@ -165,5 +182,20 @@
     <string name="end">结束</string>
     <string name="play_interval">播放间隔(ms)</string>
     <string name="manual_click">手动点击分支选项</string>
+
+    <!--  DimensionPage  -->
+    <string name="dimensions">对话尺寸</string>
+    <string name="avatar_size">角色头像直径</string>
+    <string name="name_font_size">角色名称字号</string>
+    <string name="message_side_margin">消息侧边距</string>
+    <string name="message_font_size">消息字号</string>
+    <string name="message_vertical_margin">消息上下间距</string>
+    <string name="image_width">图片消息宽度</string>
+    <string name="narration_side_margin">旁白侧边距</string>
+    <string name="narration_font_size">旁白字号</string>
+    <string name="branch_side_margin">分支侧边距</string>
+    <string name="love_scene_side_margin">羁绊剧情侧边距</string>
+    <string name="title_reminder_dialog">帮助</string>
+    <string name="content_reminder_dialog">在本页面你可以根据自己的喜好，微调桃信对话中的消息尺寸，并随时点击预览按钮预览效果。但请注意为美观起见，为各项设置恰当的数值。否则，不建议修改本页面配置，或点击重置按钮恢复默认配置。</string>
 
 </resources>

@@ -1,9 +1,11 @@
 package com.eynnzerr.yuukatalk.utils
 
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.eynnzerr.yuukatalk.data.preference.PreferenceKeys
 import com.eynnzerr.yuukatalk.ui.common.TalkPieceProperty
+import com.eynnzerr.yuukatalk.ui.component.ScreenInfo
 import com.tencent.mmkv.MMKV
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -26,6 +28,35 @@ object DimensionUtils {
         )
     )
     val dimensionState = _dimensionState.asStateFlow()
+
+    fun resetDimensions() {
+        _dimensionState.update {
+            TalkPieceProperty(
+                avatarSize = 56.dp,
+                nameFontSize = TextUnit.Unspecified,
+                textStartPadding = 64.dp,
+                textFontSize = 16.sp,
+                verticalMargin = 8.dp,
+                photoWidth = 192.dp,
+                narrationPadding = 16.dp,
+                narrationFontSize = 18.sp,
+                branchStartPadding = 72.dp,
+                loveSceneStartPadding = 72.dp,
+            )
+        }
+        with(mmkv) {
+            encode(PreferenceKeys.AVATAR_SIZE, 56)
+            encode(PreferenceKeys.NAME_FONT_SIZE, TextUnit.Unspecified.value)
+            encode(PreferenceKeys.TEXT_START_PADDING, 64)
+            encode(PreferenceKeys.TEXT_FONT_SIZE, 16)
+            encode(PreferenceKeys.VERTICAL_MARGIN, 8)
+            encode(PreferenceKeys.PHOTO_WIDTH, 192)
+            encode(PreferenceKeys.NARRATION_PADDING, 16)
+            encode(PreferenceKeys.NARRATION_FONT_SIZE, 18)
+            encode(PreferenceKeys.BRANCH_START_PADDING, 72)
+            encode(PreferenceKeys.LOVE_SCENE_START_PADDING, 72)
+        }
+    }
 
     fun updateAvatarSize(size: Float) {
         _dimensionState.update { it.copy(avatarSize = size.dp) }

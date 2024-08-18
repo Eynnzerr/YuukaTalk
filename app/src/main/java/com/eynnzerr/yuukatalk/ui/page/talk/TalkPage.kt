@@ -142,6 +142,7 @@ import com.eynnzerr.yuukatalk.data.model.Talk
 import com.eynnzerr.yuukatalk.ui.common.Destinations
 import com.eynnzerr.yuukatalk.ui.component.DenseTextField
 import com.eynnzerr.yuukatalk.ui.component.DraggableStudentAvatar
+import com.eynnzerr.yuukatalk.ui.component.DropDownTextField
 import com.eynnzerr.yuukatalk.ui.component.InteractiveFilterChip
 import com.eynnzerr.yuukatalk.ui.component.PlainButton
 import com.eynnzerr.yuukatalk.ui.component.PlainTextField
@@ -155,6 +156,7 @@ import com.eynnzerr.yuukatalk.ui.component.StudentInfo
 import com.eynnzerr.yuukatalk.ui.component.StudentSearchBar
 import com.eynnzerr.yuukatalk.ui.component.dialog.BranchDialog
 import com.eynnzerr.yuukatalk.ui.component.dialog.EmojiPickerDialog
+import com.eynnzerr.yuukatalk.ui.component.dialog.LoadingDialog
 import com.eynnzerr.yuukatalk.ui.component.dialog.NarrationDialog
 import com.eynnzerr.yuukatalk.ui.ext.pushTo
 import com.eynnzerr.yuukatalk.ui.view.TalkAdapter
@@ -203,6 +205,7 @@ fun TalkPage(
     var openRemindSaveDialog by rememberSaveable { mutableStateOf(false) }
     var openTalkPieceEditDialog by rememberSaveable { mutableStateOf(false) }
     var openTalkPieceInsertDialog by rememberSaveable { mutableStateOf(false) }
+    var openLoadingDialog by remember { mutableStateOf(false) }
     var insertIndex by remember { mutableIntStateOf(0) }
 
     // Native RecyclerView adapter
@@ -399,9 +402,9 @@ fun TalkPage(
                                 }
                                 IconButton(
                                     onClick = {
-                                        if (viewModel.isHistoryTalk()) {
+                                        if (viewModel.isHistoryTalk() && !viewModel.isSaveReminderEnabled()) {
                                             viewModel.saveProject()
-                                            Toast.makeText(context, "project saved as ${uiState.chatName}", Toast.LENGTH_SHORT).show()
+                                            Toast.makeText(context, "${context.getString(R.string.saved_project)}${uiState.chatName}", Toast.LENGTH_SHORT).show()
                                         } else {
                                             openSaveDialog = true
                                         }
@@ -467,7 +470,7 @@ fun TalkPage(
                                                 expandDropDown = false
                                                 viewModel.saveTalkAsJson()
                                                 scope.launch {
-                                                    snackbarHostState.showSnackbar("Successfully export talk as json file.")
+                                                    snackbarHostState.showSnackbar(context.getString(R.string.toast_export_json))
                                                 }
                                             }
                                         )
@@ -667,11 +670,13 @@ fun TalkPage(
                         scope.launch(Dispatchers.Main) {
                             try {
                                 screenshotTalk = false
+                                openLoadingDialog = true
                                 val bitmap = ImageUtils.generateBitmap(view)
                                 val imageUri = withContext(Dispatchers.IO) {
                                     ImageUtils.saveBitMapToDisk(bitmap, context)
                                 }
                                 Log.d(TAG, "InternalTalkPage: screenshot uri: $imageUri")
+                                openLoadingDialog = false
                                 if (imageUri.toString().startsWith("content://") && shareScreenshot) {
                                     shareScreenshot = false
                                     shareFile(context, imageUri, "image/*")
@@ -940,6 +945,12 @@ fun TalkPage(
                 }
             }
         )
+    }
+
+    if (openLoadingDialog) {
+        LoadingDialog(
+            titleText = stringResource(id = R.string.title_exporting_dialog)
+        ) { openLoadingDialog = false }
     }
 
     if (openTalkPieceEditDialog) {
@@ -1667,11 +1678,24 @@ fun TalkPage(
                 Text(text = stringResource(id = R.string.title_save_dialog))
             },
             text = {
-                OutlinedTextField(
-                    value = uiState.chatName,
-                    onValueChange = { viewModel.updateChatName(it) },
-                    label = { Text(text = stringResource(id = R.string.name)) },
-                )
+                Column {
+                    OutlinedTextField(
+                        value = uiState.chatName,
+                        onValueChange = { viewModel.updateChatName(it) },
+                        label = { Text(text = stringResource(id = R.string.name)) },
+                        modifier = Modifier.padding(bottom = 4.dp)
+                    )
+                    DropDownTextField(
+                        text = uiState.inputFolderName,
+                        label = stringResource(id = R.string.folder_name),
+                        options = uiState.allFolders.map { it.name },
+                        onTextChange = { folderName ->
+                            viewModel.updateFolderName(folderName)
+                        },
+                        modifier = Modifier.padding(bottom = 4.dp)
+                    )
+                    Text(stringResource(R.string.save_note))
+                }
             }
         )
     }

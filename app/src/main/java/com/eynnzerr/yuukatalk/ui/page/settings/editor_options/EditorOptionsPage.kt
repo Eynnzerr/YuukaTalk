@@ -25,11 +25,13 @@ import androidx.compose.material.icons.filled.ArrowLeft
 import androidx.compose.material.icons.filled.Compress
 import androidx.compose.material.icons.filled.Fullscreen
 import androidx.compose.material.icons.filled.Gradient
+import androidx.compose.material.icons.filled.NotificationsNone
 import androidx.compose.material.icons.filled.Radar
 import androidx.compose.material.icons.filled.TextFields
 import androidx.compose.material.icons.outlined.Gesture
 import androidx.compose.material.icons.outlined.HelpOutline
 import androidx.compose.material.icons.outlined.HighQuality
+import androidx.compose.material.icons.outlined.NotificationsActive
 import androidx.compose.material.icons.outlined.Photo
 import androidx.compose.material.icons.outlined.Save
 import androidx.compose.material.icons.outlined.UploadFile
@@ -53,6 +55,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -288,8 +291,7 @@ fun EditorOptionsPage(
                     desc = stringResource(id = R.string.size_desc),
                     icon = Icons.Filled.Fullscreen,
                     onClick = {
-                        // 前往尺寸调整页面
-                        Toast.makeText(context, "将在下一版本推出", Toast.LENGTH_SHORT).show()
+                        navHostController.pushTo(Destinations.DIMENSION_ROUTE)
                     }
                 )
             }
@@ -404,6 +406,15 @@ fun EditorOptionsPage(
                     desc = stringResource(id = R.string.use_base64_desc),
                     checked = uiState.enableBase64,
                     onSwitch = { viewModel.switchUseBase64() }
+                )
+            }
+            item {
+                SettingGroupSwitch(
+                    title = stringResource(id = R.string.save_reminder),
+                    icon = Icons.Outlined.NotificationsActive,
+                    desc = stringResource(id = R.string.save_reminder_desc),
+                    checked = uiState.enableSaveConfirm,
+                    onSwitch = { viewModel.switchUseSaveConfirm() }
                 )
             }
         }
