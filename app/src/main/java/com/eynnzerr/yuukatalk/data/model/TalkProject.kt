@@ -2,6 +2,7 @@ package com.eynnzerr.yuukatalk.data.model
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
 import com.eynnzerr.yuukatalk.data.database.converter.CharacterConverter
@@ -11,7 +12,17 @@ import com.eynnzerr.yuukatalk.utils.TimeUtils
 import kotlinx.serialization.Serializable
 
 @Serializable
-@Entity(tableName = "momotalk_project")
+@Entity(
+    tableName = "momotalk_project",
+    foreignKeys = [
+        ForeignKey(
+            entity = TalkFolder::class,
+            parentColumns = ["id"],
+            childColumns = ["folderId"],
+            onDelete = ForeignKey.SET_NULL
+        )
+    ]
+)
 @TypeConverters(
     TalkListConverter::class,
     CharacterListConverter::class,
@@ -30,5 +41,7 @@ data class TalkProject(
     @ColumnInfo(defaultValue = "empty")
     var createdDate: String = TimeUtils.currentTime(),
     @ColumnInfo(defaultValue = "empty")
-    var modifiedDate: String = TimeUtils.currentTime()
+    var modifiedDate: String = TimeUtils.currentTime(),
+    @ColumnInfo(index = true)
+    val folderId: Int? = null
 )

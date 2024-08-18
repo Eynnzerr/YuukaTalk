@@ -37,6 +37,8 @@
     <string name="title_emoji_dialog">Select emoji to send.</string>
     <string name="title_save_dialog">Name your project.</string>
     <string name="name">name</string>
+    <string name="saved_project">project saved as </string>
+    <string name="toast_export_json">Successfully export talk as json file.</string>
     <string name="title_save_reminder_dialog">You haven\'t saved talk yet. Still leaving?</string>
     <string name="title_clear_dialog">Are you sure you want to clear the talk?</string>
     <string name="edit_piece">Edit content</string>
@@ -56,6 +58,8 @@
     <string name="toast_remove_student">Remove character from talk.</string>
     <string name="toast_add_student">Successfully add character.</string>
     <string name="toast_change_student">Change character avatar.</string>
+    <string name="title_exporting_dialog">Exporting…</string>
+    <string name="save_note">Note: If input folder is not exist, it will then be created.</string>
 
     <!--  HistoryPage  -->
     <string name="history">History</string>
@@ -63,6 +67,17 @@
     <string name="toast_invalid_file">Failed to import. Invalid file!</string>
     <string name="import_yuuka_talk">import from save file</string>
     <string name="import_moe_talk">import from MoeTalk</string>
+    <string name="last_modified">last modified at: </string>
+    <string name="last_created">created at: </string>
+    <string name="title_project_dialog">Project Details</string>
+    <string name="title_folder_dialog">Folder Details</string>
+    <string name="title_new_folder_dialog">Creating new folder…</string>
+    <string name="folder_name">folder name</string>
+    <string name="modify_folder_name">modify name</string>
+    <string name="deleted_project">Successfully deleted project.</string>
+    <string name="deleted_folder">Successfully deleted folder.</string>
+    <string name="undo">Undo</string>
+    <string name="loading">Loading…</string>
 
     <!--  CharacterPage  -->
     <string name="characters">Characters</string>
@@ -130,6 +145,8 @@
     <string name="markdown_parsing_desc">enable markdown grammar for texts.</string>
     <string name="use_base64">Base64 Encoder</string>
     <string name="use_base64_desc">Convert images to Base64 on sending.</string>
+    <string name="save_reminder">Save reminder</string>
+    <string name="save_reminder_desc">Enable reminder dialog each time saving projects.</string>
 
     <!--  AboutPage  -->
     <string name="version">Version</string>
@@ -165,5 +182,20 @@
     <string name="end">end</string>
     <string name="play_interval">play interval(ms)</string>
     <string name="manual_click">Click branches manually</string>
+
+    <!--  DimensionPage  -->
+    <string name="dimensions">Dimensions</string>
+    <string name="avatar_size">Avatar Size</string>
+    <string name="name_font_size">Name Font Size</string>
+    <string name="message_side_margin">Message Side Margin</string>
+    <string name="message_font_size">Message Font Size</string>
+    <string name="message_vertical_margin">Message Vertical Margin</string>
+    <string name="image_width">Image Width</string>
+    <string name="narration_side_margin">Narration Side Margin</string>
+    <string name="narration_font_size">Narration Font Size</string>
+    <string name="branch_side_margin">Branch Side Margin</string>
+    <string name="love_scene_side_margin">Love Scene Side Margin</string>
+    <string name="title_reminder_dialog">Instructions</string>
+    <string name="content_reminder_dialog">In this page, you can adjust message dimensions in momotalks to your favor, and check the effects by pressing preview button. But be careful to set proper numbers. Else I recommend do not change any of these configs, or press reset button to recover.</string>
 
 </resources>

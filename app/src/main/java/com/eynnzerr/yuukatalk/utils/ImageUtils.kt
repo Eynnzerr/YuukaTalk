@@ -18,10 +18,16 @@ import android.view.View
 import androidx.collection.LruCache
 import androidx.core.net.toUri
 import androidx.recyclerview.widget.RecyclerView
+import coil.executeBlocking
+import coil.imageLoader
+import coil.request.ImageRequest
 import com.eynnzerr.yuukatalk.base.YuukaTalkApplication
+import com.eynnzerr.yuukatalk.data.model.Talk
 import com.eynnzerr.yuukatalk.data.preference.PreferenceKeys
+import com.eynnzerr.yuukatalk.ui.view.TalkAdapter
 import com.tencent.mmkv.MMKV
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
@@ -54,9 +60,31 @@ object ImageUtils {
     }
 
     fun generateBitMapInRange(view: RecyclerView, range: IntRange): Bitmap {
+        val context = YuukaTalkApplication.context
+        val scope = YuukaTalkApplication.applicationScope
+
         return view.adapter?.let { adapter ->
             assert(adapter.itemCount > range.last && range.first >= 0) {
                 "Range outbounds adapter count."
+            }
+
+            // 导致这个方法不再是一个通用的方法，而是仅针对TalkAdapter
+            // 同步预加载对话中的图片，防止导出时图片未加载导致空白
+            adapter as TalkAdapter
+            val talkList = adapter.getData()
+            for (i in range) {
+                val talk = talkList[i]
+                if (talk is Talk.Photo) {
+                    Log.d(TAG, "generateBitMapInRange: preloading photo $i")
+                    val photoUri = talk.uri
+                    val url = if (isImageBase64(photoUri)) Base64.decode(photoUri, Base64.DEFAULT) else photoUri
+                    val request = ImageRequest.Builder(YuukaTalkApplication.context)
+                        .dispatcher(Dispatchers.Main)
+                        .data(url)
+                        .build()
+                    YuukaTalkApplication.context.imageLoader.executeBlocking(request)
+                    Log.d(TAG, "generateBitMapInRange: Successfully preloaded image at position $i.")
+                }
             }
 
             var iHeight = 0f
@@ -66,6 +94,7 @@ object ImageUtils {
             val cacheSize = (Runtime.getRuntime().maxMemory() / 1024 / 4).toInt()
             val bitmapCache = LruCache<Int, Bitmap>(cacheSize)
 
+            // 如下方法必须放在主线程中进行
             for (i in range) {
                 val holder = adapter.createViewHolder(view, adapter.getItemViewType(i))
                 adapter.onBindViewHolder(holder, i)

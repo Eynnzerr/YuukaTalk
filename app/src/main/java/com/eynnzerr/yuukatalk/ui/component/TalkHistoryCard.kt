@@ -17,11 +17,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.eynnzerr.yuukatalk.R
 import com.eynnzerr.yuukatalk.data.model.TalkProject
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -63,7 +65,7 @@ fun TalkHistoryCard(
                 fontSize = 18.sp
             )
             Text(
-                text = "last modified: ${history.modifiedDate}",
+                text = stringResource(R.string.last_modified) + history.modifiedDate,
                 style = MaterialTheme.typography.bodyMedium,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis

@@ -24,6 +24,7 @@ data class EditorOptionsState(
     val enableGesture: Boolean,
     val enableMarkdown: Boolean,
     val enableBase64: Boolean,
+    val enableSaveConfirm: Boolean,
 )
 
 @HiltViewModel
@@ -43,6 +44,7 @@ class EditorOptionsViewModel @Inject constructor(
         enableGesture = mmkv.decodeBool(PreferenceKeys.USE_SWIPE_GESTURE, true),
         enableMarkdown = mmkv.decodeBool(PreferenceKeys.USE_MARKDOWN, false),
         enableBase64 = mmkv.decodeBool(PreferenceKeys.USE_BASE64, false),
+        enableSaveConfirm = mmkv.decodeBool(PreferenceKeys.USE_SAVE_CONFIRM, true),
     ))
     private val stateValue
         get() = _uiState.value
@@ -72,6 +74,11 @@ class EditorOptionsViewModel @Inject constructor(
     fun switchUseBase64() {
         _uiState.update { it.copy(enableBase64 = !stateValue.enableBase64) }
         mmkv.encode(PreferenceKeys.USE_BASE64, stateValue.enableBase64)
+    }
+
+    fun switchUseSaveConfirm() {
+        _uiState.update { it.copy(enableSaveConfirm = !stateValue.enableSaveConfirm) }
+        mmkv.encode(PreferenceKeys.USE_SAVE_CONFIRM, stateValue.enableSaveConfirm)
     }
 
     fun updateAuthorName(name: String) {

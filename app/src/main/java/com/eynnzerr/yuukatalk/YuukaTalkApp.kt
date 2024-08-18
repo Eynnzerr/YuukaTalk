@@ -52,6 +52,7 @@ import com.eynnzerr.yuukatalk.ui.page.settings.about.AboutPage
 import com.eynnzerr.yuukatalk.ui.page.settings.about.AboutViewModel
 import com.eynnzerr.yuukatalk.ui.page.settings.appearance.AppearancePage
 import com.eynnzerr.yuukatalk.ui.page.settings.appearance.AppearanceViewModel
+import com.eynnzerr.yuukatalk.ui.page.settings.dimension.DimensionPage
 import com.eynnzerr.yuukatalk.ui.page.settings.editor_options.EditorOptionsPage
 import com.eynnzerr.yuukatalk.ui.page.settings.editor_options.EditorOptionsViewModel
 import com.eynnzerr.yuukatalk.ui.page.settings.preview.FontPage
@@ -82,20 +83,20 @@ fun YuukaTalkApp() {
         }
 
         val screenInfo = RememberScreenInfo()
-        val talkPieceProperty = TalkPieceProperty(
-            avatarSize = 56.dp,
-            nameFontSize = TextUnit.Unspecified,
-            textStartPadding = 64.dp,
-            textFontSize = 16.sp,
-            verticalMargin = 8.dp,
-            photoWidth = 192.dp,
-            narrationPadding = 16.dp,
-            narrationFontSize = 18.sp,
-            branchStartPadding = if (screenInfo.widthType is ScreenInfo.ScreenType.Compact) 72.dp else 288.dp,
-            loveSceneStartPadding = if (screenInfo.widthType is ScreenInfo.ScreenType.Compact) 72.dp else 288.dp,
-        )
+//        val talkPieceProperty = TalkPieceProperty(
+//            avatarSize = 56.dp,
+//            nameFontSize = TextUnit.Unspecified,
+//            textStartPadding = 64.dp,
+//            textFontSize = 16.sp,
+//            verticalMargin = 8.dp,
+//            photoWidth = 192.dp,
+//            narrationPadding = 16.dp,
+//            narrationFontSize = 18.sp,
+//            branchStartPadding = if (screenInfo.widthType is ScreenInfo.ScreenType.Compact) 72.dp else 288.dp,
+//            loveSceneStartPadding = if (screenInfo.widthType is ScreenInfo.ScreenType.Compact) 72.dp else 288.dp,
+//        )
         val appNavController = rememberNavController()
-        CompositionLocalProvider(LocalTalkPieceProperty provides talkPieceProperty) {
+        CompositionLocalProvider(LocalTalkPieceProperty provides dimensionState) {
             if (screenInfo.widthType is ScreenInfo.ScreenType.Compact) {
                 AppNavGraph(appNavController)
             } else {
@@ -200,7 +201,9 @@ private fun ExpandedAppNavGraph(
                 animatedComposable(
                     route = Destinations.DIMENSION_ROUTE,
                 ) {
-                    // TODO
+                    DimensionPage {
+                        appNavController.popBackStack()
+                    }
                 }
             }
         }
@@ -285,7 +288,9 @@ private fun AppNavGraph(
         animatedComposable(
             route = Destinations.DIMENSION_ROUTE,
         ) {
-            // TODO
+            DimensionPage {
+                appNavController.popBackStack()
+            }
         }
     }
 }

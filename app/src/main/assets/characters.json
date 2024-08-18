@@ -1,5 +1,5 @@
 {
-  "version": 5,
+  "version": 6,
   "characters": [
     {
       "name": "白子",
@@ -765,6 +765,13 @@
       "emojiPath": "Valkyrie/PublicPeaceBureau/Kanna/emoji"
     },
     {
+      "name": "心华",
+      "nameRoma": "Konoka",
+      "school": "Valkyrie",
+      "avatarPath": "Valkyrie/PublicPeaceBureau/Konoka/avatar",
+      "emojiPath": "Valkyrie/PublicPeaceBureau/Konoka/emoji"
+    },
+    {
       "name": "公安局成员",
       "nameRoma": "PublicPeaceBureauMember",
       "school": "Valkyrie",
@@ -1393,6 +1400,13 @@
       "school": "Highlander",
       "avatarPath": "Highlander/Student/avatar",
       "emojiPath": "Highlander/Student/emoji"
+    },
+    {
+      "name": "笑面教授",
+      "nameRoma": "Nyanya",
+      "school": "Empty",
+      "avatarPath": "ETC/EmptyClub/Nyanya/avatar",
+      "emojiPath": "ETC/EmptyClub/Nyanya/emoji"
     }
   ]
 }
