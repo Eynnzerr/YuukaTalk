@@ -2,6 +2,10 @@
   <img src="./logo.png" />
 </p>
 
+# Note
+
+This project is now in MAINTEANCE MODE. No new features will be added, only stability updates.
+
 # Introduction
 
 Momotalk is a virtual app in mobile game *Blue Archive*, which lets players talk with characters in the game, bringing and representing interesting stories. And it has become a popular format for fan arts, especially in CN communities.
@@ -50,9 +54,7 @@ Go to [release page](https://github.com/Eynnzerr/YuukaTalk/releases) and downloa
 - [x] Support large-scale screens.
 - [x] Add first-time guidance.
 - [x] Read and play mode.
-- [ ] Multi-platform(iOS and desktop). WIP
-- [ ] Adjust message dimension. WIP
-- [ ] Support import MoeTalk file. WIP
+- [x] Message dimension adjustment.
 
 # Credits
 
