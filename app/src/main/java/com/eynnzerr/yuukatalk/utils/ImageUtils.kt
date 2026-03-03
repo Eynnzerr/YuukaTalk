@@ -11,12 +11,12 @@ import android.media.MediaScannerConnection
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
+import android.os.Looper
 import android.provider.MediaStore
-import android.util.Log
 import android.util.Base64
+import android.util.Log
 import android.view.View
-import androidx.collection.LruCache
-import androidx.core.net.toUri
+import androidx.core.content.FileProvider
 import androidx.recyclerview.widget.RecyclerView
 import coil.executeBlocking
 import coil.imageLoader
@@ -26,176 +26,172 @@ import com.eynnzerr.yuukatalk.data.model.Talk
 import com.eynnzerr.yuukatalk.data.preference.PreferenceKeys
 import com.eynnzerr.yuukatalk.ui.view.TalkAdapter
 import com.tencent.mmkv.MMKV
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.yield
 import java.io.ByteArrayOutputStream
 import java.io.File
 import kotlin.coroutines.resume
+import androidx.core.graphics.createBitmap
+import androidx.core.graphics.toColorInt
 
 object ImageUtils {
+
+    enum class ExportStage {
+        PRELOAD,
+        MEASURE,
+        DRAW
+    }
+
+    data class ExportProgress(
+        val stage: ExportStage,
+        val current: Int,
+        val total: Int,
+    )
 
     private val mmkv = MMKV.defaultMMKV()
 
     val defaultExportPath: String = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).absolutePath
 
-    fun generateBitmap(view: View): Bitmap {
+    fun generateBitmap(view: View): Bitmap = runBlocking {
+        generateBitmapSuspend(view, yieldEveryItems = Int.MAX_VALUE)
+    }
+
+    suspend fun generateBitmapSuspend(
+        view: View,
+        yieldEveryItems: Int = 1,
+        onProgress: ((ExportProgress) -> Unit)? = null,
+    ): Bitmap {
+        requireMainThread()
+
         if (view is RecyclerView) {
-            return view.adapter?.let {
-                generateBitMapInRange(view, 0..<it.itemCount)
-            } ?: Bitmap.createBitmap(view.width, view.height, Bitmap.Config.ARGB_8888)
+            val adapter = view.adapter
+            return if (adapter != null) {
+                generateBitmapInRangeSuspend(view, 0..<adapter.itemCount, yieldEveryItems, onProgress)
+            } else {
+                createBitmap(view.width.coerceAtLeast(1), view.height.coerceAtLeast(1))
+            }
         }
 
-        // never used.
-        val bitmap = Bitmap.createBitmap(
-            view.width,
-            view.height,
-            Bitmap.Config.ARGB_8888
-        )
+        // Normally won't be reachable.
+        val bitmap = createBitmap(view.width.coerceAtLeast(1), view.height.coerceAtLeast(1))
         val canvas = Canvas(bitmap)
         canvas.drawColor(Color.WHITE)
         view.draw(canvas)
         return bitmap
     }
 
-    fun generateBitMapInRange(view: RecyclerView, range: IntRange): Bitmap {
-        val context = YuukaTalkApplication.context
-        val scope = YuukaTalkApplication.applicationScope
-
-        return view.adapter?.let { adapter ->
-            assert(adapter.itemCount > range.last && range.first >= 0) {
-                "Range outbounds adapter count."
-            }
-
-            // 导致这个方法不再是一个通用的方法，而是仅针对TalkAdapter
-            // 同步预加载对话中的图片，防止导出时图片未加载导致空白
-            adapter as TalkAdapter
-            val talkList = adapter.getData()
-            for (i in range) {
-                val talk = talkList[i]
-                if (talk is Talk.Photo) {
-                    Log.d(TAG, "generateBitMapInRange: preloading photo $i")
-                    val photoUri = talk.uri
-                    val url = if (isImageBase64(photoUri)) Base64.decode(photoUri, Base64.DEFAULT) else photoUri
-                    val request = ImageRequest.Builder(YuukaTalkApplication.context)
-                        .dispatcher(Dispatchers.Main)
-                        .data(url)
-                        .build()
-                    YuukaTalkApplication.context.imageLoader.executeBlocking(request)
-                    Log.d(TAG, "generateBitMapInRange: Successfully preloaded image at position $i.")
-                }
-            }
-
-            var iHeight = 0f
-            var totalHeight = 0f
-
-            val paint = Paint()
-            val cacheSize = (Runtime.getRuntime().maxMemory() / 1024 / 4).toInt()
-            val bitmapCache = LruCache<Int, Bitmap>(cacheSize)
-
-            // 如下方法必须放在主线程中进行
-            for (i in range) {
-                val holder = adapter.createViewHolder(view, adapter.getItemViewType(i))
-                adapter.onBindViewHolder(holder, i)
-                holder.itemView.apply {
-                    view.addView(this)
-                    measure(
-                        View.MeasureSpec.makeMeasureSpec(view.width, View.MeasureSpec.EXACTLY),
-                        View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
-                    )
-                    layout(0, 0, holder.itemView.measuredWidth, holder.itemView.measuredHeight)
-                    view.removeView(this)
-
-                    val itemBitmap = Bitmap.createBitmap(
-                        width,
-                        height,
-                        Bitmap.Config.ARGB_8888
-                    )
-                    val itemCanvas = Canvas(itemBitmap)
-                    draw(itemCanvas)
-                    bitmapCache.put(i, itemBitmap)
-                    totalHeight += height
-                    Log.d(TAG, "generateBitmap: talk piece $i height: $height")
-                }
-            }
-
-            val padding = 16
-            val screenshot = Bitmap.createBitmap(view.width + 2 * padding, totalHeight.toInt() + 2 * padding, Bitmap.Config.ARGB_8888)
-            val canvas = Canvas(screenshot).apply {
-                val bgColor = mmkv.decodeString(PreferenceKeys.BACKGROUND_COLOR) ?: "#fff7e3"
-                drawColor(Color.parseColor(bgColor))
-            }
-
-            for (i in range) {
-                val bitmap = bitmapCache[i]
-                canvas.drawBitmap(bitmap!!, 0F + padding, iHeight + padding, paint)
-                iHeight += bitmap.height
-                bitmap.recycle()
-            }
-
-            // draw watermark
-            val mmkv = MMKV.defaultMMKV()
-            if (mmkv.decodeBool(PreferenceKeys.USE_WATERMARK, false)) {
-                val author = mmkv.decodeString(PreferenceKeys.AUTHOR_NAME, "")
-                paint.textSize = 20f
-                paint.color = Color.DKGRAY
-                canvas.drawText(
-                    "Author:$author",
-                    0f,
-                    (canvas.height - 25).toFloat(),
-                    paint
-                )
-                canvas.drawText(
-                    "Made by YuukaTalk ${VersionUtils.getLocalVersion()}",
-                    0f,
-                    (canvas.height - 5).toFloat(),
-                    paint
-                )
-            }
-
-            screenshot
-        } ?: Bitmap.createBitmap(
-            view.width,
-            view.height,
-            Bitmap.Config.ARGB_8888
-        )
+    // legacy API, keep for compatibility
+    fun generateBitMapInRange(view: RecyclerView, range: IntRange): Bitmap = runBlocking {
+        generateBitmapInRangeSuspend(view, range, yieldEveryItems = Int.MAX_VALUE)
     }
 
-    // 用户一定已经授予了读写权限。首先尝试直接写入设置的指定输出目录。如果失败，写入到私有目录中，并通过MediaStore拷贝到图库以提供访问
+    suspend fun generateBitmapInRangeSuspend(
+        view: RecyclerView,
+        range: IntRange,
+        yieldEveryItems: Int = 1,
+        onProgress: ((ExportProgress) -> Unit)? = null,
+    ): Bitmap {
+        requireMainThread()
+        val adapter = view.adapter
+            ?: return createBitmap(view.width.coerceAtLeast(1), view.height.coerceAtLeast(1))
+
+        ensureValidRange(adapter.itemCount, range)
+        if (range.isEmpty()) {
+            return createBitmap(view.width.coerceAtLeast(1), view.height.coerceAtLeast(1))
+        }
+
+        val totalCount = range.count()
+        preloadPhotosIfNeeded(adapter, range, yieldEveryItems, onProgress)
+
+        val viewHolderAdapter = adapter.asViewHolderAdapter()
+        val itemHeights = IntArray(totalCount)
+        var totalHeight = 0
+
+        for ((indexInRange, position) in range.withIndex()) {
+            val itemView = createAndLayoutItemView(view, viewHolderAdapter, position)
+            val itemHeight = itemView.measuredHeight.coerceAtLeast(1)
+            itemHeights[indexInRange] = itemHeight
+            totalHeight += itemHeight
+            reportProgress(onProgress, ExportStage.MEASURE, indexInRange + 1, totalCount)
+            maybeYield(indexInRange, yieldEveryItems)
+        }
+
+        val padding = 16
+        val screenshot = createBitmap(
+            (view.width + 2 * padding).coerceAtLeast(1),
+            (totalHeight + 2 * padding).coerceAtLeast(1)
+        )
+        try {
+            val canvas = Canvas(screenshot)
+            canvas.drawColor(resolveBackgroundColor())
+
+            var yOffset = padding.toFloat()
+            for ((indexInRange, position) in range.withIndex()) {
+                val itemView = createAndLayoutItemView(view, viewHolderAdapter, position)
+                canvas.save()
+                canvas.translate(padding.toFloat(), yOffset)
+                itemView.draw(canvas)
+                canvas.restore()
+                yOffset += itemHeights[indexInRange]
+                reportProgress(onProgress, ExportStage.DRAW, indexInRange + 1, totalCount)
+                maybeYield(indexInRange, yieldEveryItems)
+            }
+
+            drawWatermark(canvas)
+            return screenshot
+        } catch (e: CancellationException) {
+            if (!screenshot.isRecycled) {
+                screenshot.recycle()
+            }
+            throw e
+        }
+    }
+
+    // 用户一定已经授予了读写权限。首先尝试直接写入设置的指定输出目录。如果失败，写入到私有目录中。
+    // 无论哪条路径，最终都返回可分享的 content:// uri。
     suspend fun saveBitMapToDisk(bitmap: Bitmap, context: Context): Uri {
         val formatIndex = mmkv.decodeInt(PreferenceKeys.COMPRESS_FORMAT, 1)
         val format = getCompressFormat(formatIndex)
-        val suffix = when (formatIndex) {
-            0 -> "jpeg"
-            1 -> "png"
-            else -> "webp"
-        }
-        Log.d(TAG, "saveBitMapToDisk: format: ${format.name}")
+        val suffix = compressSuffix(formatIndex)
+        val quality = mmkv.decodeInt(PreferenceKeys.IMAGE_QUALITY, 100)
+        val fileName = "screenshot-${System.currentTimeMillis()}.$suffix"
+
+        Log.d(TAG, "saveBitMapToDisk: format=${format.name}, suffix=$suffix, quality=$quality")
 
         val savePath = mmkv.decodeString(PreferenceKeys.IMAGE_EXPORT_PATH) ?: defaultExportPath
-        val file = File(
-            // Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
-            savePath,
-            "screenshot-${System.currentTimeMillis()}.$suffix"
-        )
-        val quality = mmkv.decodeInt(PreferenceKeys.IMAGE_QUALITY, 100)
+        val targetDir = File(savePath)
+
         runCatching {
+            if (!targetDir.exists()) {
+                targetDir.mkdirs()
+            }
+            val file = File(targetDir, fileName)
             file.writeBitmap(bitmap, format, quality)
-        }.onSuccess {
-            Log.d(TAG, "saveBitMapToDisk: Successfully write picture.")
+            scanFilePath(context, file.path) ?: toFileProviderUri(context, file)
+        }.onSuccess { uri ->
+            Log.d(TAG, "saveBitMapToDisk: main-path uri=$uri")
+            return uri
         }.onFailure {
             it.printStackTrace()
-            Log.d(TAG, "saveBitMapToDisk: target directory(even gallery) is not supported. Fallback to use app private folder instead.")
-            val privateFile = File(
-                PathUtils.getImageFallbackExportDir(),
-                "screenshot-${System.currentTimeMillis()}.$suffix"
-            ).apply { writeBitmap(bitmap, format, quality) }
-            copyImageToGallery(context, privateFile, suffix)
-            return privateFile.toUri()
+            Log.d(TAG, "saveBitMapToDisk: main-path failed, fallback to private dir.")
         }
 
-        return scanFilePath(context, file.path) ?: throw Exception("File could not be saved to MediaStore.")
+        val privateFile = File(PathUtils.getImageFallbackExportDir(), fileName).apply {
+            writeBitmap(bitmap, format, quality)
+        }
+
+        copyImageToGallery(context, privateFile, suffix)?.let { uri ->
+            Log.d(TAG, "saveBitMapToDisk: mediastore-fallback uri=$uri")
+            return uri
+        }
+
+        val fallbackUri = toFileProviderUri(context, privateFile)
+        Log.d(TAG, "saveBitMapToDisk: fileprovider-fallback uri=$fallbackUri")
+        return fallbackUri
     }
 
     fun isImageBase64(imageUri: String) = !imageUri.startsWith("file://") && !imageUri.startsWith("content://") && !imageUri.startsWith("/storage")
@@ -219,33 +215,187 @@ object ImageUtils {
         }
     }
 
-    private fun copyImageToGallery(context: Context, imageFile: File, mimeType: String = "png") {
-        val values = ContentValues().apply {
-            put(MediaStore.Images.Media.DISPLAY_NAME, imageFile.name)
-            put(MediaStore.Images.Media.MIME_TYPE, "image/$mimeType")
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                put(MediaStore.Images.Media.IS_PENDING, 1)
+    internal fun compressSuffix(formatIndex: Int): String {
+        return when (formatIndex) {
+            0 -> "jpeg"
+            1 -> "png"
+            else -> "webp"
+        }
+    }
+
+    internal fun ensureValidRange(itemCount: Int, range: IntRange) {
+        if (range.isEmpty()) return
+        require(range.first >= 0 && range.last < itemCount) {
+            "Range outbounds adapter count. itemCount=$itemCount, range=$range"
+        }
+    }
+
+    private suspend fun preloadPhotosIfNeeded(
+        adapter: RecyclerView.Adapter<*>,
+        range: IntRange,
+        yieldEveryItems: Int,
+        onProgress: ((ExportProgress) -> Unit)? = null,
+    ) {
+        val talkAdapter = adapter as? TalkAdapter ?: return
+        if (range.isEmpty()) return
+
+        // Snapshot data on main thread, then preload/decode off main thread to avoid ANR.
+        val talks = range.map { index -> talkAdapter.getData()[index] }
+        reportProgress(onProgress, ExportStage.PRELOAD, 0, talks.size)
+        withContext(Dispatchers.IO) {
+            talks.forEachIndexed { indexInRange, talk ->
+                if (talk is Talk.Photo) {
+                    Log.d(TAG, "generateBitmapInRangeSuspend: preloading photo ${range.first + indexInRange}")
+                    val photoUri = talk.uri
+                    val data = if (isImageBase64(photoUri)) Base64.decode(photoUri, Base64.DEFAULT) else photoUri
+                    val request = ImageRequest.Builder(YuukaTalkApplication.context)
+                        .data(data)
+                        .build()
+                    YuukaTalkApplication.context.imageLoader.executeBlocking(request)
+                }
+                reportProgress(onProgress, ExportStage.PRELOAD, indexInRange + 1, talks.size)
+                if (yieldEveryItems <= 0 || yieldEveryItems == Int.MAX_VALUE) return@forEachIndexed
+                if ((indexInRange + 1) % yieldEveryItems == 0) {
+                    yield()
+                }
             }
         }
+    }
 
-        val resolver: ContentResolver = context.contentResolver
-        val collectionUri: Uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-        val itemUri: Uri? = resolver.insert(collectionUri, values)
+    private fun resolveBackgroundColor(): Int {
+        val rawColor = mmkv.decodeString(PreferenceKeys.BACKGROUND_COLOR) ?: "#fff7e3"
+        return runCatching { rawColor.toColorInt() }
+            .getOrDefault("#fff7e3".toColorInt())
+    }
 
-        itemUri?.let { uri ->
-            resolver.openOutputStream(uri).use { outputStream ->
-                imageFile.inputStream().use { inputStream ->
-                    inputStream.copyTo(outputStream!!)
-                    inputStream.close()
-                }
-                outputStream?.close()
+    private fun drawWatermark(canvas: Canvas) {
+        if (!mmkv.decodeBool(PreferenceKeys.USE_WATERMARK, false)) return
+
+        val author = mmkv.decodeString(PreferenceKeys.AUTHOR_NAME, "")
+        val paint = Paint().apply {
+            textSize = 20f
+            color = Color.DKGRAY
+        }
+        canvas.drawText(
+            "Author:$author",
+            0f,
+            (canvas.height - 25).toFloat(),
+            paint
+        )
+        canvas.drawText(
+            "Made by YuukaTalk ${VersionUtils.getLocalVersion()}",
+            0f,
+            (canvas.height - 5).toFloat(),
+            paint
+        )
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    private fun RecyclerView.Adapter<*>.asViewHolderAdapter(): RecyclerView.Adapter<RecyclerView.ViewHolder> {
+        return this as RecyclerView.Adapter<RecyclerView.ViewHolder>
+    }
+
+    private fun createAndLayoutItemView(
+        parent: RecyclerView,
+        adapter: RecyclerView.Adapter<RecyclerView.ViewHolder>,
+        position: Int
+    ): View {
+        val holder = adapter.createViewHolder(parent, adapter.getItemViewType(position))
+        adapter.onBindViewHolder(holder, position)
+
+        return holder.itemView.apply {
+            parent.addView(this)
+            measure(
+                View.MeasureSpec.makeMeasureSpec(parent.width.coerceAtLeast(1), View.MeasureSpec.EXACTLY),
+                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+            )
+            layout(0, 0, measuredWidth, measuredHeight)
+            parent.removeView(this)
+        }
+    }
+
+    private suspend fun maybeYield(indexInRange: Int, yieldEveryItems: Int) {
+        if (yieldEveryItems <= 0 || yieldEveryItems == Int.MAX_VALUE) return
+        if ((indexInRange + 1) % yieldEveryItems == 0) {
+            yield()
+        }
+    }
+
+    private suspend fun reportProgress(
+        callback: ((ExportProgress) -> Unit)?,
+        stage: ExportStage,
+        current: Int,
+        total: Int,
+    ) {
+        if (callback == null) return
+        if (total > 0) {
+            val normalizedCurrent = current.coerceAtLeast(0)
+            val step = (total / 100).coerceAtLeast(1)
+            if (normalizedCurrent != 0 && normalizedCurrent != total && normalizedCurrent % step != 0) {
+                return
             }
+        }
+        val update = ExportProgress(
+            stage = stage,
+            current = current.coerceAtLeast(0),
+            total = total.coerceAtLeast(0)
+        )
+        if (Looper.myLooper() == Looper.getMainLooper()) {
+            callback(update)
+        } else {
+            withContext(Dispatchers.Main.immediate) {
+                callback(update)
+            }
+        }
+    }
+
+    private fun copyImageToGallery(context: Context, imageFile: File, suffix: String = "png"): Uri? {
+        return runCatching {
+            val values = ContentValues().apply {
+                put(MediaStore.Images.Media.DISPLAY_NAME, imageFile.name)
+                put(MediaStore.Images.Media.MIME_TYPE, mimeTypeForSuffix(suffix))
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    put(MediaStore.Images.Media.IS_PENDING, 1)
+                }
+            }
+
+            val resolver: ContentResolver = context.contentResolver
+            val collectionUri: Uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+            val itemUri: Uri = resolver.insert(collectionUri, values)
+                ?: return@runCatching null
+
+            resolver.openOutputStream(itemUri)?.use { outputStream ->
+                imageFile.inputStream().use { inputStream ->
+                    inputStream.copyTo(outputStream)
+                }
+            } ?: return@runCatching null
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 values.clear()
                 values.put(MediaStore.Images.Media.IS_PENDING, 0)
-                resolver.update(uri, values, null, null)
+                resolver.update(itemUri, values, null, null)
             }
+
+            itemUri
+        }.getOrElse {
+            it.printStackTrace()
+            null
+        }
+    }
+
+    private fun toFileProviderUri(context: Context, file: File): Uri {
+        return FileProvider.getUriForFile(
+            context,
+            "${context.packageName}.file_provider",
+            file
+        )
+    }
+
+    private fun mimeTypeForSuffix(suffix: String): String {
+        return when (suffix.lowercase()) {
+            "jpg", "jpeg" -> "image/jpeg"
+            "webp" -> "image/webp"
+            else -> "image/png"
         }
     }
 
@@ -263,12 +413,16 @@ object ImageUtils {
                 arrayOf(filePath),
                 arrayOf("image/*")
             ) { _, scannedUri ->
-                if (scannedUri == null) {
-                    continuation.cancel(Exception("File $filePath could not be scanned"))
-                } else {
+                if (continuation.isActive) {
                     continuation.resume(scannedUri)
                 }
             }
+        }
+    }
+
+    private fun requireMainThread() {
+        require(Looper.myLooper() == Looper.getMainLooper()) {
+            "Image export rendering must run on main thread."
         }
     }
 

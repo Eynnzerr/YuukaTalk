@@ -60,6 +60,10 @@
     <string name="toast_add_student">成功添加角色。</string>
     <string name="toast_change_student">成功更改角色头像。</string>
     <string name="title_exporting_dialog">导出中…</string>
+    <string name="export_progress_preloading">正在预加载图片…</string>
+    <string name="export_progress_measuring">正在测量布局…</string>
+    <string name="export_progress_drawing">正在绘制长图…</string>
+    <string name="export_progress_saving">正在保存图片…</string>
     <string name="save_note">注：若输入分组不存在，则自动新建。</string>
 
     <!--  HistoryPage  -->

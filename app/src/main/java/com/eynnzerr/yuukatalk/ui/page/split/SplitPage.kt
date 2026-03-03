@@ -30,18 +30,22 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavHostController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.eynnzerr.yuukatalk.R
+import com.eynnzerr.yuukatalk.ui.component.dialog.LoadingDialog
 import com.eynnzerr.yuukatalk.ui.component.dialog.RegionPickerDialog
 import com.eynnzerr.yuukatalk.ui.view.AdapterWorkingState
 import com.eynnzerr.yuukatalk.ui.view.TalkAdapter
 import com.eynnzerr.yuukatalk.utils.ImageUtils
 import com.eynnzerr.yuukatalk.utils.SplitRelay
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -62,6 +66,10 @@ fun SplitPage(
     var regionStart by remember { mutableIntStateOf(0) }
     var regionEnd by remember { mutableIntStateOf(0) }
     var isNotScrolling by remember { mutableStateOf(true) }
+    var openLoadingDialog by remember { mutableStateOf(false) }
+    var exportJob by remember { mutableStateOf<Job?>(null) }
+    var exportProgress by remember { mutableStateOf(0f) }
+    var exportProgressText by remember { mutableStateOf("") }
 
     Scaffold(
         topBar = {
@@ -137,21 +145,67 @@ fun SplitPage(
                 .padding(scaffoldPadding)
                 .padding(16.dp),
             update = { view ->
-                if (screenshotTalk) {
+                if (screenshotTalk && exportJob?.isActive != true) {
                     screenshotTalk = false
-                    scope.launch(Dispatchers.Main) {
-                        val bitmap = ImageUtils.generateBitMapInRange(view, regionStart..regionEnd)
-                        val imageUri = withContext(Dispatchers.IO) {
-                            ImageUtils.saveBitMapToDisk(bitmap, context)
+                    exportJob = scope.launch {
+                        openLoadingDialog = true
+                        exportProgress = 0f
+                        exportProgressText = context.getString(R.string.export_progress_preloading)
+                        var bitmap: android.graphics.Bitmap? = null
+                        val imageUri = try {
+                            bitmap = ImageUtils.generateBitmapInRangeSuspend(
+                                view = view,
+                                range = regionStart..regionEnd,
+                                onProgress = { progress ->
+                                    val (percent, text) = mapExportProgress(context, progress)
+                                    exportProgress = percent
+                                    exportProgressText = text
+                                }
+                            )
+                            exportProgress = 0.92f
+                            exportProgressText = context.getString(R.string.export_progress_saving)
+                            withContext(Dispatchers.IO) {
+                                ImageUtils.saveBitMapToDisk(bitmap!!, context)
+                            }
+                        } catch (e: CancellationException) {
+                            Log.d(TAG, "Split export cancelled by user")
+                            null
+                        } catch (e: Exception) {
+                            Log.e(TAG, "Split export failed", e)
+                            null
+                        } finally {
+                            bitmap?.let {
+                                if (!it.isRecycled) it.recycle()
+                            }
+                            bitmap = null
+                            openLoadingDialog = false
+                            exportJob = null
+                            exportProgress = 0f
+                            exportProgressText = ""
                         }
-                        Toast.makeText(
-                            context,
-                            context.getText(R.string.toast_export_project).toString() + " ${imageUri.path}",
-                            Toast.LENGTH_SHORT
-                        ).show()
+
+                        imageUri?.let {
+                            Toast.makeText(
+                                context,
+                                context.getText(R.string.toast_export_project).toString() + " ${it.path}",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
                     }
                 }
             }
+        )
+    }
+
+    if (openLoadingDialog) {
+        LoadingDialog(
+            titleText = stringResource(id = R.string.title_exporting_dialog),
+            onDismissRequest = {},
+            onCancel = {
+                exportJob?.cancel(CancellationException("Split export cancelled by user"))
+            },
+            progress = exportProgress,
+            progressText = exportProgressText
         )
     }
 
@@ -173,3 +227,18 @@ fun SplitPage(
 }
 
 private const val TAG = "SplitPage"
+
+private fun mapExportProgress(context: android.content.Context, progress: ImageUtils.ExportProgress): Pair<Float, String> {
+    val ratio = if (progress.total <= 0) 0f else (progress.current.toFloat() / progress.total.toFloat()).coerceIn(0f, 1f)
+    return when (progress.stage) {
+        ImageUtils.ExportStage.PRELOAD -> {
+            0.2f * ratio to context.getString(R.string.export_progress_preloading)
+        }
+        ImageUtils.ExportStage.MEASURE -> {
+            (0.2f + 0.3f * ratio) to context.getString(R.string.export_progress_measuring)
+        }
+        ImageUtils.ExportStage.DRAW -> {
+            (0.5f + 0.4f * ratio) to context.getString(R.string.export_progress_drawing)
+        }
+    }
+}

@@ -162,9 +162,22 @@ import com.eynnzerr.yuukatalk.ui.ext.pushTo
 import com.eynnzerr.yuukatalk.ui.view.TalkAdapter
 import com.eynnzerr.yuukatalk.utils.ImageUtils
 import com.eynnzerr.yuukatalk.utils.SplitRelay
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+
+fun shareFile(context: Context, uri: Uri, mimeType: String) {
+    Log.d(TAG, "WriteScreen: Shared Uri: $uri")
+    val shareIntent = Intent().apply {
+        action = Intent.ACTION_SEND
+        putExtra(Intent.EXTRA_STREAM, uri)
+        type = mimeType
+    }
+    shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION.or(Intent.FLAG_GRANT_WRITE_URI_PERMISSION))
+    context.startActivity(Intent.createChooser(shareIntent, "Share your MomoTalks!"))
+}
 
 @SuppressLint("NotifyDataSetChanged")
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class,
@@ -183,6 +196,9 @@ fun TalkPage(
     // interaction signal with AndroidView
     var screenshotTalk by remember { mutableStateOf(false) }
     var shareScreenshot by remember { mutableStateOf(false) }
+    var exportJob by remember { mutableStateOf<Job?>(null) }
+    var exportProgress by remember { mutableStateOf(0f) }
+    var exportProgressText by remember { mutableStateOf("") }
 
     // component states
     var showSchoolMenu by remember { mutableStateOf(false) }
@@ -666,25 +682,53 @@ fun TalkPage(
                     .padding(scaffoldPadding)
                     .padding(16.dp),
                 update = { view ->
-                    if (screenshotTalk) {
-                        scope.launch(Dispatchers.Main) {
-                            try {
-                                screenshotTalk = false
-                                openLoadingDialog = true
-                                val bitmap = ImageUtils.generateBitmap(view)
-                                val imageUri = withContext(Dispatchers.IO) {
-                                    ImageUtils.saveBitMapToDisk(bitmap, context)
+                    if (screenshotTalk && exportJob?.isActive != true) {
+                        exportJob = scope.launch {
+                            screenshotTalk = false
+                            openLoadingDialog = true
+                            exportProgress = 0f
+                            exportProgressText = context.getString(R.string.export_progress_preloading)
+                            val shouldShareAfterExport = shareScreenshot
+                            shareScreenshot = false
+                            var bitmap: android.graphics.Bitmap? = null
+                            val imageUri = try {
+                                bitmap = ImageUtils.generateBitmapSuspend(
+                                    view = view,
+                                    onProgress = { progress ->
+                                        val (percent, text) = mapExportProgress(context, progress)
+                                        exportProgress = percent
+                                        exportProgressText = text
+                                    }
+                                )
+                                exportProgress = 0.92f
+                                exportProgressText = context.getString(R.string.export_progress_saving)
+                                withContext(Dispatchers.IO) {
+                                    ImageUtils.saveBitMapToDisk(bitmap!!, context)
                                 }
-                                Log.d(TAG, "InternalTalkPage: screenshot uri: $imageUri")
-                                openLoadingDialog = false
-                                if (imageUri.toString().startsWith("content://") && shareScreenshot) {
-                                    shareScreenshot = false
-                                    shareFile(context, imageUri, "image/*")
-                                }
-                                snackbarHostState.showSnackbar(context.getText(R.string.toast_export_project).toString() + " ${imageUri.path}")
+                            } catch (e: CancellationException) {
+                                Log.d(TAG, "InternalTalkPage: export cancelled by user")
+                                null
                             } catch (e: Exception) {
                                 viewModel.updateText(e.toString() + "\n" + e.stackTraceToString())
                                 viewModel.sendPureText()
+                                null
+                            } finally {
+                                bitmap?.let {
+                                    if (!it.isRecycled) it.recycle()
+                                }
+                                bitmap = null
+                                openLoadingDialog = false
+                                exportJob = null
+                                exportProgress = 0f
+                                exportProgressText = ""
+                            }
+
+                            imageUri?.let {
+                                Log.d(TAG, "InternalTalkPage: screenshot uri: $it")
+                                if (shouldShareAfterExport) {
+                                    shareFile(context, it, "image/*")
+                                }
+                                snackbarHostState.showSnackbar(context.getText(R.string.toast_export_project).toString() + " ${it.path}")
                             }
                         }
                     }
@@ -949,8 +993,14 @@ fun TalkPage(
 
     if (openLoadingDialog) {
         LoadingDialog(
-            titleText = stringResource(id = R.string.title_exporting_dialog)
-        ) { openLoadingDialog = false }
+            titleText = stringResource(id = R.string.title_exporting_dialog),
+            onDismissRequest = {},
+            onCancel = {
+                exportJob?.cancel(CancellationException("Export cancelled by user"))
+            },
+            progress = exportProgress,
+            progressText = exportProgressText
+        )
     }
 
     if (openTalkPieceEditDialog) {
@@ -1312,7 +1362,7 @@ fun TalkPage(
             0 -> {
                 AlertDialog(
                     onDismissRequest = {
-                       openInsertIndex = -1
+                        openInsertIndex = -1
                     },
                     confirmButton = {
                         TextButton(
@@ -1773,15 +1823,19 @@ fun TalkPage(
     }
 }
 
-fun shareFile(context: Context, uri: Uri, mimeType: String) {
-    Log.d(TAG, "WriteScreen: Shared Uri: $uri")
-    val shareIntent = Intent().apply {
-        action = Intent.ACTION_SEND
-        putExtra(Intent.EXTRA_STREAM, uri)
-        type = mimeType
-    }
-    shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION.or(Intent.FLAG_GRANT_WRITE_URI_PERMISSION))
-    context.startActivity(Intent.createChooser(shareIntent, "Share your MomoTalks!"))
-}
-
 private const val TAG = "TalkPage"
+
+private fun mapExportProgress(context: Context, progress: ImageUtils.ExportProgress): Pair<Float, String> {
+    val ratio = if (progress.total <= 0) 0f else (progress.current.toFloat() / progress.total.toFloat()).coerceIn(0f, 1f)
+    return when (progress.stage) {
+        ImageUtils.ExportStage.PRELOAD -> {
+            0.2f * ratio to context.getString(R.string.export_progress_preloading)
+        }
+        ImageUtils.ExportStage.MEASURE -> {
+            (0.2f + 0.3f * ratio) to context.getString(R.string.export_progress_measuring)
+        }
+        ImageUtils.ExportStage.DRAW -> {
+            (0.5f + 0.4f * ratio) to context.getString(R.string.export_progress_drawing)
+        }
+    }
+}

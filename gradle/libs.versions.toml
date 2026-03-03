@@ -1,6 +1,6 @@
 [versions]
-accompanist = "0.30.1"
-agp = "8.4.1"
+accompanist = "0.34.0"
+agp = "8.5.2"
 kotlin = "1.9.10"
 coreKtx = "1.12.0"
 junit = "4.13.2"
@@ -10,8 +10,8 @@ lifecycleRuntimeKtx = "2.6.2"
 activityCompose = "1.8.1"
 composeBom = "2023.10.01"
 
-androidxNavigation = "2.7.5"
-room = "2.6.0"
+androidxNavigation = "2.8.7"
+room = "2.6.1"
 
 # hilt relevant
 hilt = "2.48"
@@ -22,13 +22,13 @@ ksp = "1.9.10-1.0.13"
 
 mmkv = "1.2.16"
 m3color = "2023.10.1"
-coil = "2.5.0"
+coil = "2.7.0"
 retrofit = "2.9.0"
 composeMarkdown = "0.4.0"
 
 recyclerview = "1.3.2"
 
-kotlinxSerializationJson = "1.5.1"
+kotlinxSerializationJson = "1.6.3"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
