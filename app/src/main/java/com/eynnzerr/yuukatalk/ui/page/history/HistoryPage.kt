@@ -232,8 +232,9 @@ fun HistoryPage(
 
     if (uiState.isLoading) {
         LoadingDialog(
-            titleText = stringResource(R.string.loading)
-        ) { viewModel.cancelLoading() }
+            titleText = stringResource(R.string.loading),
+            onDismissRequest = { viewModel.cancelLoading() }
+        )
     }
 
     if (openRemoveDialog) {

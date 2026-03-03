@@ -13,3 +13,7 @@
 .externalNativeBuild
 .cxx
 local.properties
+/IMAGE_EXPORT_LOGIC_DIFF.md
+/.gradle-tmp/
+/app/release/
+/.idea/AndroidProjectSystem.xml

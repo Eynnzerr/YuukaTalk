@@ -59,6 +59,10 @@
     <string name="toast_add_student">Successfully add character.</string>
     <string name="toast_change_student">Change character avatar.</string>
     <string name="title_exporting_dialog">Exporting…</string>
+    <string name="export_progress_preloading">Preloading media…</string>
+    <string name="export_progress_measuring">Measuring layout…</string>
+    <string name="export_progress_drawing">Rendering long image…</string>
+    <string name="export_progress_saving">Saving image…</string>
     <string name="save_note">Note: If input folder is not exist, it will then be created.</string>
 
     <!--  HistoryPage  -->

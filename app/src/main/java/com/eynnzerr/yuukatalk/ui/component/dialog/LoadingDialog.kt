@@ -1,16 +1,17 @@
 package com.eynnzerr.yuukatalk.ui.component.dialog
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.GraphicEq
 import androidx.compose.material.icons.filled.Photo
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -31,6 +32,9 @@ import kotlinx.coroutines.delay
 fun LoadingDialog(
     titleText: String = "",
     onDismissRequest: () -> Unit,
+    onCancel: (() -> Unit)? = null,
+    progress: Float? = null,
+    progressText: String = "",
 ) {
     AlertDialog(
         onDismissRequest = onDismissRequest,
@@ -39,7 +43,15 @@ fun LoadingDialog(
             dismissOnClickOutside = false
         ),
         confirmButton = {},
-        dismissButton = {},
+        dismissButton = {
+            if (onCancel != null) {
+                TextButton(
+                    onClick = onCancel
+                ) {
+                    Text(text = stringResource(id = R.string.btn_cancel))
+                }
+            }
+        },
         icon = {
             Icon(
                 imageVector = Icons.Filled.Photo,
@@ -50,11 +62,24 @@ fun LoadingDialog(
             Text(text = titleText)
         },
         text = {
-            Box(
-                contentAlignment = Alignment.Center,
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                CircularProgressIndicator()
+                if (progress == null) {
+                    CircularProgressIndicator()
+                } else {
+                    LinearProgressIndicator(
+                        progress = progress.coerceIn(0f, 1f),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(text = "${(progress.coerceIn(0f, 1f) * 100).toInt()}%")
+                }
+                if (progressText.isNotEmpty()) {
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(text = progressText)
+                }
             }
         }
     )
@@ -75,7 +100,9 @@ private fun LoadingDialogPreview() {
 
     YuukaTalkTheme {
         if (showDialog) {
-            LoadingDialog { showDialog = false }
+            LoadingDialog(
+                onDismissRequest = { showDialog = false }
+            )
         }
     }
 }
